@@ -1,0 +1,233 @@
+kind: pipeline
+type: docker
+name: default
+
+steps:
+
+  - name: restore-cache
+    image: drillster/drone-volume-cache
+    volumes:
+      - name: drone-cache
+        path: /cache
+    settings:
+      restore: true
+      mount:
+        - ./node_modules
+        # We can only mount volume caches into the working directory, so all steps which use Gradle must have
+        # the GRADLE_USER_HOME environment variable pointing here.
+        - ./gradle_cache
+        - ./sonar_cache
+
+  - name: tests
+    image: eclipse-temurin:17-jdk
+    environment:
+      GRADLE_USER_HOME: /drone/src/gradle_cache
+    commands:
+      - chmod +x gradlew
+      - ./gradlew test
+
+  - name: checkstyle
+    image: eclipse-temurin:17-jdk
+    environment:
+      GRADLE_USER_HOME: /drone/src/gradle_cache
+    commands:
+      - ./gradlew checkstyleMain
+
+  - name: sync-reports
+    image: alpine:3.16.0
+    commands:
+      - mkdir -p /var/webfiles/${DRONE_BUILD_NUMBER}
+      - cp -r build/reports /var/webfiles/${DRONE_BUILD_NUMBER}
+    volumes:
+      - name: webfiles
+        path: /var/webfiles
+    when:
+      status: [ success, failure ]
+
+  - name: code-analysis
+    image: repo1.dev.fivium.local:5000/sonarcloud-scan-java17:latest
+    environment:
+      SONARCLOUD_TOKEN:
+        from_secret: sonarcloud_token
+      GRADLE_USER_HOME: /drone/src/gradle_cache
+      # This SONAR_USER_HOME is the cache path - not the actual user home
+      SONAR_USER_HOME: /drone/src/sonar_cache
+    commands:
+      - chmod +x gradlew
+      - ./gradlew sonarqube -info
+    when:
+      # The Pull Request Pipeline will run the Code Analysis on all other branches (once a PR is open)
+      branch:
+        - develop
+        - main
+        - drone/*
+
+  - name: publish-snapshot
+    image: eclipse-temurin:17-jdk
+    environment:
+      GRADLE_USER_HOME: /drone/src/gradle_cache
+      NEXUS_USERNAME: jenkins
+      NEXUS_PASSWORD:
+        from_secret: nexus_password
+    commands:
+      - export MAVEN_PUBLICATION_VERSION=$(echo $DRONE_BRANCH | sed 's/feature\\\///g' | sed 's/\\\//-/g')-SNAPSHOT
+      - echo $MAVEN_PUBLICATION_VERSION
+      - ./gradlew publishMavenPublicationToSnapshotsRepository
+    when:
+      branch:
+        - develop
+        - feature/**
+      event: push
+
+  - name: publish-release
+    image: eclipse-temurin:17-jdk
+    environment:
+      GRADLE_USER_HOME: /drone/src/gradle_cache
+      NEXUS_USERNAME: jenkins
+      NEXUS_PASSWORD:
+        from_secret: nexus_password
+    commands:
+      - export MAVEN_PUBLICATION_VERSION=$(echo $DRONE_TAG | cut -d'/' -f2)
+      - echo $MAVEN_PUBLICATION_VERSION
+      - ./gradlew publishMavenPublicationToReleasesRepository
+    when:
+      event: tag
+
+  - name: rebuild-cache
+    image: drillster/drone-volume-cache
+    volumes:
+      - name: drone-cache
+        path: /cache
+    settings:
+      rebuild: true
+      mount:
+        - ./node_modules
+        - ./gradle_cache
+        - ./sonar_cache
+
+  - name: slack
+    image: plugins/slack
+    settings:
+      webhook: https://hooks.slack.com/services/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
+      channel: digital-shared-services-builds
+      template: "*{{build.status}}* <{{build.link}}|Commit {{truncate build.commit 7}} on {{build.branch}} by ${DRONE_COMMIT_AUTHOR_NAME}>\nReports published to: http://drone-assets.fivium.local:9090/digital-document-library/{{build.number}}/"
+    when:
+      status: [ success, failure ]
+
+  - name: slack-publish-release
+    image: plugins/slack
+    settings:
+      channel: digital-shared-services
+      icon_url: https://cdn.worldvectorlogo.com/logos/drone.svg
+      template: "<!channel> *Digital Document Library: ${DRONE_TAG}* has been released by ${DRONE_COMMIT_AUTHOR_NAME}\nRelease notes: https://github.com/Fivium/digital-document-library/releases/tag/${DRONE_TAG}"
+      username: drone
+      webhook: https://hooks.slack.com/services/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
+    when:
+      event: tag
+
+trigger:
+  event:
+    include:
+      - push
+      - tag
+
+volumes:
+  - name: webfiles
+    host:
+      path: /home/fivium/www/digital-document-library
+
+  - name: drone-cache
+    host:
+      path: /home/fivium/drone-cache
+
+  - name: drone-trivy-cache
+    host:
+      path: /root/.cache/
+
+---
+
+kind: pipeline
+type: docker
+name: github-pr
+
+clone:
+  disable: true
+
+steps:
+
+  - name: clone
+    image: alpine/git:v2.26.2
+    commands:
+      # Manually cloning as there seems to be a bug with DRONE_BRANCH on Pull Request Events
+      # DRONE_BRANCH is set to the target branch, rather than the current branch
+      # This means that Sonarcloud doesn't think anything has changed
+      - git clone https://github.com/Fivium/digital-document-library.git .
+      - git checkout $DRONE_SOURCE_BRANCH
+
+  - name: restore-cache
+    image: drillster/drone-volume-cache
+    volumes:
+      - name: drone-cache
+        path: /cache
+    settings:
+      restore: true
+      mount:
+        - ./node_modules
+        # We can only mount volume caches into the working directory, so all steps which use Gradle must have
+        # the GRADLE_USER_HOME environment variable pointing here.
+        - ./gradle_cache
+        - ./sonar_cache
+
+  # This is in the PR pipeline so the code-analysis below can access the test data (to see coverage)
+  - name: tests
+    image: eclipse-temurin:17-jdk
+    environment:
+      GRADLE_USER_HOME: /drone/src/gradle_cache
+    commands:
+      - chmod +x gradlew
+      - ./gradlew test
+
+  # This is in the PR pipeline as only PR events get the necessary information for proper github integration
+  - name: code-analysis
+    image: repo1.dev.fivium.local:5000/sonarcloud-scan-java17:latest
+    environment:
+      SONARCLOUD_TOKEN:
+        from_secret: sonarcloud_token
+      GRADLE_USER_HOME: /drone/src/gradle_cache
+      # This SONAR_USER_HOME is the cache path - not the actual user home
+      SONAR_USER_HOME: /drone/src/sonar_cache
+    commands:
+      - chmod +x gradlew
+      - ./gradlew sonarqube -info
+
+  - name: rebuild-cache
+    image: drillster/drone-volume-cache
+    volumes:
+      - name: drone-cache
+        path: /cache
+    settings:
+      rebuild: true
+      mount:
+        - ./node_modules
+        - ./gradle_cache
+        - ./sonar_cache
+
+trigger:
+  event: pull_request
+
+volumes:
+  - name: drone-cache
+    host:
+      path: /home/fivium/drone-cache
+
+---
+
+kind: secret
+name: sonarcloud_token
+data: s8bKtt4OEo4L2vu0OcRzgyZMWda6kzBzVqvnEtZpGsFEb4mfp/56yxs70nUOOKBTs5TcFhlqU/q9i3Oq7NUDPF3HGVU=
+
+---
+
+kind: secret
+name: nexus_password
+data: sMXBgeEYK5EWJ6RnEtGsVsFlnOKaHXfEqt2cSZnUas53FJqVIA==
