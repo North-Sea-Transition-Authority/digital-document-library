@@ -14,6 +14,11 @@ Add the following dependency to your `build.gradle`:
 implementation 'uk.co.fivium:spring-boot-starter-digital-document-library:version'
 ```
 
+#### 2. Setup Envers
+
+Your application will need to include a `org.hibernate.envers.RevisionEntity` which uses a table with the name
+`audit_revisions`.
+
 ## Development setup
 
 ### Pre-requisites

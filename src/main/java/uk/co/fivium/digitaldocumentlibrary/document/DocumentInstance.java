@@ -8,9 +8,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.util.UUID;
+import org.hibernate.envers.Audited;
 
 @Entity
 @Table(name = "document_library_document_instances")
+@Audited
 class DocumentInstance {
 
   @Id
