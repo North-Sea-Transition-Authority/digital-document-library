@@ -8,5 +8,5 @@ public interface DocumentMailMergeField {
 
   boolean isApplicable(DocumentTemplateDto documentTemplateDto);
 
-  String resolve(DocumentInstanceDto documentInstanceDto);
+  DocumentMailMergeFieldResolveResult resolve(DocumentInstanceDto documentInstanceDto);
 }

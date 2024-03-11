@@ -20,24 +20,31 @@ public class DocumentInstanceSectionControllerHelperService {
     this.documentMailMergeFieldService = documentMailMergeFieldService;
   }
 
-  public List<DocumentInstanceSectionSummaryView> getDocumentInstanceSectionSummaryViews(
+  public DocumentInstanceSectionsSummaryView getDocumentInstanceSectionsSummaryView(
       DocumentInstanceDto documentInstanceDto,
-      Class<? extends DocumentInstanceSectionController> documentInstanceSectionControllerClass
+      Class<? extends DocumentInstanceSectionController> documentInstanceSectionControllerClass,
+      DocumentMailMergeFieldFormatter documentMailMergeFieldFormatter
   ) {
     var topLevelDocumentInstanceSectionDtos =
         documentInstanceSectionService.getTopLevelDocumentInstanceSectionDtos(documentInstanceDto);
 
-    return getDocumentInstanceSectionSummaryViewsForSectionSiblings(
+    var sectionSummaryViews = getDocumentInstanceSectionSummaryViewsForSectionSiblings(
         null,
         topLevelDocumentInstanceSectionDtos,
-        documentInstanceSectionControllerClass
+        documentInstanceSectionControllerClass,
+        documentMailMergeFieldFormatter
     );
+
+    var errorMessages = sectionSummaryViews.stream().flatMap(view -> view.errorMessages().stream()).distinct().toList();
+
+    return new DocumentInstanceSectionsSummaryView(sectionSummaryViews, errorMessages);
   }
 
   List<DocumentInstanceSectionSummaryView> getDocumentInstanceSectionSummaryViewsForSectionSiblings(
       String parentSectionNumberString,
       List<DocumentInstanceSectionDto> siblingDocumentInstanceSectionDtos,
-      Class<? extends DocumentInstanceSectionController> documentInstanceSectionControllerClass
+      Class<? extends DocumentInstanceSectionController> documentInstanceSectionControllerClass,
+      DocumentMailMergeFieldFormatter documentMailMergeFieldFormatter
   ) {
     var documentInstanceSectionSummaryViews = new ArrayList<DocumentInstanceSectionSummaryView>();
 
@@ -61,12 +68,15 @@ public class DocumentInstanceSectionControllerHelperService {
         sectionNumberString = null;
       }
 
-      var content = documentMailMergeFieldService.resolveMailMergeFields(documentInstanceSectionDto);
+      var resolvedDocumentInstanceSection = documentMailMergeFieldService.resolveMailMergeFields(
+          documentInstanceSectionDto,
+          documentMailMergeFieldFormatter
+      );
 
       var documentInstanceSectionSummaryView = DocumentInstanceSectionSummaryView.from(
           sectionNumberString,
           documentInstanceSectionDto,
-          content,
+          resolvedDocumentInstanceSection,
           documentInstanceSectionControllerClass
       );
       documentInstanceSectionSummaryViews.add(documentInstanceSectionSummaryView);
@@ -74,7 +84,8 @@ public class DocumentInstanceSectionControllerHelperService {
       var childrenDocumentInstanceSectionSummaryViews = getDocumentInstanceSectionSummaryViewsForSectionSiblings(
           sectionNumberString,
           documentInstanceSectionDto.children(),
-          documentInstanceSectionControllerClass
+          documentInstanceSectionControllerClass,
+          documentMailMergeFieldFormatter
       );
       documentInstanceSectionSummaryViews.addAll(childrenDocumentInstanceSectionSummaryViews);
     }

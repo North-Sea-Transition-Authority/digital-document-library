@@ -55,7 +55,7 @@ class DocumentMailMergeFieldTestUtil {
     }
 
     @Override
-    public String resolve(DocumentInstanceDto documentInstanceDto) {
+    public DocumentMailMergeFieldResolveResult resolve(DocumentInstanceDto documentInstanceDto) {
       return null;
     }
   }

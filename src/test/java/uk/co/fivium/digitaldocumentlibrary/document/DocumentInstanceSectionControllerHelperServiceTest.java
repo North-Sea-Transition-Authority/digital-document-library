@@ -27,31 +27,34 @@ class DocumentInstanceSectionControllerHelperServiceTest {
   @Spy
   private DocumentInstanceSectionControllerHelperService documentInstanceSectionControllerHelperService;
 
+  private final DocumentMailMergeFieldFormatter documentMailMergeFieldFormatter = new TestDocumentMailMergeFieldFormatter();
+
   @Test
   void getDocumentInstanceSectionSummaryViews() {
     var documentInstanceDto = DocumentInstanceDtoTestUtil.builder().build();
-
     var topLevelDocumentInstanceSectionDtos = List.of(DocumentInstanceSectionDtoTestUtil.builder().build());
-
-    var documentInstanceSectionSummaryViewsForSectionSiblings = List.of(mock(DocumentInstanceSectionSummaryView.class));
+    var documentInstanceSectionSummaryViews = List.of(mock(DocumentInstanceSectionSummaryView.class));
+    var documentInstanceSectionsSummaryView = new DocumentInstanceSectionsSummaryView(documentInstanceSectionSummaryViews, List.of());
 
     when(documentInstanceSectionService.getTopLevelDocumentInstanceSectionDtos(documentInstanceDto))
         .thenReturn(topLevelDocumentInstanceSectionDtos);
 
-    doReturn(documentInstanceSectionSummaryViewsForSectionSiblings)
+    doReturn(documentInstanceSectionSummaryViews)
         .when(documentInstanceSectionControllerHelperService)
         .getDocumentInstanceSectionSummaryViewsForSectionSiblings(
             null,
             topLevelDocumentInstanceSectionDtos,
-            TestDocumentInstanceSectionController.class
+            TestDocumentInstanceSectionController.class,
+            documentMailMergeFieldFormatter
         );
 
     assertThat(
-        documentInstanceSectionControllerHelperService.getDocumentInstanceSectionSummaryViews(
-            documentInstanceDto,
-            TestDocumentInstanceSectionController.class
-        )
-    ).isEqualTo(documentInstanceSectionSummaryViewsForSectionSiblings);
+         documentInstanceSectionControllerHelperService.getDocumentInstanceSectionsSummaryView(
+             documentInstanceDto,
+             TestDocumentInstanceSectionController.class,
+             documentMailMergeFieldFormatter
+         )
+    ).isEqualTo(documentInstanceSectionsSummaryView);
   }
 
   @Test
@@ -96,67 +99,68 @@ class DocumentInstanceSectionControllerHelperServiceTest {
     var siblingDocumentInstanceSectionDtos =
         List.of(siblingDocumentInstanceSectionDto1, siblingDocumentInstanceSectionDto2);
 
-    var siblingDocumentInstanceSectionDto1ResolvedContent = "Test content 1";
-    var siblingDocumentInstanceSectionDto2ResolvedContent = "Test content 2";
-    var siblingDocumentInstanceSectionDto2Child1ResolvedContent = "Test content 3";
-    var siblingDocumentInstanceSectionDto2Child1Child1ResolvedContent = "Test content 4";
-    var siblingDocumentInstanceSectionDto2Child2ResolvedContent = "Test content 5";
-    var siblingDocumentInstanceSectionDto2Child3ResolvedContent = "Test content 6";
+    var resolvedSiblingDocumentInstanceSectionDto1 = ResolvedDocumentInstanceSectionTestUtil.newBuilder().withResolvedContent("Test content 1").build();
+    var resolvedSiblingDocumentInstanceSectionDto2 = ResolvedDocumentInstanceSectionTestUtil.newBuilder().withResolvedContent("Test content 2").build();
+    var resolvedSiblingDocumentInstanceSectionDto2Child1 = ResolvedDocumentInstanceSectionTestUtil.newBuilder().withResolvedContent("Test content 3").build();
+    var resolvedSiblingDocumentInstanceSectionDto2Child1Child1 = ResolvedDocumentInstanceSectionTestUtil.newBuilder().withResolvedContent("Test content 4").build();
+    var resolvedSiblingDocumentInstanceSectionDto2Child2 = ResolvedDocumentInstanceSectionTestUtil.newBuilder().withResolvedContent("Test content 5").build();
+    var resolvedSiblingDocumentInstanceSectionDto2Child3 = ResolvedDocumentInstanceSectionTestUtil.newBuilder().withResolvedContent("Test content 6").build();
 
-    when(documentMailMergeFieldService.resolveMailMergeFields(siblingDocumentInstanceSectionDto1))
-        .thenReturn(siblingDocumentInstanceSectionDto1ResolvedContent);
-    when(documentMailMergeFieldService.resolveMailMergeFields(siblingDocumentInstanceSectionDto2))
-        .thenReturn(siblingDocumentInstanceSectionDto2ResolvedContent);
-    when(documentMailMergeFieldService.resolveMailMergeFields(siblingDocumentInstanceSectionDto2Child1))
-        .thenReturn(siblingDocumentInstanceSectionDto2Child1ResolvedContent);
-    when(documentMailMergeFieldService.resolveMailMergeFields(siblingDocumentInstanceSectionDto2Child1Child1))
-        .thenReturn(siblingDocumentInstanceSectionDto2Child1Child1ResolvedContent);
-    when(documentMailMergeFieldService.resolveMailMergeFields(siblingDocumentInstanceSectionDto2Child2))
-        .thenReturn(siblingDocumentInstanceSectionDto2Child2ResolvedContent);
-    when(documentMailMergeFieldService.resolveMailMergeFields(siblingDocumentInstanceSectionDto2Child3))
-        .thenReturn(siblingDocumentInstanceSectionDto2Child3ResolvedContent);
+    when(documentMailMergeFieldService.resolveMailMergeFields(siblingDocumentInstanceSectionDto1, documentMailMergeFieldFormatter))
+        .thenReturn(resolvedSiblingDocumentInstanceSectionDto1);
+    when(documentMailMergeFieldService.resolveMailMergeFields(siblingDocumentInstanceSectionDto2, documentMailMergeFieldFormatter))
+        .thenReturn(resolvedSiblingDocumentInstanceSectionDto2);
+    when(documentMailMergeFieldService.resolveMailMergeFields(siblingDocumentInstanceSectionDto2Child1, documentMailMergeFieldFormatter))
+        .thenReturn(resolvedSiblingDocumentInstanceSectionDto2Child1);
+    when(documentMailMergeFieldService.resolveMailMergeFields(siblingDocumentInstanceSectionDto2Child1Child1, documentMailMergeFieldFormatter))
+        .thenReturn(resolvedSiblingDocumentInstanceSectionDto2Child1Child1);
+    when(documentMailMergeFieldService.resolveMailMergeFields(siblingDocumentInstanceSectionDto2Child2, documentMailMergeFieldFormatter))
+        .thenReturn(resolvedSiblingDocumentInstanceSectionDto2Child2);
+    when(documentMailMergeFieldService.resolveMailMergeFields(siblingDocumentInstanceSectionDto2Child3, documentMailMergeFieldFormatter))
+        .thenReturn(resolvedSiblingDocumentInstanceSectionDto2Child3);
 
     assertThat(
         documentInstanceSectionControllerHelperService.getDocumentInstanceSectionSummaryViewsForSectionSiblings(
             parentSectionNumberString,
             siblingDocumentInstanceSectionDtos,
-            TestDocumentInstanceSectionController.class
+            TestDocumentInstanceSectionController.class,
+            documentMailMergeFieldFormatter
         )
     ).containsExactly(
         DocumentInstanceSectionSummaryView.from(
             null,
             siblingDocumentInstanceSectionDto1,
-            siblingDocumentInstanceSectionDto1ResolvedContent,
+            resolvedSiblingDocumentInstanceSectionDto1,
             TestDocumentInstanceSectionController.class
         ),
         DocumentInstanceSectionSummaryView.from(
             "1.1",
             siblingDocumentInstanceSectionDto2,
-            siblingDocumentInstanceSectionDto2ResolvedContent,
+            resolvedSiblingDocumentInstanceSectionDto2,
             TestDocumentInstanceSectionController.class
         ),
         DocumentInstanceSectionSummaryView.from(
             "1.1.1",
             siblingDocumentInstanceSectionDto2Child1,
-            siblingDocumentInstanceSectionDto2Child1ResolvedContent,
+            resolvedSiblingDocumentInstanceSectionDto2Child1,
             TestDocumentInstanceSectionController.class
         ),
         DocumentInstanceSectionSummaryView.from(
             "1.1.1.1",
             siblingDocumentInstanceSectionDto2Child1Child1,
-            siblingDocumentInstanceSectionDto2Child1Child1ResolvedContent,
+            resolvedSiblingDocumentInstanceSectionDto2Child1Child1,
             TestDocumentInstanceSectionController.class
         ),
         DocumentInstanceSectionSummaryView.from(
             null,
             siblingDocumentInstanceSectionDto2Child2,
-            siblingDocumentInstanceSectionDto2Child2ResolvedContent,
+            resolvedSiblingDocumentInstanceSectionDto2Child2,
             TestDocumentInstanceSectionController.class
         ),
         DocumentInstanceSectionSummaryView.from(
             "1.1.2",
             siblingDocumentInstanceSectionDto2Child3,
-            siblingDocumentInstanceSectionDto2Child3ResolvedContent,
+            resolvedSiblingDocumentInstanceSectionDto2Child3,
             TestDocumentInstanceSectionController.class
         )
     );

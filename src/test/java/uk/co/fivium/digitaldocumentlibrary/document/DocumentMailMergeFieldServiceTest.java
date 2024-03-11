@@ -1,6 +1,8 @@
 package uk.co.fivium.digitaldocumentlibrary.document;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -25,6 +27,8 @@ class DocumentMailMergeFieldServiceTest {
   @InjectMocks
   @Spy
   private DocumentMailMergeFieldService documentMailMergeFieldService;
+
+  private final DocumentMailMergeFieldFormatter documentMailMergeFieldFormatter = new TestDocumentMailMergeFieldFormatter();
 
   @Test
   void getApplicableDocumentMailMergeFields() {
@@ -196,11 +200,19 @@ class DocumentMailMergeFieldServiceTest {
             """
         )
         .build();
+
     var documentInstanceDto = documentInstanceSectionDto.documentInstanceDto();
     var documentTemplateDto = documentInstanceDto.documentTemplateDto();
 
     var documentMailMergeField1 = mock(DocumentMailMergeField.class);
+    var documentMailMergeField1ResolveResult = DocumentMailMergeFieldResolveResultTestUtil.newBuilder()
+        .withResolvedValue("Resolved mail merge field 1")
+        .build();
+
     var documentMailMergeField2 = mock(DocumentMailMergeField.class);
+    var documentMailMergeField2ResolveResult = DocumentMailMergeFieldResolveResultTestUtil.newBuilder()
+        .withResolvedValue("Resolved mail merge field 2")
+        .build();
 
     doReturn(Optional.of(documentMailMergeField1))
         .when(documentMailMergeFieldService)
@@ -209,21 +221,31 @@ class DocumentMailMergeFieldServiceTest {
         .when(documentMailMergeFieldService)
         .getApplicableDocumentMailMergeField(documentTemplateDto, "MAIL_MERGE_FIELD_2");
 
-    when(documentMailMergeField1.resolve(documentInstanceDto)).thenReturn("Resolved mail merge field 1");
-    when(documentMailMergeField2.resolve(documentInstanceDto)).thenReturn("Resolved mail merge field 2");
+    when(documentMailMergeField1.resolve(documentInstanceDto)).thenReturn(documentMailMergeField1ResolveResult);
+    when(documentMailMergeField2.resolve(documentInstanceDto)).thenReturn(documentMailMergeField2ResolveResult);
 
-    assertThat(documentMailMergeFieldService.resolveMailMergeFields(documentInstanceSectionDto)).isEqualTo(
-        """
-        Example text
-        
-        Resolved mail merge field 1
-        Resolved mail merge field 2
-        (Resolved mail merge field 2)
-        ((Resolved mail merge field 2))
-        (((Resolved mail merge field 2)))
-        (Example text in brackets)
-        """
-    );
+    assertThat(documentMailMergeFieldService.resolveMailMergeFields(documentInstanceSectionDto, documentMailMergeFieldFormatter))
+        .isEqualTo(ResolvedDocumentInstanceSectionTestUtil.newBuilder()
+            .withResolvedContent(
+                """
+                Example text
+                        
+                Resolved mail merge field 1 (success)
+                Resolved mail merge field 2 (success)
+                (Resolved mail merge field 2 (success))
+                ((Resolved mail merge field 2 (success)))
+                (((Resolved mail merge field 2 (success))))
+                (Example text in brackets)
+                """
+            )
+            .withFieldResolveResults(List.of(
+                documentMailMergeField1ResolveResult,
+                documentMailMergeField2ResolveResult,
+                documentMailMergeField2ResolveResult,
+                documentMailMergeField2ResolveResult,
+                documentMailMergeField2ResolveResult
+            ))
+            .build());
   }
 
   @Test
@@ -242,6 +264,9 @@ class DocumentMailMergeFieldServiceTest {
     var documentTemplateDto = documentInstanceDto.documentTemplateDto();
 
     var documentMailMergeField1 = mock(DocumentMailMergeField.class);
+    var documentMailMergeField1ResolveResult = DocumentMailMergeFieldResolveResultTestUtil.newBuilder()
+        .withResolvedValue("Resolved mail merge field 1")
+        .build();
 
     doReturn(Optional.of(documentMailMergeField1))
         .when(documentMailMergeFieldService)
@@ -250,16 +275,23 @@ class DocumentMailMergeFieldServiceTest {
         .when(documentMailMergeFieldService)
         .getApplicableDocumentMailMergeField(documentTemplateDto, "MAIL_MERGE_FIELD_2");
 
-    when(documentMailMergeField1.resolve(documentInstanceDto)).thenReturn("Resolved mail merge field 1");
+    when(documentMailMergeField1.resolve(documentInstanceDto)).thenReturn(documentMailMergeField1ResolveResult);
 
-    assertThat(documentMailMergeFieldService.resolveMailMergeFields(documentInstanceSectionDto)).isEqualTo(
-        """
-        Example text
-        
-        Resolved mail merge field 1
-        ((MAIL_MERGE_FIELD_2))
-        """
-    );
+    assertThat(documentMailMergeFieldService.resolveMailMergeFields(documentInstanceSectionDto, documentMailMergeFieldFormatter))
+        .isEqualTo(ResolvedDocumentInstanceSectionTestUtil.newBuilder()
+            .withResolvedContent(
+                """
+                Example text
+                        
+                Resolved mail merge field 1 (success)
+                ((MAIL_MERGE_FIELD_2)) (error)
+                """
+            )
+            .withFieldResolveResults(List.of(
+                documentMailMergeField1ResolveResult
+            ))
+            .build()
+        );
   }
 
   @Test

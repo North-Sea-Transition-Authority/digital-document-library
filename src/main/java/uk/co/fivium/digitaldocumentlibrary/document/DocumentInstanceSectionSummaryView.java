@@ -3,6 +3,7 @@ package uk.co.fivium.digitaldocumentlibrary.document;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import jakarta.annotation.Nullable;
+import java.util.List;
 import uk.co.fivium.digitaldocumentlibrary.mvc.ReverseRouter;
 
 public record DocumentInstanceSectionSummaryView(
@@ -11,6 +12,7 @@ public record DocumentInstanceSectionSummaryView(
     String title,
     String content,
     boolean hasPageBreakBefore,
+    List<String> errorMessages,
     String addSectionBeforeUrl,
     String addSectionAfterUrl,
     String addSubsectionUrl,
@@ -29,17 +31,24 @@ public record DocumentInstanceSectionSummaryView(
   static DocumentInstanceSectionSummaryView from(
       String sectionNumberString,
       DocumentInstanceSectionDto documentInstanceSectionDto,
-      String content,
+      ResolvedDocumentInstanceSection resolvedDocumentInstanceSection,
       Class<? extends DocumentInstanceSectionController> documentInstanceSectionControllerClass
   ) {
     var documentInstanceSectionId = documentInstanceSectionDto.id();
+
+    var errorMessages = resolvedDocumentInstanceSection.fieldResolveResults()
+        .stream()
+        .filter(DocumentMailMergeFieldResolveResult::hasError)
+        .map(DocumentMailMergeFieldResolveResult::errorMessage)
+        .toList();
 
     return new DocumentInstanceSectionSummaryView(
         documentInstanceSectionDto.nestingLevel(),
         sectionNumberString,
         documentInstanceSectionDto.title(),
-        content,
+        resolvedDocumentInstanceSection.resolvedContent(),
         documentInstanceSectionDto.hasPageBreakBefore(),
+        errorMessages,
         ReverseRouter.route(on(documentInstanceSectionControllerClass)
             .getAddDocumentInstanceSectionBefore(documentInstanceSectionId)),
         ReverseRouter.route(on(documentInstanceSectionControllerClass)

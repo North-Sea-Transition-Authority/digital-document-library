@@ -3,6 +3,7 @@ package uk.co.fivium.digitaldocumentlibrary.document;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Collections;
 import org.junit.jupiter.api.Test;
 import uk.co.fivium.digitaldocumentlibrary.mvc.ReverseRouter;
 
@@ -18,7 +19,7 @@ class DocumentInstanceSectionSummaryViewTest {
         DocumentInstanceSectionSummaryView.from(
             null,
             documentInstanceSectionDto,
-            "content",
+            ResolvedDocumentInstanceSectionTestUtil.newBuilder().build(),
             TestDocumentInstanceSectionController.class
         )
     )
@@ -36,7 +37,7 @@ class DocumentInstanceSectionSummaryViewTest {
         DocumentInstanceSectionSummaryView.from(
             "1.2.3",
             documentInstanceSectionDto,
-            "content",
+            ResolvedDocumentInstanceSectionTestUtil.newBuilder().build(),
             TestDocumentInstanceSectionController.class
         )
     )
@@ -48,7 +49,7 @@ class DocumentInstanceSectionSummaryViewTest {
   void from_sectionNumbered() {
     var sectionNumberString = "1.2.3";
     var documentInstanceSectionDto = DocumentInstanceSectionDtoTestUtil.builder().build();
-    var content = "Test content";
+    var content = ResolvedDocumentInstanceSectionTestUtil.newBuilder().build();
     var documentInstanceSectionId = documentInstanceSectionDto.id();
 
     assertThat(
@@ -63,8 +64,9 @@ class DocumentInstanceSectionSummaryViewTest {
             documentInstanceSectionDto.nestingLevel(),
             sectionNumberString,
             documentInstanceSectionDto.title(),
-            content,
+            content.resolvedContent(),
             documentInstanceSectionDto.hasPageBreakBefore(),
+            Collections.emptyList(),
             ReverseRouter.route(on(TestDocumentInstanceSectionController.class)
                 .getAddDocumentInstanceSectionBefore(documentInstanceSectionId)),
             ReverseRouter.route(on(TestDocumentInstanceSectionController.class)

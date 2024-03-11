@@ -1,5 +1,6 @@
 package uk.co.fivium.digitaldocumentlibrary.document;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -56,18 +57,33 @@ public class DocumentMailMergeFieldService {
     return DocumentMailMergeValidationResult.invalid(errorMessage);
   }
 
-  String resolveMailMergeFields(DocumentInstanceSectionDto documentInstanceSectionDto) {
+  ResolvedDocumentInstanceSection resolveMailMergeFields(
+      DocumentInstanceSectionDto documentInstanceSectionDto,
+      DocumentMailMergeFieldFormatter documentMailMergeFieldFormatter
+  ) {
     var documentInstanceDto = documentInstanceSectionDto.documentInstanceDto();
     var documentTemplateDto = documentInstanceDto.documentTemplateDto();
 
-    return MAIL_MERGE_FIELD_PATTERN.matcher(documentInstanceSectionDto.content()).replaceAll(matcher -> {
+    var resolveResults = new ArrayList<DocumentMailMergeFieldResolveResult>();
+
+    var resolvedContent = MAIL_MERGE_FIELD_PATTERN.matcher(documentInstanceSectionDto.content()).replaceAll(matcher -> {
       var matchText = matcher.group();
       var mnemonic = getMnemonicFromMailMergeFieldText(matchText);
 
-      return getApplicableDocumentMailMergeField(documentTemplateDto, mnemonic)
-          .map(documentMailMergeField -> documentMailMergeField.resolve(documentInstanceDto))
-          .orElse(matchText);
+      var mailMergeFieldOptional = getApplicableDocumentMailMergeField(documentTemplateDto, mnemonic);
+      if (mailMergeFieldOptional.isEmpty()) {
+        return documentMailMergeFieldFormatter.formatError(matchText);
+      }
+
+      var mailMergeResolveResult = mailMergeFieldOptional.get().resolve(documentInstanceDto);
+      resolveResults.add(mailMergeResolveResult);
+
+      return mailMergeResolveResult.hasError()
+          ? documentMailMergeFieldFormatter.formatError(matchText)
+          : documentMailMergeFieldFormatter.formatSuccess(mailMergeResolveResult.resolvedValue());
     });
+
+    return new ResolvedDocumentInstanceSection(resolvedContent, resolveResults);
   }
 
   private String getMnemonicFromMailMergeFieldText(String mailMergeFieldText) {
