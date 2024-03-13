@@ -11,7 +11,7 @@ The Digital Document Library provides APIs for creating PDF documents.
 Add the following dependency to your `build.gradle`:
 
 ```gradle
-implementation 'uk.co.fivium:spring-boot-starter-digital-document-library:version'
+implementation 'uk.co.fivium:digital-document-library-spring-boot-starter:version'
 ```
 
 #### 2. Setup Envers
