@@ -1,10 +1,8 @@
 package uk.co.fivium.digitaldocumentlibrary.document;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import org.junit.jupiter.api.Test;
-import uk.co.fivium.digitaldocumentlibrary.mvc.ReverseRouter;
 
 class DocumentTemplateSectionSummaryViewTest {
 
@@ -19,7 +17,7 @@ class DocumentTemplateSectionSummaryViewTest {
             null,
             "condition title",
             documentTemplateSectionDto,
-            TestDocumentTemplateSectionController.class
+            DocumentTemplateSectionUrlsTestUtil.newBuilder().build()
         )
     )
         .extracting(DocumentTemplateSectionSummaryView::titleWithSectionNumber)
@@ -37,7 +35,7 @@ class DocumentTemplateSectionSummaryViewTest {
             "1.2.3",
             "condition title",
             documentTemplateSectionDto,
-            TestDocumentTemplateSectionController.class
+            DocumentTemplateSectionUrlsTestUtil.newBuilder().build()
         )
     )
         .extracting(DocumentTemplateSectionSummaryView::titleWithSectionNumber)
@@ -48,16 +46,15 @@ class DocumentTemplateSectionSummaryViewTest {
   void from() {
     var sectionNumberString = "1.2.3";
     var conditionTitle = "Test condition title";
-
     var documentTemplateSectionDto = DocumentTemplateSectionDtoTestUtil.builder().build();
-    var documentTemplateSectionId = documentTemplateSectionDto.id();
+    var documentTemplateSectionUrls = DocumentTemplateSectionUrlsTestUtil.newBuilder().build();
 
     assertThat(
         DocumentTemplateSectionSummaryView.from(
             sectionNumberString,
             conditionTitle,
             documentTemplateSectionDto,
-            TestDocumentTemplateSectionController.class
+            documentTemplateSectionUrls
         )
     ).isEqualTo(
         new DocumentTemplateSectionSummaryView(
@@ -66,16 +63,7 @@ class DocumentTemplateSectionSummaryViewTest {
             documentTemplateSectionDto.content(),
             conditionTitle,
             documentTemplateSectionDto.hasPageBreakBefore(),
-            ReverseRouter.route(on(TestDocumentTemplateSectionController.class)
-                .getAddDocumentTemplateSectionBefore(documentTemplateSectionId)),
-            ReverseRouter.route(on(TestDocumentTemplateSectionController.class)
-                .getAddDocumentTemplateSectionAfter(documentTemplateSectionId)),
-            ReverseRouter.route(on(TestDocumentTemplateSectionController.class)
-                .getAddDocumentTemplateSubsection(documentTemplateSectionId)),
-            ReverseRouter.route(on(TestDocumentTemplateSectionController.class)
-                .getEditDocumentTemplateSection(documentTemplateSectionId)),
-            ReverseRouter.route(on(TestDocumentTemplateSectionController.class)
-                .getRemoveDocumentTemplateSection(documentTemplateSectionId))
+            documentTemplateSectionUrls
         )
     );
   }

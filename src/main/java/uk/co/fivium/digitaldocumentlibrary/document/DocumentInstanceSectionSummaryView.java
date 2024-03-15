@@ -1,10 +1,7 @@
 package uk.co.fivium.digitaldocumentlibrary.document;
 
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-
 import jakarta.annotation.Nullable;
 import java.util.List;
-import uk.co.fivium.digitaldocumentlibrary.mvc.ReverseRouter;
 
 public record DocumentInstanceSectionSummaryView(
     int nestingLevel,
@@ -13,11 +10,7 @@ public record DocumentInstanceSectionSummaryView(
     String content,
     boolean hasPageBreakBefore,
     List<String> errorMessages,
-    String addSectionBeforeUrl,
-    String addSectionAfterUrl,
-    String addSubsectionUrl,
-    String editUrl,
-    String removeUrl
+    DocumentInstanceSectionUrls documentInstanceSectionUrls
 ) {
 
   public String titleWithSectionNumber() {
@@ -32,10 +25,8 @@ public record DocumentInstanceSectionSummaryView(
       String sectionNumberString,
       DocumentInstanceSectionDto documentInstanceSectionDto,
       ResolvedDocumentInstanceSection resolvedDocumentInstanceSection,
-      Class<? extends DocumentInstanceSectionController> documentInstanceSectionControllerClass
+      DocumentInstanceSectionUrls documentInstanceSectionUrls
   ) {
-    var documentInstanceSectionId = documentInstanceSectionDto.id();
-
     var errorMessages = resolvedDocumentInstanceSection.fieldResolveResults()
         .stream()
         .filter(DocumentMailMergeFieldResolveResult::hasError)
@@ -49,16 +40,7 @@ public record DocumentInstanceSectionSummaryView(
         resolvedDocumentInstanceSection.resolvedContent(),
         documentInstanceSectionDto.hasPageBreakBefore(),
         errorMessages,
-        ReverseRouter.route(on(documentInstanceSectionControllerClass)
-            .getAddDocumentInstanceSectionBefore(documentInstanceSectionId)),
-        ReverseRouter.route(on(documentInstanceSectionControllerClass)
-            .getAddDocumentInstanceSectionAfter(documentInstanceSectionId)),
-        ReverseRouter.route(on(documentInstanceSectionControllerClass)
-            .getAddDocumentInstanceSubsection(documentInstanceSectionId)),
-        ReverseRouter.route(on(documentInstanceSectionControllerClass)
-            .getEditDocumentInstanceSection(documentInstanceSectionId)),
-        ReverseRouter.route(on(documentInstanceSectionControllerClass)
-            .getRemoveDocumentInstanceSection(documentInstanceSectionId))
+        documentInstanceSectionUrls
     );
   }
 }

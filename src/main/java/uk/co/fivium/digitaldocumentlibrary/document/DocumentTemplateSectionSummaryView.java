@@ -1,9 +1,6 @@
 package uk.co.fivium.digitaldocumentlibrary.document;
 
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-
 import jakarta.annotation.Nullable;
-import uk.co.fivium.digitaldocumentlibrary.mvc.ReverseRouter;
 
 public record DocumentTemplateSectionSummaryView(
     @Nullable String sectionNumber,
@@ -11,11 +8,7 @@ public record DocumentTemplateSectionSummaryView(
     String content,
     @Nullable String conditionTitle,
     boolean hasPageBreakBefore,
-    String addSectionBeforeUrl,
-    String addSectionAfterUrl,
-    String addSubsectionUrl,
-    String editUrl,
-    String removeUrl
+    DocumentTemplateSectionUrls documentTemplateSectionUrls
 ) {
 
   public String titleWithSectionNumber() {
@@ -30,26 +23,15 @@ public record DocumentTemplateSectionSummaryView(
       String sectionNumberString,
       String conditionTitle,
       DocumentTemplateSectionDto documentTemplateSectionDto,
-      Class<? extends DocumentTemplateSectionController> documentTemplateSectionControllerClass
+      DocumentTemplateSectionUrls documentTemplateSectionUrls
   ) {
-    var documentTemplateSectionId = documentTemplateSectionDto.id();
-
     return new DocumentTemplateSectionSummaryView(
         sectionNumberString,
         documentTemplateSectionDto.title(),
         documentTemplateSectionDto.content(),
         conditionTitle,
         documentTemplateSectionDto.hasPageBreakBefore(),
-        ReverseRouter.route(on(documentTemplateSectionControllerClass)
-            .getAddDocumentTemplateSectionBefore(documentTemplateSectionId)),
-        ReverseRouter.route(on(documentTemplateSectionControllerClass)
-            .getAddDocumentTemplateSectionAfter(documentTemplateSectionId)),
-        ReverseRouter.route(on(documentTemplateSectionControllerClass)
-            .getAddDocumentTemplateSubsection(documentTemplateSectionId)),
-        ReverseRouter.route(on(documentTemplateSectionControllerClass)
-            .getEditDocumentTemplateSection(documentTemplateSectionId)),
-        ReverseRouter.route(on(documentTemplateSectionControllerClass)
-            .getRemoveDocumentTemplateSection(documentTemplateSectionId))
+        documentTemplateSectionUrls
     );
   }
 }

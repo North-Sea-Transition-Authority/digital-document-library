@@ -4,6 +4,7 @@ import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,7 +23,7 @@ public class DocumentTemplateSectionControllerHelperService {
 
   public List<DocumentTemplateSectionSummaryView> getDocumentTemplateSectionSummaryViews(
       DocumentTemplateDto documentTemplateDto,
-      Class<? extends DocumentTemplateSectionController> documentTemplateSectionControllerClass
+      Function<DocumentTemplateSectionDto, DocumentTemplateSectionUrls> urlsFunction
   ) {
     var topLevelDocumentTemplateSectionDtos =
         documentTemplateSectionService.getTopLevelDocumentTemplateSectionDtos(documentTemplateDto);
@@ -30,14 +31,14 @@ public class DocumentTemplateSectionControllerHelperService {
     return getDocumentTemplateSectionSummaryViewsForSectionSiblings(
         null,
         topLevelDocumentTemplateSectionDtos,
-        documentTemplateSectionControllerClass
+        urlsFunction
     );
   }
 
   List<DocumentTemplateSectionSummaryView> getDocumentTemplateSectionSummaryViewsForSectionSiblings(
       String parentSectionNumberString,
       List<DocumentTemplateSectionDto> siblingDocumentTemplateSectionDtos,
-      Class<? extends DocumentTemplateSectionController> documentTemplateSectionControllerClass
+      Function<DocumentTemplateSectionDto, DocumentTemplateSectionUrls> urlsFunction
   ) {
     var documentTemplateSectionSummaryViews = new ArrayList<DocumentTemplateSectionSummaryView>();
 
@@ -75,14 +76,14 @@ public class DocumentTemplateSectionControllerHelperService {
           sectionNumberString,
           conditionTitle,
           documentTemplateSectionDto,
-          documentTemplateSectionControllerClass
+          urlsFunction.apply(documentTemplateSectionDto)
       );
       documentTemplateSectionSummaryViews.add(documentTemplateSectionSummaryView);
 
       var childrenDocumentTemplateSectionSummaryViews = getDocumentTemplateSectionSummaryViewsForSectionSiblings(
           sectionNumberString,
           documentTemplateSectionDto.children(),
-          documentTemplateSectionControllerClass
+          urlsFunction
       );
       documentTemplateSectionSummaryViews.addAll(childrenDocumentTemplateSectionSummaryViews);
     }

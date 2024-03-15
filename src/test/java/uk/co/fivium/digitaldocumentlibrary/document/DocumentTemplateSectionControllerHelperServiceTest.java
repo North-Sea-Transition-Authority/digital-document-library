@@ -7,6 +7,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,9 +32,9 @@ class DocumentTemplateSectionControllerHelperServiceTest {
   @Test
   void getDocumentTemplateSectionSummaryViews() {
     var documentTemplateDto = DocumentTemplateDtoTestUtil.builder().build();
+    Function<DocumentTemplateSectionDto, DocumentTemplateSectionUrls> urlsFunction = documentTemplateSectionDto -> null;
 
     var topLevelDocumentTemplateSectionDtos = List.of(DocumentTemplateSectionDtoTestUtil.builder().build());
-
     var documentTemplateSectionSummaryViewsForSectionSiblings = List.of(mock(DocumentTemplateSectionSummaryView.class));
 
     when(documentTemplateSectionService.getTopLevelDocumentTemplateSectionDtos(documentTemplateDto))
@@ -43,14 +45,11 @@ class DocumentTemplateSectionControllerHelperServiceTest {
         .getDocumentTemplateSectionSummaryViewsForSectionSiblings(
             null,
             topLevelDocumentTemplateSectionDtos,
-            TestDocumentTemplateSectionController.class
+            urlsFunction
         );
 
     assertThat(
-        documentTemplateSectionControllerHelperService.getDocumentTemplateSectionSummaryViews(
-            documentTemplateDto,
-            TestDocumentTemplateSectionController.class
-        )
+        documentTemplateSectionControllerHelperService.getDocumentTemplateSectionSummaryViews(documentTemplateDto, urlsFunction)
     ).isEqualTo(documentTemplateSectionSummaryViewsForSectionSiblings);
   }
 
@@ -71,8 +70,12 @@ class DocumentTemplateSectionControllerHelperServiceTest {
             .withNumbered(false)
             .withDisplayOrder(1)
             .build();
+    var siblingDocumentTemplateSectionDto1Urls =
+        DocumentTemplateSectionUrlsTestUtil.newBuilderWithUrlSuffix("-siblingDocumentTemplateSectionDto1").build();
 
     var siblingDocumentTemplateSectionDto2Child1Child1 = DocumentTemplateSectionDtoTestUtil.builder().build();
+    var siblingDocumentTemplateSectionDto2Child1Child1Urls =
+        DocumentTemplateSectionUrlsTestUtil.newBuilderWithUrlSuffix("-siblingDocumentTemplateSectionDto2Child1Child1").build();
 
     var siblingDocumentTemplateSectionDto2Child1 =
         DocumentTemplateSectionDtoTestUtil.builder()
@@ -81,15 +84,23 @@ class DocumentTemplateSectionControllerHelperServiceTest {
             .withDisplayOrder(1)
             .withChildren(List.of(siblingDocumentTemplateSectionDto2Child1Child1))
             .build();
+    var siblingDocumentTemplateSectionDto2Child1Urls =
+        DocumentTemplateSectionUrlsTestUtil.newBuilderWithUrlSuffix("-siblingDocumentTemplateSectionDto2Child1").build();
+
     var siblingDocumentTemplateSectionDto2Child2 =
         DocumentTemplateSectionDtoTestUtil.builder()
             .withNumbered(false)
             .withDisplayOrder(2)
             .build();
+    var siblingDocumentTemplateSectionDto2Child2Urls =
+        DocumentTemplateSectionUrlsTestUtil.newBuilderWithUrlSuffix("-siblingDocumentTemplateSectionDto2Child2").build();
+
     var siblingDocumentTemplateSectionDto2Child3 =
         DocumentTemplateSectionDtoTestUtil.builder()
             .withDisplayOrder(3)
             .build();
+    var siblingDocumentTemplateSectionDto2Child3Urls =
+        DocumentTemplateSectionUrlsTestUtil.newBuilderWithUrlSuffix("-siblingDocumentTemplateSectionDto2Child3").build();
 
     var siblingDocumentTemplateSectionDto2 =
         DocumentTemplateSectionDtoTestUtil.builder()
@@ -104,9 +115,21 @@ class DocumentTemplateSectionControllerHelperServiceTest {
                 )
             )
             .build();
+    var siblingDocumentTemplateSectionDto2Urls =
+        DocumentTemplateSectionUrlsTestUtil.newBuilderWithUrlSuffix("-siblingDocumentTemplateSectionDto2").build();
 
     var siblingDocumentTemplateSectionDtos =
         List.of(siblingDocumentTemplateSectionDto1, siblingDocumentTemplateSectionDto2);
+
+    var urlsByDocumentTemplateSectionDto = Map.of(
+        siblingDocumentTemplateSectionDto1, siblingDocumentTemplateSectionDto1Urls,
+        siblingDocumentTemplateSectionDto2, siblingDocumentTemplateSectionDto2Urls,
+        siblingDocumentTemplateSectionDto2Child1, siblingDocumentTemplateSectionDto2Child1Urls,
+        siblingDocumentTemplateSectionDto2Child1Child1, siblingDocumentTemplateSectionDto2Child1Child1Urls,
+        siblingDocumentTemplateSectionDto2Child2, siblingDocumentTemplateSectionDto2Child2Urls,
+        siblingDocumentTemplateSectionDto2Child3, siblingDocumentTemplateSectionDto2Child3Urls
+    );
+    Function<DocumentTemplateSectionDto, DocumentTemplateSectionUrls> urlsFunction = urlsByDocumentTemplateSectionDto::get;
 
     when(
         documentTemplateSectionConditionService.getApplicableDocumentTemplateSectionConditionOrThrow(
@@ -125,44 +148,44 @@ class DocumentTemplateSectionControllerHelperServiceTest {
         documentTemplateSectionControllerHelperService.getDocumentTemplateSectionSummaryViewsForSectionSiblings(
             parentSectionNumberString,
             siblingDocumentTemplateSectionDtos,
-            TestDocumentTemplateSectionController.class
+            urlsFunction
         )
     ).containsExactly(
         DocumentTemplateSectionSummaryView.from(
             null,
             null,
             siblingDocumentTemplateSectionDto1,
-            TestDocumentTemplateSectionController.class
+            siblingDocumentTemplateSectionDto1Urls
         ),
         DocumentTemplateSectionSummaryView.from(
             "1.1",
             condition1.getTitle(),
             siblingDocumentTemplateSectionDto2,
-            TestDocumentTemplateSectionController.class
+            siblingDocumentTemplateSectionDto2Urls
         ),
         DocumentTemplateSectionSummaryView.from(
             "1.1.1",
             condition2.getTitle(),
             siblingDocumentTemplateSectionDto2Child1,
-            TestDocumentTemplateSectionController.class
+            siblingDocumentTemplateSectionDto2Child1Urls
         ),
         DocumentTemplateSectionSummaryView.from(
             "1.1.1.1",
             null,
             siblingDocumentTemplateSectionDto2Child1Child1,
-            TestDocumentTemplateSectionController.class
+            siblingDocumentTemplateSectionDto2Child1Child1Urls
         ),
         DocumentTemplateSectionSummaryView.from(
             null,
             null,
             siblingDocumentTemplateSectionDto2Child2,
-            TestDocumentTemplateSectionController.class
+            siblingDocumentTemplateSectionDto2Child2Urls
         ),
         DocumentTemplateSectionSummaryView.from(
             "1.1.2",
             null,
             siblingDocumentTemplateSectionDto2Child3,
-            TestDocumentTemplateSectionController.class
+            siblingDocumentTemplateSectionDto2Child3Urls
         )
     );
   }

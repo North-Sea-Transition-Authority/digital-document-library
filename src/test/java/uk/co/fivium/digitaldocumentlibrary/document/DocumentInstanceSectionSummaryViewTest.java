@@ -1,11 +1,9 @@
 package uk.co.fivium.digitaldocumentlibrary.document;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.Collections;
 import org.junit.jupiter.api.Test;
-import uk.co.fivium.digitaldocumentlibrary.mvc.ReverseRouter;
 
 class DocumentInstanceSectionSummaryViewTest {
 
@@ -20,7 +18,7 @@ class DocumentInstanceSectionSummaryViewTest {
             null,
             documentInstanceSectionDto,
             ResolvedDocumentInstanceSectionTestUtil.newBuilder().build(),
-            TestDocumentInstanceSectionController.class
+            DocumentInstanceSectionUrlsTestUtil.newBuilder().build()
         )
     )
         .extracting(DocumentInstanceSectionSummaryView::titleWithSectionNumber)
@@ -38,7 +36,7 @@ class DocumentInstanceSectionSummaryViewTest {
             "1.2.3",
             documentInstanceSectionDto,
             ResolvedDocumentInstanceSectionTestUtil.newBuilder().build(),
-            TestDocumentInstanceSectionController.class
+            DocumentInstanceSectionUrlsTestUtil.newBuilder().build()
         )
     )
         .extracting(DocumentInstanceSectionSummaryView::titleWithSectionNumber)
@@ -50,14 +48,14 @@ class DocumentInstanceSectionSummaryViewTest {
     var sectionNumberString = "1.2.3";
     var documentInstanceSectionDto = DocumentInstanceSectionDtoTestUtil.builder().build();
     var content = ResolvedDocumentInstanceSectionTestUtil.newBuilder().build();
-    var documentInstanceSectionId = documentInstanceSectionDto.id();
+    var documentInstanceSectionUrls = DocumentInstanceSectionUrlsTestUtil.newBuilder().build();
 
     assertThat(
         DocumentInstanceSectionSummaryView.from(
             sectionNumberString,
             documentInstanceSectionDto,
             content,
-            TestDocumentInstanceSectionController.class
+            documentInstanceSectionUrls
         )
     ).isEqualTo(
         new DocumentInstanceSectionSummaryView(
@@ -67,16 +65,7 @@ class DocumentInstanceSectionSummaryViewTest {
             content.resolvedContent(),
             documentInstanceSectionDto.hasPageBreakBefore(),
             Collections.emptyList(),
-            ReverseRouter.route(on(TestDocumentInstanceSectionController.class)
-                .getAddDocumentInstanceSectionBefore(documentInstanceSectionId)),
-            ReverseRouter.route(on(TestDocumentInstanceSectionController.class)
-                .getAddDocumentInstanceSectionAfter(documentInstanceSectionId)),
-            ReverseRouter.route(on(TestDocumentInstanceSectionController.class)
-                .getAddDocumentInstanceSubsection(documentInstanceSectionId)),
-            ReverseRouter.route(on(TestDocumentInstanceSectionController.class)
-                .getEditDocumentInstanceSection(documentInstanceSectionId)),
-            ReverseRouter.route(on(TestDocumentInstanceSectionController.class)
-                .getRemoveDocumentInstanceSection(documentInstanceSectionId))
+            documentInstanceSectionUrls
         )
     );
   }

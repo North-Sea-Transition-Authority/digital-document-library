@@ -4,6 +4,7 @@ import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,7 +23,7 @@ public class DocumentInstanceSectionControllerHelperService {
 
   public DocumentInstanceSectionsSummaryView getDocumentInstanceSectionsSummaryView(
       DocumentInstanceDto documentInstanceDto,
-      Class<? extends DocumentInstanceSectionController> documentInstanceSectionControllerClass,
+      Function<DocumentInstanceSectionDto, DocumentInstanceSectionUrls> urlsFunction,
       DocumentMailMergeFieldFormatter documentMailMergeFieldFormatter
   ) {
     var topLevelDocumentInstanceSectionDtos =
@@ -31,7 +32,7 @@ public class DocumentInstanceSectionControllerHelperService {
     var sectionSummaryViews = getDocumentInstanceSectionSummaryViewsForSectionSiblings(
         null,
         topLevelDocumentInstanceSectionDtos,
-        documentInstanceSectionControllerClass,
+        urlsFunction,
         documentMailMergeFieldFormatter
     );
 
@@ -43,7 +44,7 @@ public class DocumentInstanceSectionControllerHelperService {
   List<DocumentInstanceSectionSummaryView> getDocumentInstanceSectionSummaryViewsForSectionSiblings(
       String parentSectionNumberString,
       List<DocumentInstanceSectionDto> siblingDocumentInstanceSectionDtos,
-      Class<? extends DocumentInstanceSectionController> documentInstanceSectionControllerClass,
+      Function<DocumentInstanceSectionDto, DocumentInstanceSectionUrls> urlsFunction,
       DocumentMailMergeFieldFormatter documentMailMergeFieldFormatter
   ) {
     var documentInstanceSectionSummaryViews = new ArrayList<DocumentInstanceSectionSummaryView>();
@@ -77,14 +78,14 @@ public class DocumentInstanceSectionControllerHelperService {
           sectionNumberString,
           documentInstanceSectionDto,
           resolvedDocumentInstanceSection,
-          documentInstanceSectionControllerClass
+          urlsFunction.apply(documentInstanceSectionDto)
       );
       documentInstanceSectionSummaryViews.add(documentInstanceSectionSummaryView);
 
       var childrenDocumentInstanceSectionSummaryViews = getDocumentInstanceSectionSummaryViewsForSectionSiblings(
           sectionNumberString,
           documentInstanceSectionDto.children(),
-          documentInstanceSectionControllerClass,
+          urlsFunction,
           documentMailMergeFieldFormatter
       );
       documentInstanceSectionSummaryViews.addAll(childrenDocumentInstanceSectionSummaryViews);

@@ -1,23 +1,17 @@
 package uk.co.fivium.digitaldocumentlibrary.document;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import org.junit.jupiter.api.Test;
-import uk.co.fivium.digitaldocumentlibrary.mvc.ReverseRouter;
 
 class DocumentTemplateSummaryViewTest {
 
   @Test
   void from() {
     var documentTemplateDto = DocumentTemplateDtoTestUtil.builder().build();
+    var viewUrl = "test-view-url";
 
-    assertThat(DocumentTemplateSummaryView.from(documentTemplateDto, TestDocumentTemplateController.class)).isEqualTo(
-        new DocumentTemplateSummaryView(
-            documentTemplateDto.title(),
-            documentTemplateDto.description(),
-            ReverseRouter.route(on(TestDocumentTemplateController.class).getViewDocumentTemplate(documentTemplateDto.id()))
-        )
-    );
+    assertThat(DocumentTemplateSummaryView.from(documentTemplateDto, viewUrl))
+        .isEqualTo(new DocumentTemplateSummaryView(documentTemplateDto.title(), documentTemplateDto.description(), viewUrl));
   }
 }
