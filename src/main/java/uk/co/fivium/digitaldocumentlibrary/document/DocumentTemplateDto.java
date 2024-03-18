@@ -7,7 +7,7 @@ public record DocumentTemplateDto(
     String mnemonic,
     String title,
     String description,
-    String templatePath,
+    String documentInstancePdfTemplatePath,
     int displayOrder
 ) {
 
@@ -17,7 +17,7 @@ public record DocumentTemplateDto(
         documentTemplate.getMnemonic(),
         documentTemplate.getTitle(),
         documentTemplate.getDescription(),
-        documentTemplate.getTemplatePath(),
+        documentTemplate.getDocumentInstancePdfTemplatePath(),
         documentTemplate.getDisplayOrder()
     );
   }

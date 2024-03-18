@@ -16,7 +16,7 @@ class DocumentTemplateDtoTest {
             documentTemplate.getMnemonic(),
             documentTemplate.getTitle(),
             documentTemplate.getDescription(),
-            documentTemplate.getTemplatePath(),
+            documentTemplate.getDocumentInstancePdfTemplatePath(),
             documentTemplate.getDisplayOrder()
         )
     );

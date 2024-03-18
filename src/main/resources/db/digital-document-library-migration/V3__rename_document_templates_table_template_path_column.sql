@@ -1,0 +1,2 @@
+ALTER TABLE document_library_document_templates RENAME COLUMN template_path TO document_instance_pdf_template_path;
+ALTER TABLE document_library_document_templates_aud RENAME COLUMN template_path TO document_instance_pdf_template_path;

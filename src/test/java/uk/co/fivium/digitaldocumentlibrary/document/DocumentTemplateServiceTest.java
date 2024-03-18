@@ -32,11 +32,11 @@ class DocumentTemplateServiceTest {
     var mnemonic = "TEST_MNEMONIC";
     var title = "Test title";
     var description = "Test description";
-    var templatePath = "test/template/path";
+    var documentInstancePdfTemplatePath = "test/document/instance/pdf/template/path";
     var displayOrder = 1;
 
     var documentTemplateDto =
-        documentTemplateService.createDocumentTemplate(mnemonic, title, description, templatePath, displayOrder);
+        documentTemplateService.createDocumentTemplate(mnemonic, title, description, documentInstancePdfTemplatePath, displayOrder);
 
     var documentTemplateCaptor = ArgumentCaptor.forClass(DocumentTemplate.class);
 
@@ -49,13 +49,13 @@ class DocumentTemplateServiceTest {
             DocumentTemplate::getMnemonic,
             DocumentTemplate::getTitle,
             DocumentTemplate::getDescription,
-            DocumentTemplate::getTemplatePath,
+            DocumentTemplate::getDocumentInstancePdfTemplatePath,
             DocumentTemplate::getDisplayOrder
         ).containsExactly(
             mnemonic,
             title,
             description,
-            templatePath,
+            documentInstancePdfTemplatePath,
             displayOrder
         );
 

@@ -14,7 +14,7 @@ class DocumentTemplateDtoTestUtil {
     private String mnemonic = "TEST_MNEMONIC";
     private String title = "Test title";
     private String description = "Test description";
-    private String templatePath = "test/template/path";
+    private String documentInstancePdfTemplatePath = "test/document/instance/pdf/template/path";
     private int displayOrder = 1;
 
     private Builder() {
@@ -40,8 +40,8 @@ class DocumentTemplateDtoTestUtil {
       return this;
     }
 
-    Builder withTemplatePath(String templatePath) {
-      this.templatePath = templatePath;
+    Builder withDocumentInstancePdfTemplatePath(String documentInstancePdfTemplatePath) {
+      this.documentInstancePdfTemplatePath = documentInstancePdfTemplatePath;
       return this;
     }
 
@@ -51,7 +51,7 @@ class DocumentTemplateDtoTestUtil {
     }
 
     DocumentTemplateDto build() {
-      return new DocumentTemplateDto(id, mnemonic, title, description, templatePath, displayOrder);
+      return new DocumentTemplateDto(id, mnemonic, title, description, documentInstancePdfTemplatePath, displayOrder);
     }
   }
 }

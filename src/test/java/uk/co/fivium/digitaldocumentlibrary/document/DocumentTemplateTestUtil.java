@@ -14,7 +14,7 @@ class DocumentTemplateTestUtil {
     private String mnemonic = "TEST_MNEMONIC";
     private String title = "Test title";
     private String description = "Test description";
-    private String templatePath = "test/template/path";
+    private String documentInstancePdfTemplatePath = "test/document/instance/pdf/template/path";
     private int displayOrder = 1;
 
     private Builder() {
@@ -40,8 +40,8 @@ class DocumentTemplateTestUtil {
       return this;
     }
 
-    Builder withTemplatePath(String templatePath) {
-      this.templatePath = templatePath;
+    Builder withDocumentInstancePdfTemplatePath(String documentInstancePdfTemplatePath) {
+      this.documentInstancePdfTemplatePath = documentInstancePdfTemplatePath;
       return this;
     }
 
@@ -56,7 +56,7 @@ class DocumentTemplateTestUtil {
       documentTemplate.setMnemonic(mnemonic);
       documentTemplate.setTitle(title);
       documentTemplate.setDescription(description);
-      documentTemplate.setTemplatePath(templatePath);
+      documentTemplate.setDocumentInstancePdfTemplatePath(documentInstancePdfTemplatePath);
       documentTemplate.setDisplayOrder(displayOrder);
 
       return documentTemplate;

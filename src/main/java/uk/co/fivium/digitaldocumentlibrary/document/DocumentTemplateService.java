@@ -22,7 +22,7 @@ public class DocumentTemplateService {
       String mnemonic,
       String title,
       String description,
-      String templatePath,
+      String documentInstancePdfTemplatePath,
       int displayOrder
   ) {
     var documentTemplate = new DocumentTemplate();
@@ -30,7 +30,7 @@ public class DocumentTemplateService {
     documentTemplate.setMnemonic(mnemonic);
     documentTemplate.setTitle(title);
     documentTemplate.setDescription(description);
-    documentTemplate.setTemplatePath(templatePath);
+    documentTemplate.setDocumentInstancePdfTemplatePath(documentInstancePdfTemplatePath);
     documentTemplate.setDisplayOrder(displayOrder);
 
     documentTemplateRepository.save(documentTemplate);

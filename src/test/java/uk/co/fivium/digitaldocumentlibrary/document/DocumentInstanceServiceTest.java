@@ -182,7 +182,7 @@ class DocumentInstanceServiceTest {
 
     when(
         freeMarkerTemplateRenderingService.renderTemplate(
-            documentInstanceDto.documentTemplateDto().templatePath(),
+            documentInstanceDto.documentTemplateDto().documentInstancePdfTemplatePath(),
             expectedModel
         )
     ).thenReturn(html);

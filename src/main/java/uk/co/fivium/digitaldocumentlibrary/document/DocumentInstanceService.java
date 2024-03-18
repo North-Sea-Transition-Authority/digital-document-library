@@ -92,7 +92,7 @@ public class DocumentInstanceService {
 
     try {
       var documentHtml = freeMarkerTemplateRenderingService.renderTemplate(
-          documentInstanceDto.documentTemplateDto().templatePath(),
+          documentInstanceDto.documentTemplateDto().documentInstancePdfTemplatePath(),
           model
       );
 

@@ -23,7 +23,7 @@ class DocumentTemplate {
 
   private String description;
 
-  private String templatePath;
+  private String documentInstancePdfTemplatePath;
 
   private int displayOrder;
 
@@ -62,12 +62,12 @@ class DocumentTemplate {
     this.description = description;
   }
 
-  String getTemplatePath() {
-    return templatePath;
+  String getDocumentInstancePdfTemplatePath() {
+    return documentInstancePdfTemplatePath;
   }
 
-  void setTemplatePath(String templatePath) {
-    this.templatePath = templatePath;
+  void setDocumentInstancePdfTemplatePath(String documentInstancePdfTemplatePath) {
+    this.documentInstancePdfTemplatePath = documentInstancePdfTemplatePath;
   }
 
   int getDisplayOrder() {
