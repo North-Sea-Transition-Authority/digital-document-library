@@ -15,14 +15,17 @@ public class DocumentInstanceSectionService {
 
   private final DocumentInstanceSectionRepository documentInstanceSectionRepository;
   private final DocumentInstanceService documentInstanceService;
+  private final ContentSanitisationService contentSanitisationService;
 
   @Autowired
   DocumentInstanceSectionService(
       DocumentInstanceSectionRepository documentInstanceSectionRepository,
-      DocumentInstanceService documentInstanceService
+      DocumentInstanceService documentInstanceService,
+      ContentSanitisationService contentSanitisationService
   ) {
     this.documentInstanceSectionRepository = documentInstanceSectionRepository;
     this.documentInstanceService = documentInstanceService;
+    this.contentSanitisationService = contentSanitisationService;
   }
 
   @Transactional
@@ -44,7 +47,7 @@ public class DocumentInstanceSectionService {
       documentInstanceSection.setParent(getDocumentInstanceSectionOrThrow(parentDto.id()));
     }
     documentInstanceSection.setTitle(title);
-    documentInstanceSection.setContent(content);
+    documentInstanceSection.setContent(contentSanitisationService.getSanitisedContent(content));
     documentInstanceSection.setNumbered(numbered);
     documentInstanceSection.setHasPageBreakBefore(hasPageBreakBefore);
     documentInstanceSection.setDisplayOrder(displayOrder);
@@ -86,7 +89,7 @@ public class DocumentInstanceSectionService {
     var documentInstanceSection = getDocumentInstanceSectionOrThrow(documentInstanceSectionDto.id());
 
     documentInstanceSection.setTitle(title);
-    documentInstanceSection.setContent(content);
+    documentInstanceSection.setContent(contentSanitisationService.getSanitisedContent(content));
     documentInstanceSection.setNumbered(numbered);
     documentInstanceSection.setHasPageBreakBefore(hasPageBreakBefore);
 

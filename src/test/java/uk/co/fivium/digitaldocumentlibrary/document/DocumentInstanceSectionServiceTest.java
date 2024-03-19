@@ -27,6 +27,9 @@ class DocumentInstanceSectionServiceTest {
   @Mock
   private DocumentInstanceService documentInstanceService;
 
+  @Mock
+  private ContentSanitisationService contentSanitisationService;
+
   @InjectMocks
   @Spy
   private DocumentInstanceSectionService documentInstanceSectionService;
@@ -39,6 +42,7 @@ class DocumentInstanceSectionServiceTest {
     var documentInstanceDto = DocumentInstanceDtoTestUtil.builder().build();
     var title = "Test title";
     var content = "Test content";
+    var sanitisedContent = "Sanitised test content";
     var numbered = true;
     var hasPageBreakBefore = false;
     var displayOrder = 1;
@@ -58,6 +62,7 @@ class DocumentInstanceSectionServiceTest {
     when(documentInstanceService.getDocumentInstanceOrThrow(documentInstanceDto.id())).thenReturn(documentInstance);
     when(documentInstanceSectionRepository.findAllByParent_IdAndDisplayOrderGreaterThanEqual(null, displayOrder))
         .thenReturn(List.of(existingSibling1, existingSibling2, existingSibling3));
+    when(contentSanitisationService.getSanitisedContent(content)).thenReturn(sanitisedContent);
 
     var documentInstanceSectionDto = documentInstanceSectionService.createDocumentInstanceSection(
         documentInstanceDto,
@@ -94,7 +99,7 @@ class DocumentInstanceSectionServiceTest {
             documentInstance,
             null,
             title,
-            content,
+            sanitisedContent,
             numbered,
             hasPageBreakBefore,
             displayOrder
@@ -116,6 +121,7 @@ class DocumentInstanceSectionServiceTest {
 
     var title = "Test title";
     var content = "Test content";
+    var sanitisedContent = "Sanitised test content";
     var numbered = true;
     var hasPageBreakBefore = false;
     var displayOrder = 1;
@@ -137,6 +143,7 @@ class DocumentInstanceSectionServiceTest {
     doReturn(parent).when(documentInstanceSectionService).getDocumentInstanceSectionOrThrow(parentDtoId);
     when(documentInstanceSectionRepository.findAllByParent_IdAndDisplayOrderGreaterThanEqual(parentDtoId, displayOrder))
         .thenReturn(List.of(existingSibling1, existingSibling2, existingSibling3));
+    when(contentSanitisationService.getSanitisedContent(content)).thenReturn(sanitisedContent);
 
     var documentInstanceSectionDto = documentInstanceSectionService.createDocumentInstanceSection(
         documentInstanceDto,
@@ -173,7 +180,7 @@ class DocumentInstanceSectionServiceTest {
             documentInstance,
             parent,
             title,
-            content,
+            sanitisedContent,
             numbered,
             hasPageBreakBefore,
             displayOrder
@@ -191,6 +198,7 @@ class DocumentInstanceSectionServiceTest {
     var documentInstanceSectionDto = DocumentInstanceSectionDtoTestUtil.builder().build();
     var title = "Test edited title";
     var content = "Test edited content";
+    var sanitisedContent = "Sanitised test edited content";
     var numbered = true;
     var hasPageBreakBefore = false;
 
@@ -199,6 +207,7 @@ class DocumentInstanceSectionServiceTest {
     doReturn(documentInstanceSection)
         .when(documentInstanceSectionService)
         .getDocumentInstanceSectionOrThrow(documentInstanceSectionDto.id());
+    when(contentSanitisationService.getSanitisedContent(content)).thenReturn(sanitisedContent);
 
     documentInstanceSectionService.editDocumentInstanceSection(documentInstanceSectionDto, title, content, numbered, hasPageBreakBefore);
 
@@ -211,7 +220,7 @@ class DocumentInstanceSectionServiceTest {
         )
         .containsExactly(
             title,
-            content,
+            sanitisedContent,
             numbered,
             hasPageBreakBefore
         );

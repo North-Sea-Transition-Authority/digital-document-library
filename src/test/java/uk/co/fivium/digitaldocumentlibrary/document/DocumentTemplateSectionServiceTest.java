@@ -27,6 +27,9 @@ class DocumentTemplateSectionServiceTest {
   @Mock
   private DocumentTemplateService documentTemplateService;
 
+  @Mock
+  private ContentSanitisationService contentSanitisationService;
+
   @InjectMocks
   @Spy
   private DocumentTemplateSectionService documentTemplateSectionService;
@@ -39,6 +42,7 @@ class DocumentTemplateSectionServiceTest {
     var documentTemplateDto = DocumentTemplateDtoTestUtil.builder().build();
     var title = "Test title";
     var content = "Test content";
+    var sanitisedContent = "Sanitised test content";
     var conditionMnemonic = "Test condition mnemonic";
     var numbered = true;
     var hasPageBreakBefore = false;
@@ -59,6 +63,7 @@ class DocumentTemplateSectionServiceTest {
     when(documentTemplateService.getDocumentTemplateOrThrow(documentTemplateDto.id())).thenReturn(documentTemplate);
     when(documentTemplateSectionRepository.findAllByParent_IdAndDisplayOrderGreaterThanEqual(null, displayOrder))
         .thenReturn(List.of(existingSibling1, existingSibling2, existingSibling3));
+    when(contentSanitisationService.getSanitisedContent(content)).thenReturn(sanitisedContent);
 
     var documentTemplateSectionDto = documentTemplateSectionService.createDocumentTemplateSection(
         documentTemplateDto,
@@ -97,7 +102,7 @@ class DocumentTemplateSectionServiceTest {
             documentTemplate,
             null,
             title,
-            content,
+            sanitisedContent,
             conditionMnemonic,
             numbered,
             hasPageBreakBefore,
@@ -120,6 +125,7 @@ class DocumentTemplateSectionServiceTest {
 
     var title = "Test title";
     var content = "Test content";
+    var sanitisedContent = "Sanitised test content";
     var conditionMnemonic = "TEST_CONDITION_MNEMONIC";
     var numbered = true;
     var hasPageBreakBefore = false;
@@ -142,6 +148,7 @@ class DocumentTemplateSectionServiceTest {
     doReturn(parent).when(documentTemplateSectionService).getDocumentTemplateSectionOrThrow(parentDtoId);
     when(documentTemplateSectionRepository.findAllByParent_IdAndDisplayOrderGreaterThanEqual(parentDtoId, displayOrder))
         .thenReturn(List.of(existingSibling1, existingSibling2, existingSibling3));
+    when(contentSanitisationService.getSanitisedContent(content)).thenReturn(sanitisedContent);
 
     var documentTemplateSectionDto = documentTemplateSectionService.createDocumentTemplateSection(
         documentTemplateDto,
@@ -180,7 +187,7 @@ class DocumentTemplateSectionServiceTest {
             documentTemplate,
             parent,
             title,
-            content,
+            sanitisedContent,
             conditionMnemonic,
             numbered,
             hasPageBreakBefore,
@@ -199,6 +206,7 @@ class DocumentTemplateSectionServiceTest {
     var documentTemplateSectionDto = DocumentTemplateSectionDtoTestUtil.builder().build();
     var title = "Tedt edited title";
     var content = "Test edited content";
+    var sanitisedContent = "Sanitised test edited content";
     var conditionMnemonic = "TEST_CONDITION_MNEMONIC";
     var numbered = true;
     var hasPageBreakBefore = false;
@@ -208,6 +216,7 @@ class DocumentTemplateSectionServiceTest {
     doReturn(documentTemplateSection)
         .when(documentTemplateSectionService)
         .getDocumentTemplateSectionOrThrow(documentTemplateSectionDto.id());
+    when(contentSanitisationService.getSanitisedContent(content)).thenReturn(sanitisedContent);
 
     documentTemplateSectionService.editDocumentTemplateSection(
         documentTemplateSectionDto,
@@ -228,7 +237,7 @@ class DocumentTemplateSectionServiceTest {
         )
         .containsExactly(
             title,
-            content,
+            sanitisedContent,
             conditionMnemonic,
             numbered,
             hasPageBreakBefore

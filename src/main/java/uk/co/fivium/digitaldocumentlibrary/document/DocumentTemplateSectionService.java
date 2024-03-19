@@ -15,14 +15,17 @@ public class DocumentTemplateSectionService {
 
   private final DocumentTemplateSectionRepository documentTemplateSectionRepository;
   private final DocumentTemplateService documentTemplateService;
+  private final ContentSanitisationService contentSanitisationService;
 
   @Autowired
   DocumentTemplateSectionService(
       DocumentTemplateSectionRepository documentTemplateSectionRepository,
-      DocumentTemplateService documentTemplateService
+      DocumentTemplateService documentTemplateService,
+      ContentSanitisationService contentSanitisationService
   ) {
     this.documentTemplateSectionRepository = documentTemplateSectionRepository;
     this.documentTemplateService = documentTemplateService;
+    this.contentSanitisationService = contentSanitisationService;
   }
 
   @Transactional
@@ -45,7 +48,7 @@ public class DocumentTemplateSectionService {
       documentTemplateSection.setParent(getDocumentTemplateSectionOrThrow(parentDto.id()));
     }
     documentTemplateSection.setTitle(title);
-    documentTemplateSection.setContent(content);
+    documentTemplateSection.setContent(contentSanitisationService.getSanitisedContent(content));
     documentTemplateSection.setConditionMnemonic(conditionMnemonic);
     documentTemplateSection.setNumbered(numbered);
     documentTemplateSection.setHasPageBreakBefore(hasPageBreakBefore);
@@ -89,7 +92,7 @@ public class DocumentTemplateSectionService {
     var documentTemplateSection = getDocumentTemplateSectionOrThrow(documentTemplateSectionDto.id());
 
     documentTemplateSection.setTitle(title);
-    documentTemplateSection.setContent(content);
+    documentTemplateSection.setContent(contentSanitisationService.getSanitisedContent(content));
     documentTemplateSection.setConditionMnemonic(conditionMnemonic);
     documentTemplateSection.setNumbered(numbered);
     documentTemplateSection.setHasPageBreakBefore(hasPageBreakBefore);
