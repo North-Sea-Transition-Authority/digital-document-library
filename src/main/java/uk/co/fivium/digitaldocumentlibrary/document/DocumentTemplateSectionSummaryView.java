@@ -1,6 +1,7 @@
 package uk.co.fivium.digitaldocumentlibrary.document;
 
 import jakarta.annotation.Nullable;
+import java.util.List;
 
 public record DocumentTemplateSectionSummaryView(
     @Nullable String sectionNumber,
@@ -8,7 +9,8 @@ public record DocumentTemplateSectionSummaryView(
     String content,
     @Nullable String conditionTitle,
     boolean hasPageBreakBefore,
-    DocumentTemplateSectionUrls documentTemplateSectionUrls
+    DocumentTemplateSectionUrls documentTemplateSectionUrls,
+    List<DocumentTemplateSectionSummaryView> children
 ) {
 
   public String titleWithSectionNumber() {
@@ -23,7 +25,8 @@ public record DocumentTemplateSectionSummaryView(
       String sectionNumberString,
       String conditionTitle,
       DocumentTemplateSectionDto documentTemplateSectionDto,
-      DocumentTemplateSectionUrls documentTemplateSectionUrls
+      DocumentTemplateSectionUrls documentTemplateSectionUrls,
+      List<DocumentTemplateSectionSummaryView> children
   ) {
     return new DocumentTemplateSectionSummaryView(
         sectionNumberString,
@@ -31,7 +34,8 @@ public record DocumentTemplateSectionSummaryView(
         documentTemplateSectionDto.content(),
         conditionTitle,
         documentTemplateSectionDto.hasPageBreakBefore(),
-        documentTemplateSectionUrls
+        documentTemplateSectionUrls,
+        children
     );
   }
 }

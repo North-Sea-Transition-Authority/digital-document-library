@@ -12,8 +12,8 @@ class ContentSanitisationService {
 
   private final Cleaner basicCleaner;
 
-  ContentSanitisationService() {
-    this.basicCleaner = new Cleaner(Safelist.basic());
+  ContentSanitisationService(Safelist documentLibraryContentSanitisationSafeList) {
+    this.basicCleaner = new Cleaner(documentLibraryContentSanitisationSafeList);
   }
 
   String getSanitisedContent(String content) {

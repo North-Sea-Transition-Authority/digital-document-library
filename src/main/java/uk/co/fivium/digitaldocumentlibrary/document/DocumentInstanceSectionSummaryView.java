@@ -10,7 +10,8 @@ public record DocumentInstanceSectionSummaryView(
     String content,
     boolean hasPageBreakBefore,
     List<String> errorMessages,
-    DocumentInstanceSectionUrls documentInstanceSectionUrls
+    DocumentInstanceSectionUrls documentInstanceSectionUrls,
+    List<DocumentInstanceSectionSummaryView> children
 ) {
 
   public String titleWithSectionNumber() {
@@ -25,7 +26,8 @@ public record DocumentInstanceSectionSummaryView(
       String sectionNumberString,
       DocumentInstanceSectionDto documentInstanceSectionDto,
       ResolvedDocumentInstanceSection resolvedDocumentInstanceSection,
-      DocumentInstanceSectionUrls documentInstanceSectionUrls
+      DocumentInstanceSectionUrls documentInstanceSectionUrls,
+      List<DocumentInstanceSectionSummaryView> children
   ) {
     var errorMessages = resolvedDocumentInstanceSection.fieldResolveResults()
         .stream()
@@ -40,7 +42,8 @@ public record DocumentInstanceSectionSummaryView(
         resolvedDocumentInstanceSection.resolvedContent(),
         documentInstanceSectionDto.hasPageBreakBefore(),
         errorMessages,
-        documentInstanceSectionUrls
+        documentInstanceSectionUrls,
+        children
     );
   }
 }

@@ -74,21 +74,21 @@ public class DocumentInstanceSectionControllerHelperService {
           documentMailMergeFieldFormatter
       );
 
-      var documentInstanceSectionSummaryView = DocumentInstanceSectionSummaryView.from(
-          sectionNumberString,
-          documentInstanceSectionDto,
-          resolvedDocumentInstanceSection,
-          urlsFunction.apply(documentInstanceSectionDto)
-      );
-      documentInstanceSectionSummaryViews.add(documentInstanceSectionSummaryView);
-
-      var childrenDocumentInstanceSectionSummaryViews = getDocumentInstanceSectionSummaryViewsForSectionSiblings(
+      var children = getDocumentInstanceSectionSummaryViewsForSectionSiblings(
           sectionNumberString,
           documentInstanceSectionDto.children(),
           urlsFunction,
           documentMailMergeFieldFormatter
       );
-      documentInstanceSectionSummaryViews.addAll(childrenDocumentInstanceSectionSummaryViews);
+
+      var documentInstanceSectionSummaryView = DocumentInstanceSectionSummaryView.from(
+          sectionNumberString,
+          documentInstanceSectionDto,
+          resolvedDocumentInstanceSection,
+          urlsFunction.apply(documentInstanceSectionDto),
+          children
+      );
+      documentInstanceSectionSummaryViews.add(documentInstanceSectionSummaryView);
     }
 
     return documentInstanceSectionSummaryViews;

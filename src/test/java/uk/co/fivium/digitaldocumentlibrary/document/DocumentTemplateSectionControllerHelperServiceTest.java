@@ -155,37 +155,45 @@ class DocumentTemplateSectionControllerHelperServiceTest {
             null,
             null,
             siblingDocumentTemplateSectionDto1,
-            siblingDocumentTemplateSectionDto1Urls
+            siblingDocumentTemplateSectionDto1Urls,
+            List.of()
         ),
         DocumentTemplateSectionSummaryView.from(
             "1.1",
             condition1.getTitle(),
             siblingDocumentTemplateSectionDto2,
-            siblingDocumentTemplateSectionDto2Urls
-        ),
-        DocumentTemplateSectionSummaryView.from(
-            "1.1.1",
-            condition2.getTitle(),
-            siblingDocumentTemplateSectionDto2Child1,
-            siblingDocumentTemplateSectionDto2Child1Urls
-        ),
-        DocumentTemplateSectionSummaryView.from(
-            "1.1.1.1",
-            null,
-            siblingDocumentTemplateSectionDto2Child1Child1,
-            siblingDocumentTemplateSectionDto2Child1Child1Urls
-        ),
-        DocumentTemplateSectionSummaryView.from(
-            null,
-            null,
-            siblingDocumentTemplateSectionDto2Child2,
-            siblingDocumentTemplateSectionDto2Child2Urls
-        ),
-        DocumentTemplateSectionSummaryView.from(
-            "1.1.2",
-            null,
-            siblingDocumentTemplateSectionDto2Child3,
-            siblingDocumentTemplateSectionDto2Child3Urls
+            siblingDocumentTemplateSectionDto2Urls,
+            List.of(
+                DocumentTemplateSectionSummaryView.from(
+                    "1.1.1",
+                    condition2.getTitle(),
+                    siblingDocumentTemplateSectionDto2Child1,
+                    siblingDocumentTemplateSectionDto2Child1Urls,
+                    List.of(
+                        DocumentTemplateSectionSummaryView.from(
+                            "1.1.1.1",
+                            null,
+                            siblingDocumentTemplateSectionDto2Child1Child1,
+                            siblingDocumentTemplateSectionDto2Child1Child1Urls,
+                            List.of()
+                        )
+                    )
+                ),
+                DocumentTemplateSectionSummaryView.from(
+                    null,
+                    null,
+                    siblingDocumentTemplateSectionDto2Child2,
+                    siblingDocumentTemplateSectionDto2Child2Urls,
+                    List.of()
+                ),
+                DocumentTemplateSectionSummaryView.from(
+                    "1.1.2",
+                    null,
+                    siblingDocumentTemplateSectionDto2Child3,
+                    siblingDocumentTemplateSectionDto2Child3Urls,
+                    List.of()
+                )
+            )
         )
     );
   }

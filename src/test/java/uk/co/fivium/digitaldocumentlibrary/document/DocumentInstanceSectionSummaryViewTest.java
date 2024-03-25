@@ -1,8 +1,10 @@
 package uk.co.fivium.digitaldocumentlibrary.document;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class DocumentInstanceSectionSummaryViewTest {
@@ -18,7 +20,8 @@ class DocumentInstanceSectionSummaryViewTest {
             null,
             documentInstanceSectionDto,
             ResolvedDocumentInstanceSectionTestUtil.newBuilder().build(),
-            DocumentInstanceSectionUrlsTestUtil.newBuilder().build()
+            DocumentInstanceSectionUrlsTestUtil.newBuilder().build(),
+            List.of()
         )
     )
         .extracting(DocumentInstanceSectionSummaryView::titleWithSectionNumber)
@@ -36,7 +39,8 @@ class DocumentInstanceSectionSummaryViewTest {
             "1.2.3",
             documentInstanceSectionDto,
             ResolvedDocumentInstanceSectionTestUtil.newBuilder().build(),
-            DocumentInstanceSectionUrlsTestUtil.newBuilder().build()
+            DocumentInstanceSectionUrlsTestUtil.newBuilder().build(),
+            List.of()
         )
     )
         .extracting(DocumentInstanceSectionSummaryView::titleWithSectionNumber)
@@ -49,13 +53,15 @@ class DocumentInstanceSectionSummaryViewTest {
     var documentInstanceSectionDto = DocumentInstanceSectionDtoTestUtil.builder().build();
     var content = ResolvedDocumentInstanceSectionTestUtil.newBuilder().build();
     var documentInstanceSectionUrls = DocumentInstanceSectionUrlsTestUtil.newBuilder().build();
+    var children = List.of(mock(DocumentInstanceSectionSummaryView.class));
 
     assertThat(
         DocumentInstanceSectionSummaryView.from(
             sectionNumberString,
             documentInstanceSectionDto,
             content,
-            documentInstanceSectionUrls
+            documentInstanceSectionUrls,
+            children
         )
     ).isEqualTo(
         new DocumentInstanceSectionSummaryView(
@@ -65,7 +71,8 @@ class DocumentInstanceSectionSummaryViewTest {
             content.resolvedContent(),
             documentInstanceSectionDto.hasPageBreakBefore(),
             Collections.emptyList(),
-            documentInstanceSectionUrls
+            documentInstanceSectionUrls,
+            children
         )
     );
   }

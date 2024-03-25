@@ -72,20 +72,20 @@ public class DocumentTemplateSectionControllerHelperService {
         ).getTitle();
       }
 
-      var documentTemplateSectionSummaryView = DocumentTemplateSectionSummaryView.from(
-          sectionNumberString,
-          conditionTitle,
-          documentTemplateSectionDto,
-          urlsFunction.apply(documentTemplateSectionDto)
-      );
-      documentTemplateSectionSummaryViews.add(documentTemplateSectionSummaryView);
-
-      var childrenDocumentTemplateSectionSummaryViews = getDocumentTemplateSectionSummaryViewsForSectionSiblings(
+      var children = getDocumentTemplateSectionSummaryViewsForSectionSiblings(
           sectionNumberString,
           documentTemplateSectionDto.children(),
           urlsFunction
       );
-      documentTemplateSectionSummaryViews.addAll(childrenDocumentTemplateSectionSummaryViews);
+
+      var documentTemplateSectionSummaryView = DocumentTemplateSectionSummaryView.from(
+          sectionNumberString,
+          conditionTitle,
+          documentTemplateSectionDto,
+          urlsFunction.apply(documentTemplateSectionDto),
+          children
+      );
+      documentTemplateSectionSummaryViews.add(documentTemplateSectionSummaryView);
     }
 
     return documentTemplateSectionSummaryViews;

@@ -1,7 +1,9 @@
 package uk.co.fivium.digitaldocumentlibrary.document;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class DocumentTemplateSectionSummaryViewTest {
@@ -17,7 +19,8 @@ class DocumentTemplateSectionSummaryViewTest {
             null,
             "condition title",
             documentTemplateSectionDto,
-            DocumentTemplateSectionUrlsTestUtil.newBuilder().build()
+            DocumentTemplateSectionUrlsTestUtil.newBuilder().build(),
+            List.of()
         )
     )
         .extracting(DocumentTemplateSectionSummaryView::titleWithSectionNumber)
@@ -35,7 +38,8 @@ class DocumentTemplateSectionSummaryViewTest {
             "1.2.3",
             "condition title",
             documentTemplateSectionDto,
-            DocumentTemplateSectionUrlsTestUtil.newBuilder().build()
+            DocumentTemplateSectionUrlsTestUtil.newBuilder().build(),
+            List.of()
         )
     )
         .extracting(DocumentTemplateSectionSummaryView::titleWithSectionNumber)
@@ -48,13 +52,15 @@ class DocumentTemplateSectionSummaryViewTest {
     var conditionTitle = "Test condition title";
     var documentTemplateSectionDto = DocumentTemplateSectionDtoTestUtil.builder().build();
     var documentTemplateSectionUrls = DocumentTemplateSectionUrlsTestUtil.newBuilder().build();
+    var children = List.of(mock(DocumentTemplateSectionSummaryView.class));
 
     assertThat(
         DocumentTemplateSectionSummaryView.from(
             sectionNumberString,
             conditionTitle,
             documentTemplateSectionDto,
-            documentTemplateSectionUrls
+            documentTemplateSectionUrls,
+            children
         )
     ).isEqualTo(
         new DocumentTemplateSectionSummaryView(
@@ -63,7 +69,8 @@ class DocumentTemplateSectionSummaryViewTest {
             documentTemplateSectionDto.content(),
             conditionTitle,
             documentTemplateSectionDto.hasPageBreakBefore(),
-            documentTemplateSectionUrls
+            documentTemplateSectionUrls,
+            children
         )
     );
   }

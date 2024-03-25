@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -158,37 +159,45 @@ class DocumentInstanceSectionControllerHelperServiceTest {
             null,
             siblingDocumentInstanceSectionDto1,
             resolvedSiblingDocumentInstanceSectionDto1,
-            siblingDocumentInstanceSectionDto1Urls
+            siblingDocumentInstanceSectionDto1Urls,
+            List.of()
         ),
         DocumentInstanceSectionSummaryView.from(
             "1.1",
             siblingDocumentInstanceSectionDto2,
             resolvedSiblingDocumentInstanceSectionDto2,
-            siblingDocumentInstanceSectionDto2Urls
-        ),
-        DocumentInstanceSectionSummaryView.from(
-            "1.1.1",
-            siblingDocumentInstanceSectionDto2Child1,
-            resolvedSiblingDocumentInstanceSectionDto2Child1,
-            siblingDocumentInstanceSectionDto2Child1Urls
-        ),
-        DocumentInstanceSectionSummaryView.from(
-            "1.1.1.1",
-            siblingDocumentInstanceSectionDto2Child1Child1,
-            resolvedSiblingDocumentInstanceSectionDto2Child1Child1,
-            siblingDocumentInstanceSectionDto2Child1Child1Urls
-        ),
-        DocumentInstanceSectionSummaryView.from(
-            null,
-            siblingDocumentInstanceSectionDto2Child2,
-            resolvedSiblingDocumentInstanceSectionDto2Child2,
-            siblingDocumentInstanceSectionDto2Child2Urls
-        ),
-        DocumentInstanceSectionSummaryView.from(
-            "1.1.2",
-            siblingDocumentInstanceSectionDto2Child3,
-            resolvedSiblingDocumentInstanceSectionDto2Child3,
-            siblingDocumentInstanceSectionDto2Child3Urls
+            siblingDocumentInstanceSectionDto2Urls,
+            List.of(
+                DocumentInstanceSectionSummaryView.from(
+                  "1.1.1",
+                  siblingDocumentInstanceSectionDto2Child1,
+                  resolvedSiblingDocumentInstanceSectionDto2Child1,
+                  siblingDocumentInstanceSectionDto2Child1Urls,
+                  List.of(
+                      DocumentInstanceSectionSummaryView.from(
+                          "1.1.1.1",
+                          siblingDocumentInstanceSectionDto2Child1Child1,
+                          resolvedSiblingDocumentInstanceSectionDto2Child1Child1,
+                          siblingDocumentInstanceSectionDto2Child1Child1Urls,
+                          List.of()
+                      )
+                  )
+                ),
+                DocumentInstanceSectionSummaryView.from(
+                    null,
+                    siblingDocumentInstanceSectionDto2Child2,
+                    resolvedSiblingDocumentInstanceSectionDto2Child2,
+                    siblingDocumentInstanceSectionDto2Child2Urls,
+                    List.of()
+                ),
+                DocumentInstanceSectionSummaryView.from(
+                    "1.1.2",
+                    siblingDocumentInstanceSectionDto2Child3,
+                    resolvedSiblingDocumentInstanceSectionDto2Child3,
+                    siblingDocumentInstanceSectionDto2Child3Urls,
+                    List.of()
+                )
+            )
         )
     );
   }
