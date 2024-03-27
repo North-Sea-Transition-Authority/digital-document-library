@@ -108,8 +108,7 @@ class DocumentInstanceSectionServiceTest {
     assertThat(savedDocumentInstanceSections.get(1)).isEqualTo(existingSibling1);
     assertThat(savedDocumentInstanceSections.get(2)).isEqualTo(existingSibling2);
 
-    assertThat(documentInstanceSectionDto)
-        .isEqualTo(DocumentInstanceSectionDto.from(0, newDocumentInstanceSection, List.of()));
+    assertThat(documentInstanceSectionDto).isEqualTo(DocumentInstanceSectionDto.from(newDocumentInstanceSection, List.of()));
   }
 
   @Test
@@ -189,8 +188,7 @@ class DocumentInstanceSectionServiceTest {
     assertThat(savedDocumentInstanceSections.get(1)).isEqualTo(existingSibling1);
     assertThat(savedDocumentInstanceSections.get(2)).isEqualTo(existingSibling2);
 
-    assertThat(documentInstanceSectionDto)
-        .isEqualTo(DocumentInstanceSectionDto.from(0, newDocumentInstanceSection, List.of()));
+    assertThat(documentInstanceSectionDto).isEqualTo(DocumentInstanceSectionDto.from(newDocumentInstanceSection, List.of()));
   }
 
   @Test
@@ -269,7 +267,7 @@ class DocumentInstanceSectionServiceTest {
     ).thenReturn(allDocumentInstanceSections);
     doReturn(documentInstanceSectionDto)
         .when(documentInstanceSectionService)
-        .getDocumentInstanceSectionDto(0, documentInstanceSection, allDocumentInstanceSections);
+        .getDocumentInstanceSectionDto(documentInstanceSection, allDocumentInstanceSections);
 
     assertThat(documentInstanceSectionService.getDocumentInstanceSectionDtoOrThrow(documentInstanceSectionId))
         .isEqualTo(documentInstanceSectionDto);
@@ -298,27 +296,23 @@ class DocumentInstanceSectionServiceTest {
 
     assertThat(
         documentInstanceSectionService.getDocumentInstanceSectionDto(
-            0,
             documentInstanceSection,
             allDocumentInstanceSections
         )
     ).isEqualTo(
         DocumentInstanceSectionDto.from(
-            0,
             documentInstanceSection,
             List.of(
                 DocumentInstanceSectionDto.from(
-                    1,
                     documentInstanceSectionChild1,
                     List.of(
                         DocumentInstanceSectionDto.from(
-                            2,
                             documentInstanceSectionChild1Child1,
                             List.of()
-                        ))
+                        )
+                    )
                 ),
                 DocumentInstanceSectionDto.from(
-                    1,
                     documentInstanceSectionChild2,
                     List.of()
                 )
@@ -382,10 +376,10 @@ class DocumentInstanceSectionServiceTest {
         .thenReturn(allDocumentInstanceSections);
     doReturn(documentInstanceSectionDto1)
         .when(documentInstanceSectionService)
-        .getDocumentInstanceSectionDto(0, documentInstanceSection1, allDocumentInstanceSections);
+        .getDocumentInstanceSectionDto(documentInstanceSection1, allDocumentInstanceSections);
     doReturn(documentInstanceSectionDto2)
         .when(documentInstanceSectionService)
-        .getDocumentInstanceSectionDto(0, documentInstanceSection2, allDocumentInstanceSections);
+        .getDocumentInstanceSectionDto(documentInstanceSection2, allDocumentInstanceSections);
 
     assertThat(documentInstanceSectionService.getTopLevelDocumentInstanceSectionDtos(documentInstanceDto))
         .containsExactly(

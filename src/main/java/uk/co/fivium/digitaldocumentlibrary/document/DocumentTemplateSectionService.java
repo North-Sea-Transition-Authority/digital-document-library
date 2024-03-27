@@ -154,12 +154,7 @@ public class DocumentTemplateSectionService {
 
     return allDocumentTemplateSections.stream()
         .filter(documentTemplateSection -> documentTemplateSection.getParent() == null)
-        .map(documentTemplateSection ->
-            getDocumentTemplateSectionDto(
-                documentTemplateSection,
-                allDocumentTemplateSections
-            )
-        )
+        .map(documentTemplateSection -> getDocumentTemplateSectionDto(documentTemplateSection, allDocumentTemplateSections))
         .toList();
   }
 

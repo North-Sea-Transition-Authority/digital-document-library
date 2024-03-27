@@ -325,9 +325,17 @@ class DocumentTemplateSectionServiceTest {
             List.of(
                 DocumentTemplateSectionDto.from(
                     documentTemplateSectionChild1,
-                    List.of(DocumentTemplateSectionDto.from(documentTemplateSectionChild1Child1, List.of()))
+                    List.of(
+                        DocumentTemplateSectionDto.from(
+                            documentTemplateSectionChild1Child1,
+                            List.of()
+                        )
+                    )
                 ),
-                DocumentTemplateSectionDto.from(documentTemplateSectionChild2, List.of())
+                DocumentTemplateSectionDto.from(
+                    documentTemplateSectionChild2,
+                    List.of()
+                )
             )
         )
     );

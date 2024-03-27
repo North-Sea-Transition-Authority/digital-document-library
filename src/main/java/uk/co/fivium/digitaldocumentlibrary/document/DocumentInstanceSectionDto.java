@@ -15,7 +15,6 @@ public record DocumentInstanceSectionDto(
     boolean numbered,
     boolean hasPageBreakBefore,
     int displayOrder,
-    int nestingLevel,
     List<DocumentInstanceSectionDto> children
 ) {
 
@@ -26,7 +25,6 @@ public record DocumentInstanceSectionDto(
   }
 
   static DocumentInstanceSectionDto from(
-      int nestingLevel,
       DocumentInstanceSection documentInstanceSection,
       List<DocumentInstanceSectionDto> children
   ) {
@@ -43,7 +41,6 @@ public record DocumentInstanceSectionDto(
         documentInstanceSection.isNumbered(),
         documentInstanceSection.hasPageBreakBefore(),
         documentInstanceSection.getDisplayOrder(),
-        nestingLevel,
         children
     );
   }

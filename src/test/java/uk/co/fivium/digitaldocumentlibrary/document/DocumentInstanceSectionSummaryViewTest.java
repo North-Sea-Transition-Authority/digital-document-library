@@ -65,7 +65,6 @@ class DocumentInstanceSectionSummaryViewTest {
         )
     ).isEqualTo(
         new DocumentInstanceSectionSummaryView(
-            documentInstanceSectionDto.nestingLevel(),
             sectionNumberString,
             documentInstanceSectionDto.title(),
             content.resolvedContent(),

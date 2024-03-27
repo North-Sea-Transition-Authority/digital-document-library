@@ -4,7 +4,6 @@ import jakarta.annotation.Nullable;
 import java.util.List;
 
 public record DocumentInstanceSectionSummaryView(
-    int nestingLevel,
     @Nullable String sectionNumber,
     String title,
     String content,
@@ -36,7 +35,6 @@ public record DocumentInstanceSectionSummaryView(
         .toList();
 
     return new DocumentInstanceSectionSummaryView(
-        documentInstanceSectionDto.nestingLevel(),
         sectionNumberString,
         documentInstanceSectionDto.title(),
         resolvedDocumentInstanceSection.resolvedContent(),

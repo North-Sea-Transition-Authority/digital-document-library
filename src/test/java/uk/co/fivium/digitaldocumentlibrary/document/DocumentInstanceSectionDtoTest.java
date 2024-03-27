@@ -19,7 +19,7 @@ class DocumentInstanceSectionDtoTest {
         DocumentInstanceSectionDtoTestUtil.builder().build()
     );
 
-    assertThat(DocumentInstanceSectionDto.from(0, documentInstanceSection, children)).isEqualTo(
+    assertThat(DocumentInstanceSectionDto.from(documentInstanceSection, children)).isEqualTo(
         new DocumentInstanceSectionDto(
             documentInstanceSection.getId(),
             DocumentInstanceDto.from(documentInstanceSection.getDocumentInstance()),
@@ -30,7 +30,6 @@ class DocumentInstanceSectionDtoTest {
             documentInstanceSection.isNumbered(),
             documentInstanceSection.hasPageBreakBefore(),
             documentInstanceSection.getDisplayOrder(),
-            0,
             children
         )
     );
@@ -50,7 +49,7 @@ class DocumentInstanceSectionDtoTest {
         DocumentInstanceSectionDtoTestUtil.builder().build()
     );
 
-    assertThat(DocumentInstanceSectionDto.from(1, documentInstanceSection, children)).isEqualTo(
+    assertThat(DocumentInstanceSectionDto.from(documentInstanceSection, children)).isEqualTo(
         new DocumentInstanceSectionDto(
             documentInstanceSection.getId(),
             DocumentInstanceDto.from(documentInstanceSection.getDocumentInstance()),
@@ -61,7 +60,6 @@ class DocumentInstanceSectionDtoTest {
             documentInstanceSection.isNumbered(),
             documentInstanceSection.hasPageBreakBefore(),
             documentInstanceSection.getDisplayOrder(),
-            1,
             children
         )
     );
@@ -81,9 +79,7 @@ class DocumentInstanceSectionDtoTest {
         DocumentInstanceSectionDtoTestUtil.builder().build()
     );
 
-    var nestingLevel = 2;
-
-    assertThat(DocumentInstanceSectionDto.from(nestingLevel, documentInstanceSection, children)).isEqualTo(
+    assertThat(DocumentInstanceSectionDto.from(documentInstanceSection, children)).isEqualTo(
         new DocumentInstanceSectionDto(
             documentInstanceSection.getId(),
             DocumentInstanceDto.from(documentInstanceSection.getDocumentInstance()),
@@ -94,7 +90,6 @@ class DocumentInstanceSectionDtoTest {
             documentInstanceSection.isNumbered(),
             documentInstanceSection.hasPageBreakBefore(),
             documentInstanceSection.getDisplayOrder(),
-            nestingLevel,
             children
         )
     );
