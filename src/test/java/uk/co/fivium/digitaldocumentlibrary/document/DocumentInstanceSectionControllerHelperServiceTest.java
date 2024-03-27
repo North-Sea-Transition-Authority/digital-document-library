@@ -6,7 +6,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -38,14 +37,14 @@ class DocumentInstanceSectionControllerHelperServiceTest {
     Function<DocumentInstanceSectionDto, DocumentInstanceSectionUrls> urlsFunction = documentInstanceSectionDto -> null;
 
     var topLevelDocumentInstanceSectionDtos = List.of(DocumentInstanceSectionDtoTestUtil.builder().build());
-    var documentInstanceSectionSummaryViews = List.of(mock(DocumentInstanceSectionSummaryView.class));
+    var topLevelDocumentInstanceSectionSummaryViews = List.of(mock(DocumentInstanceSectionSummaryView.class));
 
     when(documentInstanceSectionService.getTopLevelDocumentInstanceSectionDtos(documentInstanceDto))
         .thenReturn(topLevelDocumentInstanceSectionDtos);
 
-    doReturn(documentInstanceSectionSummaryViews)
+    doReturn(topLevelDocumentInstanceSectionSummaryViews)
         .when(documentInstanceSectionControllerHelperService)
-        .getDocumentInstanceSectionSummaryViewsForSectionSiblings(
+        .getSiblingDocumentInstanceSectionSummaryViews(
             null,
             topLevelDocumentInstanceSectionDtos,
             urlsFunction,
@@ -58,11 +57,11 @@ class DocumentInstanceSectionControllerHelperServiceTest {
              urlsFunction,
              documentMailMergeFieldFormatter
          )
-    ).isEqualTo(new DocumentInstanceSectionsSummaryView(documentInstanceSectionSummaryViews, List.of()));
+    ).isEqualTo(new DocumentInstanceSectionsSummaryView(topLevelDocumentInstanceSectionSummaryViews, List.of()));
   }
 
   @Test
-  void getDocumentInstanceSectionSummaryViewsForSectionSiblings() {
+  void getSiblingDocumentInstanceSectionSummaryViews() {
     var parentSectionNumberString = "1";
 
     var siblingDocumentInstanceSectionDto1 =
@@ -148,7 +147,7 @@ class DocumentInstanceSectionControllerHelperServiceTest {
         .thenReturn(resolvedSiblingDocumentInstanceSectionDto2Child3);
 
     assertThat(
-        documentInstanceSectionControllerHelperService.getDocumentInstanceSectionSummaryViewsForSectionSiblings(
+        documentInstanceSectionControllerHelperService.getSiblingDocumentInstanceSectionSummaryViews(
             parentSectionNumberString,
             siblingDocumentInstanceSectionDtos,
             urlsFunction,

@@ -29,19 +29,23 @@ public class DocumentInstanceSectionControllerHelperService {
     var topLevelDocumentInstanceSectionDtos =
         documentInstanceSectionService.getTopLevelDocumentInstanceSectionDtos(documentInstanceDto);
 
-    var sectionSummaryViews = getDocumentInstanceSectionSummaryViewsForSectionSiblings(
+    var topLevelDocumentInstanceSectionSummaryViews = getSiblingDocumentInstanceSectionSummaryViews(
         null,
         topLevelDocumentInstanceSectionDtos,
         urlsFunction,
         documentMailMergeFieldFormatter
     );
 
-    var errorMessages = sectionSummaryViews.stream().flatMap(view -> view.errorMessages().stream()).distinct().toList();
+    var errorMessages = topLevelDocumentInstanceSectionSummaryViews
+        .stream()
+        .flatMap(view -> view.errorMessages().stream())
+        .distinct()
+        .toList();
 
-    return new DocumentInstanceSectionsSummaryView(sectionSummaryViews, errorMessages);
+    return new DocumentInstanceSectionsSummaryView(topLevelDocumentInstanceSectionSummaryViews, errorMessages);
   }
 
-  List<DocumentInstanceSectionSummaryView> getDocumentInstanceSectionSummaryViewsForSectionSiblings(
+  List<DocumentInstanceSectionSummaryView> getSiblingDocumentInstanceSectionSummaryViews(
       String parentSectionNumberString,
       List<DocumentInstanceSectionDto> siblingDocumentInstanceSectionDtos,
       Function<DocumentInstanceSectionDto, DocumentInstanceSectionUrls> urlsFunction,
@@ -74,7 +78,7 @@ public class DocumentInstanceSectionControllerHelperService {
           documentMailMergeFieldFormatter
       );
 
-      var children = getDocumentInstanceSectionSummaryViewsForSectionSiblings(
+      var children = getSiblingDocumentInstanceSectionSummaryViews(
           sectionNumberString,
           documentInstanceSectionDto.children(),
           urlsFunction,

@@ -21,21 +21,21 @@ public class DocumentTemplateSectionControllerHelperService {
     this.documentTemplateSectionConditionService = documentTemplateSectionConditionService;
   }
 
-  public List<DocumentTemplateSectionSummaryView> getDocumentTemplateSectionSummaryViews(
+  public List<DocumentTemplateSectionSummaryView> getTopLevelDocumentTemplateSectionSummaryViews(
       DocumentTemplateDto documentTemplateDto,
       Function<DocumentTemplateSectionDto, DocumentTemplateSectionUrls> urlsFunction
   ) {
     var topLevelDocumentTemplateSectionDtos =
         documentTemplateSectionService.getTopLevelDocumentTemplateSectionDtos(documentTemplateDto);
 
-    return getDocumentTemplateSectionSummaryViewsForSectionSiblings(
+    return getSiblingDocumentTemplateSectionSummaryViews(
         null,
         topLevelDocumentTemplateSectionDtos,
         urlsFunction
     );
   }
 
-  List<DocumentTemplateSectionSummaryView> getDocumentTemplateSectionSummaryViewsForSectionSiblings(
+  List<DocumentTemplateSectionSummaryView> getSiblingDocumentTemplateSectionSummaryViews(
       String parentSectionNumberString,
       List<DocumentTemplateSectionDto> siblingDocumentTemplateSectionDtos,
       Function<DocumentTemplateSectionDto, DocumentTemplateSectionUrls> urlsFunction
@@ -72,7 +72,7 @@ public class DocumentTemplateSectionControllerHelperService {
         ).getTitle();
       }
 
-      var children = getDocumentTemplateSectionSummaryViewsForSectionSiblings(
+      var children = getSiblingDocumentTemplateSectionSummaryViews(
           sectionNumberString,
           documentTemplateSectionDto.children(),
           urlsFunction

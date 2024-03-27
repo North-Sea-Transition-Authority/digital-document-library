@@ -30,31 +30,31 @@ class DocumentTemplateSectionControllerHelperServiceTest {
   private DocumentTemplateSectionControllerHelperService documentTemplateSectionControllerHelperService;
 
   @Test
-  void getDocumentTemplateSectionSummaryViews() {
+  void getTopLevelDocumentTemplateSectionSummaryViews() {
     var documentTemplateDto = DocumentTemplateDtoTestUtil.builder().build();
     Function<DocumentTemplateSectionDto, DocumentTemplateSectionUrls> urlsFunction = documentTemplateSectionDto -> null;
 
     var topLevelDocumentTemplateSectionDtos = List.of(DocumentTemplateSectionDtoTestUtil.builder().build());
-    var documentTemplateSectionSummaryViewsForSectionSiblings = List.of(mock(DocumentTemplateSectionSummaryView.class));
+    var topLevelDocumentTemplateSectionSummaryViews = List.of(mock(DocumentTemplateSectionSummaryView.class));
 
     when(documentTemplateSectionService.getTopLevelDocumentTemplateSectionDtos(documentTemplateDto))
         .thenReturn(topLevelDocumentTemplateSectionDtos);
 
-    doReturn(documentTemplateSectionSummaryViewsForSectionSiblings)
+    doReturn(topLevelDocumentTemplateSectionSummaryViews)
         .when(documentTemplateSectionControllerHelperService)
-        .getDocumentTemplateSectionSummaryViewsForSectionSiblings(
+        .getSiblingDocumentTemplateSectionSummaryViews(
             null,
             topLevelDocumentTemplateSectionDtos,
             urlsFunction
         );
 
     assertThat(
-        documentTemplateSectionControllerHelperService.getDocumentTemplateSectionSummaryViews(documentTemplateDto, urlsFunction)
-    ).isEqualTo(documentTemplateSectionSummaryViewsForSectionSiblings);
+        documentTemplateSectionControllerHelperService.getTopLevelDocumentTemplateSectionSummaryViews(documentTemplateDto, urlsFunction)
+    ).isEqualTo(topLevelDocumentTemplateSectionSummaryViews);
   }
 
   @Test
-  void getDocumentTemplateSectionSummaryViewsForSectionSiblings() {
+  void getSiblingDocumentTemplateSectionSummaryViews() {
     var parentSectionNumberString = "1";
 
     var documentTemplateDto = DocumentTemplateDtoTestUtil.builder().build();
@@ -145,7 +145,7 @@ class DocumentTemplateSectionControllerHelperServiceTest {
     ).thenReturn(condition2);
 
     assertThat(
-        documentTemplateSectionControllerHelperService.getDocumentTemplateSectionSummaryViewsForSectionSiblings(
+        documentTemplateSectionControllerHelperService.getSiblingDocumentTemplateSectionSummaryViews(
             parentSectionNumberString,
             siblingDocumentTemplateSectionDtos,
             urlsFunction
