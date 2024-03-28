@@ -37,7 +37,15 @@ class DocumentInstanceSectionControllerHelperServiceTest {
     Function<DocumentInstanceSectionDto, DocumentInstanceSectionUrls> urlsFunction = documentInstanceSectionDto -> null;
 
     var topLevelDocumentInstanceSectionDtos = List.of(DocumentInstanceSectionDtoTestUtil.builder().build());
-    var topLevelDocumentInstanceSectionSummaryViews = List.of(mock(DocumentInstanceSectionSummaryView.class));
+
+    var topLevelDocumentInstanceSectionSummaryView1 = mock(DocumentInstanceSectionSummaryView.class);
+    var topLevelDocumentInstanceSectionSummaryView1Descendant1 = mock(DocumentInstanceSectionSummaryView.class);
+    var topLevelDocumentInstanceSectionSummaryView2 = mock(DocumentInstanceSectionSummaryView.class);
+    var topLevelDocumentInstanceSectionSummaryView2Descendant1 = mock(DocumentInstanceSectionSummaryView.class);
+    var topLevelDocumentInstanceSectionSummaryView2Descendant2 = mock(DocumentInstanceSectionSummaryView.class);
+
+    var topLevelDocumentInstanceSectionSummaryViews =
+        List.of(topLevelDocumentInstanceSectionSummaryView1, topLevelDocumentInstanceSectionSummaryView2);
 
     when(documentInstanceSectionService.getTopLevelDocumentInstanceSectionDtos(documentInstanceDto))
         .thenReturn(topLevelDocumentInstanceSectionDtos);
@@ -51,13 +59,35 @@ class DocumentInstanceSectionControllerHelperServiceTest {
             documentMailMergeFieldFormatter
         );
 
+    when(topLevelDocumentInstanceSectionSummaryView1.errorMessages()).thenReturn(List.of("Error message 1", "Error message 2"));
+    when(topLevelDocumentInstanceSectionSummaryView1.descendants())
+        .thenReturn(List.of(topLevelDocumentInstanceSectionSummaryView1Descendant1));
+
+    when(topLevelDocumentInstanceSectionSummaryView1Descendant1.errorMessages())
+        .thenReturn(List.of("Error message 2", "Error message 1"));
+
+    when(topLevelDocumentInstanceSectionSummaryView2.errorMessages()).thenReturn(List.of("Error message 1", "Error message 3"));
+    when(topLevelDocumentInstanceSectionSummaryView2.descendants())
+        .thenReturn(List.of(topLevelDocumentInstanceSectionSummaryView2Descendant1, topLevelDocumentInstanceSectionSummaryView2Descendant2));
+
+    when(topLevelDocumentInstanceSectionSummaryView2Descendant1.errorMessages())
+        .thenReturn(List.of("Error message 2", "Error message 4"));
+
+    when(topLevelDocumentInstanceSectionSummaryView2Descendant2.errorMessages())
+        .thenReturn(List.of("Error message 5", "Error message 4"));
+
     assertThat(
          documentInstanceSectionControllerHelperService.getDocumentInstanceSectionsSummaryView(
              documentInstanceDto,
              urlsFunction,
              documentMailMergeFieldFormatter
          )
-    ).isEqualTo(new DocumentInstanceSectionsSummaryView(topLevelDocumentInstanceSectionSummaryViews, List.of()));
+    ).isEqualTo(
+        new DocumentInstanceSectionsSummaryView(
+            topLevelDocumentInstanceSectionSummaryViews,
+            List.of("Error message 1", "Error message 2", "Error message 3", "Error message 4", "Error message 5")
+        )
+    );
   }
 
   @Test

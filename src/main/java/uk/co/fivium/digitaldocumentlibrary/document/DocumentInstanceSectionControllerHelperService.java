@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Stream;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -38,7 +39,12 @@ public class DocumentInstanceSectionControllerHelperService {
 
     var errorMessages = topLevelDocumentInstanceSectionSummaryViews
         .stream()
-        .flatMap(view -> view.errorMessages().stream())
+        .flatMap(view ->
+            Stream.concat(
+                view.errorMessages().stream(),
+                view.descendants().stream().flatMap(descendant -> descendant.errorMessages().stream())
+            )
+        )
         .distinct()
         .toList();
 

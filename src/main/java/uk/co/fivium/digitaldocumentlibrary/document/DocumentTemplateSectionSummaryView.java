@@ -2,6 +2,7 @@ package uk.co.fivium.digitaldocumentlibrary.document;
 
 import jakarta.annotation.Nullable;
 import java.util.List;
+import java.util.stream.Stream;
 
 public record DocumentTemplateSectionSummaryView(
     @Nullable String sectionNumber,
@@ -19,6 +20,13 @@ public record DocumentTemplateSectionSummaryView(
     }
 
     return "%s %s".formatted(sectionNumber, title);
+  }
+
+  public List<DocumentTemplateSectionSummaryView> descendants() {
+    return children()
+        .stream()
+        .flatMap(child -> Stream.concat(Stream.of(child), child.descendants().stream()))
+        .toList();
   }
 
   static DocumentTemplateSectionSummaryView from(

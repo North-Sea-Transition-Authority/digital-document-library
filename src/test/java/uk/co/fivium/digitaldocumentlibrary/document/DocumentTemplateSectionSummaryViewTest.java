@@ -47,6 +47,24 @@ class DocumentTemplateSectionSummaryViewTest {
   }
 
   @Test
+  void descendants() {
+    var documentTemplateSectionSummaryViewChild1Child1 = DocumentTemplateSectionSummaryViewTestUtil.newBuilder().build();
+    var documentTemplateSectionSummaryViewChild1 = DocumentTemplateSectionSummaryViewTestUtil.newBuilder()
+        .withChildren(List.of(documentTemplateSectionSummaryViewChild1Child1))
+        .build();
+    var documentTemplateSectionSummaryViewChild2 = DocumentTemplateSectionSummaryViewTestUtil.newBuilder().build();
+    var documentTemplateSectionSummaryView = DocumentTemplateSectionSummaryViewTestUtil.newBuilder()
+        .withChildren(List.of(documentTemplateSectionSummaryViewChild1, documentTemplateSectionSummaryViewChild2))
+        .build();
+
+    assertThat(documentTemplateSectionSummaryView.descendants()).containsExactly(
+        documentTemplateSectionSummaryViewChild1,
+        documentTemplateSectionSummaryViewChild1Child1,
+        documentTemplateSectionSummaryViewChild2
+    );
+  }
+
+  @Test
   void from() {
     var sectionNumberString = "1.2.3";
     var conditionTitle = "Test condition title";

@@ -19,7 +19,8 @@ public record DocumentTemplateSectionDto(
 ) {
 
   public List<DocumentTemplateSectionDto> descendants() {
-    return children().stream()
+    return children()
+        .stream()
         .flatMap(child -> Stream.concat(Stream.of(child), child.descendants().stream()))
         .toList();
   }
