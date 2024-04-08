@@ -9,7 +9,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import uk.co.fivium.digitaldocumentlibrary.document.ContentSanitisationService;
 
 class ContentSanitisationServiceTest {
 
@@ -51,6 +50,18 @@ class ContentSanitisationServiceTest {
         arguments(
             "<p onmouseover=alert('oh no')>((MAIL_MERGE_CONTENT))</p>",
             "<p>((MAIL_MERGE_CONTENT))</p>"
+        ),
+        arguments(
+            "<br/>",
+            "<br />"
+        ),
+        arguments(
+            "<br>",
+            "<br />"
+        ),
+        arguments(
+            "<p>",
+            "<p></p>"
         )
     );
   }
