@@ -3,7 +3,6 @@ package uk.co.fivium.digitaldocumentlibrary.document;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -17,7 +16,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class DocumentTemplateSectionControllerHelperServiceTest {
+class DocumentTemplateSectionViewServiceTest {
 
   @Mock
   private DocumentTemplateSectionService documentTemplateSectionService;
@@ -27,7 +26,7 @@ class DocumentTemplateSectionControllerHelperServiceTest {
 
   @InjectMocks
   @Spy
-  private DocumentTemplateSectionControllerHelperService documentTemplateSectionControllerHelperService;
+  private DocumentTemplateSectionViewService documentTemplateSectionViewService;
 
   @Test
   void getTopLevelDocumentTemplateSectionSummaryViews() {
@@ -41,7 +40,7 @@ class DocumentTemplateSectionControllerHelperServiceTest {
         .thenReturn(topLevelDocumentTemplateSectionDtos);
 
     doReturn(topLevelDocumentTemplateSectionSummaryViews)
-        .when(documentTemplateSectionControllerHelperService)
+        .when(documentTemplateSectionViewService)
         .getSiblingDocumentTemplateSectionSummaryViews(
             null,
             topLevelDocumentTemplateSectionDtos,
@@ -49,7 +48,7 @@ class DocumentTemplateSectionControllerHelperServiceTest {
         );
 
     assertThat(
-        documentTemplateSectionControllerHelperService.getTopLevelDocumentTemplateSectionSummaryViews(documentTemplateDto, urlsFunction)
+        documentTemplateSectionViewService.getTopLevelDocumentTemplateSectionSummaryViews(documentTemplateDto, urlsFunction)
     ).isEqualTo(topLevelDocumentTemplateSectionSummaryViews);
   }
 
@@ -145,7 +144,7 @@ class DocumentTemplateSectionControllerHelperServiceTest {
     ).thenReturn(condition2);
 
     assertThat(
-        documentTemplateSectionControllerHelperService.getSiblingDocumentTemplateSectionSummaryViews(
+        documentTemplateSectionViewService.getSiblingDocumentTemplateSectionSummaryViews(
             parentSectionNumberString,
             siblingDocumentTemplateSectionDtos,
             urlsFunction
@@ -195,49 +194,6 @@ class DocumentTemplateSectionControllerHelperServiceTest {
                 )
             )
         )
-    );
-  }
-
-  @Test
-  void createDocumentTemplateSection() {
-    var documentTemplateDto = DocumentTemplateDtoTestUtil.builder().build();
-    var parentDto = DocumentTemplateSectionDtoTestUtil.builder().build();
-    var form = DocumentTemplateSectionFormTestUtil.builder().build();
-    int displayOrder = 1;
-
-    documentTemplateSectionControllerHelperService.createDocumentTemplateSection(
-        documentTemplateDto,
-        parentDto,
-        form,
-        displayOrder
-    );
-
-    verify(documentTemplateSectionService).createDocumentTemplateSection(
-        documentTemplateDto,
-        parentDto,
-        form.title(),
-        form.content(),
-        form.conditionMnemonic(),
-        form.numbered(),
-        form.hasPageBreakBefore(),
-        displayOrder
-    );
-  }
-
-  @Test
-  void editDocumentTemplateSection() {
-    var documentTemplateSectionDto = DocumentTemplateSectionDtoTestUtil.builder().build();
-    var form = DocumentTemplateSectionFormTestUtil.builder().build();
-
-    documentTemplateSectionControllerHelperService.editDocumentTemplateSection(documentTemplateSectionDto, form);
-
-    verify(documentTemplateSectionService).editDocumentTemplateSection(
-        documentTemplateSectionDto,
-        form.title(),
-        form.content(),
-        form.conditionMnemonic(),
-        form.numbered(),
-        form.hasPageBreakBefore()
     );
   }
 }

@@ -4,11 +4,11 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 @Service
-public class DocumentMailMergeFieldControllerHelperService {
+public class DocumentMailMergeFieldViewService {
 
   private final DocumentMailMergeFieldService documentMailMergeFieldService;
 
-  DocumentMailMergeFieldControllerHelperService(DocumentMailMergeFieldService documentMailMergeFieldService) {
+  DocumentMailMergeFieldViewService(DocumentMailMergeFieldService documentMailMergeFieldService) {
     this.documentMailMergeFieldService = documentMailMergeFieldService;
   }
 

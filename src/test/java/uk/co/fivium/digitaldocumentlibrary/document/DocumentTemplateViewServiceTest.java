@@ -13,13 +13,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class DocumentTemplateControllerHelperServiceTest {
+class DocumentTemplateViewServiceTest {
 
   @Mock
   private DocumentTemplateService documentTemplateService;
 
   @InjectMocks
-  private DocumentTemplateControllerHelperService documentTemplateControllerHelperService;
+  private DocumentTemplateViewService documentTemplateViewService;
 
   @Test
   void getDocumentTemplateSummaryViews() {
@@ -48,7 +48,7 @@ class DocumentTemplateControllerHelperServiceTest {
     when(documentTemplateService.getDocumentTemplateDtos())
         .thenReturn(List.of(documentTemplateDto2, documentTemplateDto1, documentTemplateDto3));
 
-    assertThat(documentTemplateControllerHelperService.getDocumentTemplateSummaryViews(viewUrlFunction)).containsExactly(
+    assertThat(documentTemplateViewService.getDocumentTemplateSummaryViews(viewUrlFunction)).containsExactly(
         DocumentTemplateSummaryView.from(documentTemplateDto1, documentTemplateDto1ViewUrl),
         DocumentTemplateSummaryView.from(documentTemplateDto2, documentTemplateDto2ViewUrl),
         DocumentTemplateSummaryView.from(documentTemplateDto3, documentTemplateDto3ViewUrl)

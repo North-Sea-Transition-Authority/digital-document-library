@@ -32,6 +32,25 @@ public class DocumentTemplateSectionService {
   public DocumentTemplateSectionDto createDocumentTemplateSection(
       DocumentTemplateDto documentTemplateDto,
       @Nullable DocumentTemplateSectionDto parentDto,
+      DocumentTemplateSectionForm form,
+      int displayOrder
+  ) {
+    return createDocumentTemplateSection(
+        documentTemplateDto,
+        parentDto,
+        form.title(),
+        form.content(),
+        form.conditionMnemonic(),
+        form.numbered(),
+        form.hasPageBreakBefore(),
+        displayOrder
+    );
+  }
+
+  @Transactional
+  public DocumentTemplateSectionDto createDocumentTemplateSection(
+      DocumentTemplateDto documentTemplateDto,
+      @Nullable DocumentTemplateSectionDto parentDto,
       String title,
       String content,
       String conditionMnemonic,
@@ -78,6 +97,21 @@ public class DocumentTemplateSectionService {
     documentTemplateSectionRepository.saveAll(documentTemplateSectionsToSave);
 
     return DocumentTemplateSectionDto.from(documentTemplateSection, List.of());
+  }
+
+  @Transactional
+  public void editDocumentTemplateSection(
+      DocumentTemplateSectionDto documentTemplateSectionDto,
+      DocumentTemplateSectionForm form
+  ) {
+    editDocumentTemplateSection(
+        documentTemplateSectionDto,
+        form.title(),
+        form.content(),
+        form.conditionMnemonic(),
+        form.numbered(),
+        form.hasPageBreakBefore()
+    );
   }
 
   @Transactional

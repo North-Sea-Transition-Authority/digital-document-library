@@ -1,6 +1,5 @@
 package uk.co.fivium.digitaldocumentlibrary.document;
 
-import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -8,12 +7,12 @@ import java.util.function.Function;
 import org.springframework.stereotype.Service;
 
 @Service
-public class DocumentTemplateSectionControllerHelperService {
+public class DocumentTemplateSectionViewService {
 
   private final DocumentTemplateSectionService documentTemplateSectionService;
   private final DocumentTemplateSectionConditionService documentTemplateSectionConditionService;
 
-  DocumentTemplateSectionControllerHelperService(
+  DocumentTemplateSectionViewService(
       DocumentTemplateSectionService documentTemplateSectionService,
       DocumentTemplateSectionConditionService documentTemplateSectionConditionService
   ) {
@@ -89,37 +88,5 @@ public class DocumentTemplateSectionControllerHelperService {
     }
 
     return documentTemplateSectionSummaryViews;
-  }
-
-  public void createDocumentTemplateSection(
-      DocumentTemplateDto documentTemplateDto,
-      @Nullable DocumentTemplateSectionDto parentDto,
-      DocumentTemplateSectionForm form,
-      int displayOrder
-  ) {
-    documentTemplateSectionService.createDocumentTemplateSection(
-        documentTemplateDto,
-        parentDto,
-        form.title(),
-        form.content(),
-        form.conditionMnemonic(),
-        form.numbered(),
-        form.hasPageBreakBefore(),
-        displayOrder
-    );
-  }
-
-  public void editDocumentTemplateSection(
-      DocumentTemplateSectionDto documentTemplateSectionDto,
-      DocumentTemplateSectionForm form
-  ) {
-    documentTemplateSectionService.editDocumentTemplateSection(
-        documentTemplateSectionDto,
-        form.title(),
-        form.content(),
-        form.conditionMnemonic(),
-        form.numbered(),
-        form.hasPageBreakBefore()
-    );
   }
 }

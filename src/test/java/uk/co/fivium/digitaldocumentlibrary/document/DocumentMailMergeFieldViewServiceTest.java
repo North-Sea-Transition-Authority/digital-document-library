@@ -11,13 +11,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class DocumentMailMergeFieldControllerHelperServiceTest {
+class DocumentMailMergeFieldViewServiceTest {
 
   @Mock
   private DocumentMailMergeFieldService documentMailMergeFieldService;
 
   @InjectMocks
-  private DocumentMailMergeFieldControllerHelperService documentMailMergeFieldControllerHelperService;
+  private DocumentMailMergeFieldViewService documentMailMergeFieldViewService;
 
   @Test
   void getApplicableDocumentMailMergeFieldMnemonics() {
@@ -30,7 +30,7 @@ class DocumentMailMergeFieldControllerHelperServiceTest {
     when(documentMailMergeFieldService.getApplicableDocumentMailMergeFields(documentTemplateDto))
         .thenReturn(List.of(applicableMailMergeField));
 
-    assertThat(documentMailMergeFieldControllerHelperService.getApplicableDocumentMailMergeFieldViews(documentTemplateDto))
+    assertThat(documentMailMergeFieldViewService.getApplicableDocumentMailMergeFieldViews(documentTemplateDto))
         .containsExactly(DocumentMailMergeFieldView.from(applicableMailMergeField));
   }
 }

@@ -2,6 +2,9 @@ package uk.co.fivium.digitaldocumentlibrary.document;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,7 +41,32 @@ class DocumentInstanceSectionServiceTest {
   private ArgumentCaptor<List<DocumentInstanceSection>> documentInstanceSectionListCaptor;
 
   @Test
-  void createDocumentInstanceSection_nullParent() {
+  void createDocumentInstanceSection_withForm() {
+    var documentInstanceDto = DocumentInstanceDtoTestUtil.builder().build();
+    var parentDto = DocumentInstanceSectionDtoTestUtil.builder().build();
+    var form = DocumentInstanceSectionFormTestUtil.builder().build();
+    var displayOrder = 1;
+
+    var documentInstanceSectionDto = DocumentInstanceSectionDtoTestUtil.builder().build();
+
+    doReturn(documentInstanceSectionDto)
+        .when(documentInstanceSectionService)
+        .createDocumentInstanceSection(
+            documentInstanceDto,
+            parentDto,
+            form.title(),
+            form.content(),
+            form.numbered(),
+            form.hasPageBreakBefore(),
+            displayOrder
+        );
+
+    assertThat(documentInstanceSectionService.createDocumentInstanceSection(documentInstanceDto, parentDto, form, displayOrder))
+        .isEqualTo(documentInstanceSectionDto);
+  }
+
+  @Test
+  void createDocumentInstanceSection_withParams_nullParent() {
     var documentInstanceDto = DocumentInstanceDtoTestUtil.builder().build();
     var title = "Test title";
     var content = "Test content";
@@ -112,7 +140,7 @@ class DocumentInstanceSectionServiceTest {
   }
 
   @Test
-  void createDocumentInstanceSection_nonNullParent() {
+  void createDocumentInstanceSection_withParams_nonNullParent() {
     var documentInstanceDto = DocumentInstanceDtoTestUtil.builder().build();
 
     var parentDto = DocumentInstanceSectionDtoTestUtil.builder().build();
@@ -192,7 +220,25 @@ class DocumentInstanceSectionServiceTest {
   }
 
   @Test
-  void editDocumentInstanceSection() {
+  void editDocumentInstanceSection_withForm() {
+    var documentInstanceSectionDto = DocumentInstanceSectionDtoTestUtil.builder().build();
+    var form = DocumentInstanceSectionFormTestUtil.builder().build();
+
+    doNothing().when(documentInstanceSectionService).editDocumentInstanceSection(any(), any(), any(), anyBoolean(), anyBoolean());
+
+    documentInstanceSectionService.editDocumentInstanceSection(documentInstanceSectionDto, form);
+
+    verify(documentInstanceSectionService).editDocumentInstanceSection(
+        documentInstanceSectionDto,
+        form.title(),
+        form.content(),
+        form.numbered(),
+        form.hasPageBreakBefore()
+    );
+  }
+
+  @Test
+  void editDocumentInstanceSection_withParams() {
     var documentInstanceSectionDto = DocumentInstanceSectionDtoTestUtil.builder().build();
     var title = "Test edited title";
     var content = "Test edited content";

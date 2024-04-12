@@ -7,7 +7,7 @@ import java.util.function.Function;
 import org.springframework.stereotype.Service;
 
 @Service
-public class DocumentInstanceControllerHelperService {
+public class DocumentInstanceViewService {
 
   public List<DocumentInstanceSummaryView> getDocumentInstanceSummaryViews(
       Collection<DocumentInstanceDto> documentInstanceDtos,

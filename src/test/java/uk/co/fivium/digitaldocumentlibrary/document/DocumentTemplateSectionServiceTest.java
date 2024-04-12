@@ -2,6 +2,9 @@ package uk.co.fivium.digitaldocumentlibrary.document;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,7 +41,33 @@ class DocumentTemplateSectionServiceTest {
   private ArgumentCaptor<List<DocumentTemplateSection>> documentTemplateSectionListCaptor;
 
   @Test
-  void createDocumentTemplateSection_nullParent() {
+  void createDocumentTemplateSection_withForm() {
+    var documentTemplateDto = DocumentTemplateDtoTestUtil.builder().build();
+    var parentDto = DocumentTemplateSectionDtoTestUtil.builder().build();
+    var form = DocumentTemplateSectionFormTestUtil.builder().build();
+    var displayOrder = 1;
+
+    var documentTemplateSectionDto = DocumentTemplateSectionDtoTestUtil.builder().build();
+
+    doReturn(documentTemplateSectionDto)
+        .when(documentTemplateSectionService)
+        .createDocumentTemplateSection(
+            documentTemplateDto,
+            parentDto,
+            form.title(),
+            form.content(),
+            form.conditionMnemonic(),
+            form.numbered(),
+            form.hasPageBreakBefore(),
+            displayOrder
+        );
+
+    assertThat(documentTemplateSectionService.createDocumentTemplateSection(documentTemplateDto, parentDto, form, displayOrder))
+        .isEqualTo(documentTemplateSectionDto);
+  }
+
+  @Test
+  void createDocumentTemplateSection_withParams_nullParent() {
     var documentTemplateDto = DocumentTemplateDtoTestUtil.builder().build();
     var title = "Test title";
     var content = "Test content";
@@ -117,7 +146,7 @@ class DocumentTemplateSectionServiceTest {
   }
 
   @Test
-  void createDocumentTemplateSection_nonNullParent() {
+  void createDocumentTemplateSection_withParams_nonNullParent() {
     var documentTemplateDto = DocumentTemplateDtoTestUtil.builder().build();
 
     var parentDto = DocumentTemplateSectionDtoTestUtil.builder().build();
@@ -202,7 +231,28 @@ class DocumentTemplateSectionServiceTest {
   }
 
   @Test
-  void editDocumentTemplateSection() {
+  void editDocumentTemplateSection_withForm() {
+    var documentTemplateSectionDto = DocumentTemplateSectionDtoTestUtil.builder().build();
+    var form = DocumentTemplateSectionFormTestUtil.builder().build();
+
+    doNothing()
+        .when(documentTemplateSectionService)
+        .editDocumentTemplateSection(any(), any(), any(), any(), anyBoolean(), anyBoolean());
+
+    documentTemplateSectionService.editDocumentTemplateSection(documentTemplateSectionDto, form);
+
+    verify(documentTemplateSectionService).editDocumentTemplateSection(
+        documentTemplateSectionDto,
+        form.title(),
+        form.content(),
+        form.conditionMnemonic(),
+        form.numbered(),
+        form.hasPageBreakBefore()
+    );
+  }
+
+  @Test
+  void editDocumentTemplateSection_withParams() {
     var documentTemplateSectionDto = DocumentTemplateSectionDtoTestUtil.builder().build();
     var title = "Tedt edited title";
     var content = "Test edited content";

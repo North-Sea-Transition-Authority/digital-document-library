@@ -6,11 +6,11 @@ import java.util.function.Function;
 import org.springframework.stereotype.Service;
 
 @Service
-public class DocumentTemplateControllerHelperService {
+public class DocumentTemplateViewService {
 
   private final DocumentTemplateService documentTemplateService;
 
-  DocumentTemplateControllerHelperService(DocumentTemplateService documentTemplateService) {
+  DocumentTemplateViewService(DocumentTemplateService documentTemplateService) {
     this.documentTemplateService = documentTemplateService;
   }
 

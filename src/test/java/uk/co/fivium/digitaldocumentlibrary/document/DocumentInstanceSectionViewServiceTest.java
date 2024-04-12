@@ -3,7 +3,6 @@ package uk.co.fivium.digitaldocumentlibrary.document;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -17,7 +16,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class DocumentInstanceSectionControllerHelperServiceTest {
+class DocumentInstanceSectionViewServiceTest {
 
   @Mock
   private DocumentInstanceSectionService documentInstanceSectionService;
@@ -27,7 +26,7 @@ class DocumentInstanceSectionControllerHelperServiceTest {
 
   @InjectMocks
   @Spy
-  private DocumentInstanceSectionControllerHelperService documentInstanceSectionControllerHelperService;
+  private DocumentInstanceSectionViewService documentInstanceSectionViewService;
 
   private final DocumentMailMergeFieldFormatter documentMailMergeFieldFormatter = new TestDocumentMailMergeFieldFormatter();
 
@@ -51,7 +50,7 @@ class DocumentInstanceSectionControllerHelperServiceTest {
         .thenReturn(topLevelDocumentInstanceSectionDtos);
 
     doReturn(topLevelDocumentInstanceSectionSummaryViews)
-        .when(documentInstanceSectionControllerHelperService)
+        .when(documentInstanceSectionViewService)
         .getSiblingDocumentInstanceSectionSummaryViews(
             null,
             topLevelDocumentInstanceSectionDtos,
@@ -77,7 +76,7 @@ class DocumentInstanceSectionControllerHelperServiceTest {
         .thenReturn(List.of("Error message 5", "Error message 4"));
 
     assertThat(
-         documentInstanceSectionControllerHelperService.getDocumentInstanceSectionsSummaryView(
+         documentInstanceSectionViewService.getDocumentInstanceSectionsSummaryView(
              documentInstanceDto,
              urlsFunction,
              documentMailMergeFieldFormatter
@@ -177,7 +176,7 @@ class DocumentInstanceSectionControllerHelperServiceTest {
         .thenReturn(resolvedSiblingDocumentInstanceSectionDto2Child3);
 
     assertThat(
-        documentInstanceSectionControllerHelperService.getSiblingDocumentInstanceSectionSummaryViews(
+        documentInstanceSectionViewService.getSiblingDocumentInstanceSectionSummaryViews(
             parentSectionNumberString,
             siblingDocumentInstanceSectionDtos,
             urlsFunction,
@@ -228,47 +227,6 @@ class DocumentInstanceSectionControllerHelperServiceTest {
                 )
             )
         )
-    );
-  }
-
-  @Test
-  void createDocumentInstanceSection() {
-    var documentInstanceDto = DocumentInstanceDtoTestUtil.builder().build();
-    var parentDto = DocumentInstanceSectionDtoTestUtil.builder().build();
-    var form = DocumentInstanceSectionFormTestUtil.builder().build();
-    int displayOrder = 1;
-
-    documentInstanceSectionControllerHelperService.createDocumentInstanceSection(
-        documentInstanceDto,
-        parentDto,
-        form,
-        displayOrder
-    );
-
-    verify(documentInstanceSectionService).createDocumentInstanceSection(
-        documentInstanceDto,
-        parentDto,
-        form.title(),
-        form.content(),
-        form.numbered(),
-        form.hasPageBreakBefore(),
-        displayOrder
-    );
-  }
-
-  @Test
-  void editDocumentInstanceSection() {
-    var documentInstanceSectionDto = DocumentInstanceSectionDtoTestUtil.builder().build();
-    var form = DocumentInstanceSectionFormTestUtil.builder().build();
-
-    documentInstanceSectionControllerHelperService.editDocumentInstanceSection(documentInstanceSectionDto, form);
-
-    verify(documentInstanceSectionService).editDocumentInstanceSection(
-        documentInstanceSectionDto,
-        form.title(),
-        form.content(),
-        form.numbered(),
-        form.hasPageBreakBefore()
     );
   }
 }

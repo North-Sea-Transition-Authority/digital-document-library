@@ -1,7 +1,9 @@
 package uk.co.fivium.digitaldocumentlibrary.document;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,5 +42,16 @@ public class DocumentTemplateSectionConditionService {
         .filter(documentTemplateSectionCondition -> documentTemplateSectionCondition.getMnemonic().equals(mnemonic))
         .filter(documentTemplateSectionCondition -> documentTemplateSectionCondition.isApplicable(documentTemplateDto))
         .findFirst();
+  }
+
+  public Map<String, String> getConditionsFdsSelectMap(DocumentTemplateDto documentTemplateDto) {
+    return getApplicableDocumentTemplateSectionConditions(documentTemplateDto)
+        .stream()
+        .collect(
+            Collectors.toMap(
+                DocumentTemplateSectionCondition::getMnemonic,
+                DocumentTemplateSectionCondition::getTitle
+            )
+        );
   }
 }

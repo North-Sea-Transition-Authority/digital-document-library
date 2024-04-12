@@ -1,5 +1,6 @@
 package uk.co.fivium.digitaldocumentlibrary.document;
 
+import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doReturn;
@@ -146,5 +147,28 @@ class DocumentTemplateSectionConditionServiceTest {
             mnemonic
         )
     ).contains(documentTemplateSectionCondition);
+  }
+
+  @Test
+  void getConditionsFdsSelectMap() {
+    var documentTemplateDto = DocumentTemplateDtoTestUtil.builder().build();
+
+    var documentTemplateSectionCondition1 = DocumentTemplateSectionConditionTestUtil.builder()
+        .withMnemonic("TEST_MNEMONIC_1")
+        .withTitle("Test title 1")
+        .build();
+    var documentTemplateSectionCondition2 = DocumentTemplateSectionConditionTestUtil.builder()
+        .withMnemonic("TEST_MNEMONIC_2")
+        .withTitle("Test title 2")
+        .build();
+
+    when(documentTemplateSectionConditionService.getApplicableDocumentTemplateSectionConditions(documentTemplateDto))
+        .thenReturn(List.of(documentTemplateSectionCondition1, documentTemplateSectionCondition2));
+
+    assertThat(documentTemplateSectionConditionService.getConditionsFdsSelectMap(documentTemplateDto))
+        .containsOnly(
+            entry(documentTemplateSectionCondition1.getMnemonic(), documentTemplateSectionCondition1.getTitle()),
+            entry(documentTemplateSectionCondition2.getMnemonic(), documentTemplateSectionCondition2.getTitle())
+        );
   }
 }

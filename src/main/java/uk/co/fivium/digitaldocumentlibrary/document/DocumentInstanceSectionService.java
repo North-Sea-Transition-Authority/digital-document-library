@@ -32,6 +32,24 @@ public class DocumentInstanceSectionService {
   public DocumentInstanceSectionDto createDocumentInstanceSection(
       DocumentInstanceDto documentInstanceDto,
       @Nullable DocumentInstanceSectionDto parentDto,
+      DocumentInstanceSectionForm form,
+      int displayOrder
+  ) {
+    return createDocumentInstanceSection(
+        documentInstanceDto,
+        parentDto,
+        form.title(),
+        form.content(),
+        form.numbered(),
+        form.hasPageBreakBefore(),
+        displayOrder
+    );
+  }
+
+  @Transactional
+  public DocumentInstanceSectionDto createDocumentInstanceSection(
+      DocumentInstanceDto documentInstanceDto,
+      @Nullable DocumentInstanceSectionDto parentDto,
       String title,
       String content,
       boolean numbered,
@@ -76,6 +94,20 @@ public class DocumentInstanceSectionService {
     documentInstanceSectionRepository.saveAll(documentInstanceSectionsToSave);
 
     return DocumentInstanceSectionDto.from(documentInstanceSection, List.of());
+  }
+
+  @Transactional
+  public void editDocumentInstanceSection(
+      DocumentInstanceSectionDto documentInstanceSectionDto,
+      DocumentInstanceSectionForm form
+  ) {
+    editDocumentInstanceSection(
+        documentInstanceSectionDto,
+        form.title(),
+        form.content(),
+        form.numbered(),
+        form.hasPageBreakBefore()
+    );
   }
 
   @Transactional

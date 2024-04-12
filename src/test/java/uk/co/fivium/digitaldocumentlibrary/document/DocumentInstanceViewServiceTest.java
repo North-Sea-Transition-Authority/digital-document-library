@@ -11,10 +11,10 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class DocumentInstanceControllerHelperServiceTest {
+class DocumentInstanceViewServiceTest {
 
   @InjectMocks
-  private DocumentInstanceControllerHelperService documentInstanceControllerHelperService;
+  private DocumentInstanceViewService documentInstanceViewService;
 
   @Test
   void getDocumentInstanceSummaryViews() {
@@ -39,7 +39,7 @@ class DocumentInstanceControllerHelperServiceTest {
     );
     Function<DocumentInstanceDto, String> viewUrlFunction = viewUrlsByDocumentInstanceDto::get;
 
-    assertThat(documentInstanceControllerHelperService.getDocumentInstanceSummaryViews(documentInstanceDtos, viewUrlFunction))
+    assertThat(documentInstanceViewService.getDocumentInstanceSummaryViews(documentInstanceDtos, viewUrlFunction))
         .containsExactly(
             DocumentInstanceSummaryView.from(documentInstanceDto1, documentInstanceDto1ViewUrl),
             DocumentInstanceSummaryView.from(documentInstanceDto2, documentInstanceDto2ViewUrl),
