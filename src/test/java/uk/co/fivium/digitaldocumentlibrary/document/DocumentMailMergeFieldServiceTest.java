@@ -1,8 +1,6 @@
 package uk.co.fivium.digitaldocumentlibrary.document;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -186,6 +184,9 @@ class DocumentMailMergeFieldServiceTest {
 
   @Test
   void resolveMailMergeFields_allMailMergeFieldsValid() {
+    var mailMergeField1Mnemonic = "MAIL_MERGE_FIELD_1";
+    var mailMergeField2Mnemonic = "MAIL_MERGE_FIELD_2";
+
     var documentInstanceSectionDto = DocumentInstanceSectionDtoTestUtil.builder()
         .withContent(
             """
@@ -216,10 +217,10 @@ class DocumentMailMergeFieldServiceTest {
 
     doReturn(Optional.of(documentMailMergeField1))
         .when(documentMailMergeFieldService)
-        .getApplicableDocumentMailMergeField(documentTemplateDto, "MAIL_MERGE_FIELD_1");
+        .getApplicableDocumentMailMergeField(documentTemplateDto, mailMergeField1Mnemonic);
     doReturn(Optional.of(documentMailMergeField2))
         .when(documentMailMergeFieldService)
-        .getApplicableDocumentMailMergeField(documentTemplateDto, "MAIL_MERGE_FIELD_2");
+        .getApplicableDocumentMailMergeField(documentTemplateDto, mailMergeField2Mnemonic);
 
     when(documentMailMergeField1.resolve(documentInstanceDto)).thenReturn(documentMailMergeField1ResolveResult);
     when(documentMailMergeField2.resolve(documentInstanceDto)).thenReturn(documentMailMergeField2ResolveResult);
@@ -238,18 +239,20 @@ class DocumentMailMergeFieldServiceTest {
                 (Example text in brackets)
                 """
             )
-            .withFieldResolveResults(List.of(
-                documentMailMergeField1ResolveResult,
-                documentMailMergeField2ResolveResult,
-                documentMailMergeField2ResolveResult,
-                documentMailMergeField2ResolveResult,
-                documentMailMergeField2ResolveResult
+            .withResolvedDocumentMailMergeField(List.of(
+                new ResolvedDocumentMailMergeField(documentMailMergeField1, documentMailMergeField1ResolveResult),
+                new ResolvedDocumentMailMergeField(documentMailMergeField2, documentMailMergeField2ResolveResult),
+                new ResolvedDocumentMailMergeField(documentMailMergeField2, documentMailMergeField2ResolveResult),
+                new ResolvedDocumentMailMergeField(documentMailMergeField2, documentMailMergeField2ResolveResult),
+                new ResolvedDocumentMailMergeField(documentMailMergeField2, documentMailMergeField2ResolveResult)
             ))
             .build());
   }
 
   @Test
   void resolveMailMergeFields_invalidMailMergeField() {
+    var mailMergeField1Mnemonic = "MAIL_MERGE_FIELD_1";
+
     var documentInstanceSectionDto = DocumentInstanceSectionDtoTestUtil.builder()
         .withContent(
             """
@@ -270,7 +273,7 @@ class DocumentMailMergeFieldServiceTest {
 
     doReturn(Optional.of(documentMailMergeField1))
         .when(documentMailMergeFieldService)
-        .getApplicableDocumentMailMergeField(documentTemplateDto, "MAIL_MERGE_FIELD_1");
+        .getApplicableDocumentMailMergeField(documentTemplateDto, mailMergeField1Mnemonic);
     doReturn(Optional.empty())
         .when(documentMailMergeFieldService)
         .getApplicableDocumentMailMergeField(documentTemplateDto, "MAIL_MERGE_FIELD_2");
@@ -287,8 +290,8 @@ class DocumentMailMergeFieldServiceTest {
                 ((MAIL_MERGE_FIELD_2)) (error)
                 """
             )
-            .withFieldResolveResults(List.of(
-                documentMailMergeField1ResolveResult
+            .withResolvedDocumentMailMergeField(List.of(
+                new ResolvedDocumentMailMergeField(documentMailMergeField1, documentMailMergeField1ResolveResult)
             ))
             .build()
         );

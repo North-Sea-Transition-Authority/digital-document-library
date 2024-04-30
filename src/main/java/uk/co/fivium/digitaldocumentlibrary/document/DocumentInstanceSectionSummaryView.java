@@ -1,7 +1,9 @@
 package uk.co.fivium.digitaldocumentlibrary.document;
 
 import jakarta.annotation.Nullable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 public record DocumentInstanceSectionSummaryView(
@@ -10,6 +12,7 @@ public record DocumentInstanceSectionSummaryView(
     String content,
     boolean hasPageBreakBefore,
     List<String> errorMessages,
+    Map<String, String> mailMergeResolvedValuesByMnemonic,
     DocumentInstanceSectionUrls documentInstanceSectionUrls,
     List<DocumentInstanceSectionSummaryView> children
 ) {
@@ -36,11 +39,20 @@ public record DocumentInstanceSectionSummaryView(
       DocumentInstanceSectionUrls documentInstanceSectionUrls,
       List<DocumentInstanceSectionSummaryView> children
   ) {
-    var errorMessages = resolvedDocumentInstanceSection.fieldResolveResults()
+    var errorMessages = resolvedDocumentInstanceSection.resolvedDocumentMailMergeFields()
         .stream()
+        .map(ResolvedDocumentMailMergeField::documentMailMergeFieldResolveResult)
         .filter(DocumentMailMergeFieldResolveResult::hasError)
         .map(DocumentMailMergeFieldResolveResult::errorMessage)
         .toList();
+
+    var mailMergeResolvedValuesByMnemonic = new HashMap<String, String>();
+    for (var resolvedField : resolvedDocumentInstanceSection.resolvedDocumentMailMergeFields()) {
+      var mnemonic = resolvedField.documentMailMergeField().getMnemonic();
+      var resolvedValue = resolvedField.documentMailMergeFieldResolveResult().resolvedValue();
+
+      mailMergeResolvedValuesByMnemonic.put(mnemonic, resolvedValue);
+    }
 
     return new DocumentInstanceSectionSummaryView(
         sectionNumberString,
@@ -48,8 +60,10 @@ public record DocumentInstanceSectionSummaryView(
         resolvedDocumentInstanceSection.resolvedContent(),
         documentInstanceSectionDto.hasPageBreakBefore(),
         errorMessages,
+        mailMergeResolvedValuesByMnemonic,
         documentInstanceSectionUrls,
         children
     );
   }
+
 }

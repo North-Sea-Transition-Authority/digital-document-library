@@ -189,7 +189,8 @@ class DocumentInstanceServiceTest {
 
     doReturn(byteArrayResource).when(documentInstanceService).renderPdfFromHtml(html);
 
-    assertThat(documentInstanceService.renderPdf(documentInstanceDto, templateModel)).isEqualTo(byteArrayResource);
+    assertThat(documentInstanceService.renderPdf(documentInstanceDto, templateModel))
+        .isEqualTo(new PdfRenderResult(byteArrayResource, html));
   }
 
   @Test

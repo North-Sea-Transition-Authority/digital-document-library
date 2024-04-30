@@ -64,7 +64,7 @@ public class DocumentMailMergeFieldService {
     var documentInstanceDto = documentInstanceSectionDto.documentInstanceDto();
     var documentTemplateDto = documentInstanceDto.documentTemplateDto();
 
-    var resolveResults = new ArrayList<DocumentMailMergeFieldResolveResult>();
+    var resolvedDocumentMailMergeFields = new ArrayList<ResolvedDocumentMailMergeField>();
 
     var resolvedContent = MAIL_MERGE_FIELD_PATTERN.matcher(documentInstanceSectionDto.content()).replaceAll(matcher -> {
       var matchText = matcher.group();
@@ -75,15 +75,16 @@ public class DocumentMailMergeFieldService {
         return documentMailMergeFieldFormatter.formatError(matchText);
       }
 
-      var mailMergeResolveResult = mailMergeFieldOptional.get().resolve(documentInstanceDto);
-      resolveResults.add(mailMergeResolveResult);
+      var mailMergeField = mailMergeFieldOptional.get();
+      var mailMergeResolveResult = mailMergeField.resolve(documentInstanceDto);
+      resolvedDocumentMailMergeFields.add(new ResolvedDocumentMailMergeField(mailMergeField, mailMergeResolveResult));
 
       return mailMergeResolveResult.hasError()
           ? documentMailMergeFieldFormatter.formatError(matchText)
           : documentMailMergeFieldFormatter.formatSuccess(mailMergeResolveResult.resolvedValue());
     });
 
-    return new ResolvedDocumentInstanceSection(resolvedContent, resolveResults);
+    return new ResolvedDocumentInstanceSection(resolvedContent, resolvedDocumentMailMergeFields);
   }
 
   private String getMnemonicFromMailMergeFieldText(String mailMergeFieldText) {

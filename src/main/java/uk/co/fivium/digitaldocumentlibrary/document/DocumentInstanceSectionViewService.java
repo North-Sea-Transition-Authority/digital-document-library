@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Stream;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -36,18 +35,7 @@ public class DocumentInstanceSectionViewService {
         documentMailMergeFieldFormatter
     );
 
-    var errorMessages = topLevelDocumentInstanceSectionSummaryViews
-        .stream()
-        .flatMap(view ->
-            Stream.concat(
-                view.errorMessages().stream(),
-                view.descendants().stream().flatMap(descendant -> descendant.errorMessages().stream())
-            )
-        )
-        .distinct()
-        .toList();
-
-    return new DocumentInstanceSectionsSummaryView(topLevelDocumentInstanceSectionSummaryViews, errorMessages);
+    return DocumentInstanceSectionsSummaryView.from(topLevelDocumentInstanceSectionSummaryViews);
   }
 
   List<DocumentInstanceSectionSummaryView> getSiblingDocumentInstanceSectionSummaryViews(

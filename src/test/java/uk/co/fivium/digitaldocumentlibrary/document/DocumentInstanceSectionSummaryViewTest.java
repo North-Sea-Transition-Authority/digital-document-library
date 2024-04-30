@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 class DocumentInstanceSectionSummaryViewTest {
@@ -69,9 +70,29 @@ class DocumentInstanceSectionSummaryViewTest {
   void from_sectionNumbered() {
     var sectionNumberString = "1.2.3";
     var documentInstanceSectionDto = DocumentInstanceSectionDtoTestUtil.builder().build();
-    var content = ResolvedDocumentInstanceSectionTestUtil.newBuilder().build();
+    var content = ResolvedDocumentInstanceSectionTestUtil.newBuilder()
+        .withResolvedDocumentMailMergeField(List.of(
+            ResolvedDocumentMailMergeFieldTestUtil.newBuilder()
+                .withDocumentMailMergeField(DocumentMailMergeFieldTestUtil.builder()
+                    .withMnemonic("KEY_1")
+                    .build())
+                .withDocumentMailMergeFieldResolveResult(DocumentMailMergeFieldResolveResult.success("VALUE_1"))
+                .build(),
+            ResolvedDocumentMailMergeFieldTestUtil.newBuilder()
+                .withDocumentMailMergeField(DocumentMailMergeFieldTestUtil.builder()
+                    .withMnemonic("KEY_2")
+                    .build())
+                .withDocumentMailMergeFieldResolveResult(DocumentMailMergeFieldResolveResult.success("VALUE_2"))
+                .build()
+        ))
+        .build();
     var documentInstanceSectionUrls = DocumentInstanceSectionUrlsTestUtil.newBuilder().build();
     var children = List.of(mock(DocumentInstanceSectionSummaryView.class));
+
+    var mailMergeResolvedValuesByMnemonic = Map.of(
+        "KEY_1", "VALUE_1",
+        "KEY_2", "VALUE_2"
+    );
 
     assertThat(
         DocumentInstanceSectionSummaryView.from(
@@ -88,6 +109,7 @@ class DocumentInstanceSectionSummaryViewTest {
             content.resolvedContent(),
             documentInstanceSectionDto.hasPageBreakBefore(),
             Collections.emptyList(),
+            mailMergeResolvedValuesByMnemonic,
             documentInstanceSectionUrls,
             children
         )

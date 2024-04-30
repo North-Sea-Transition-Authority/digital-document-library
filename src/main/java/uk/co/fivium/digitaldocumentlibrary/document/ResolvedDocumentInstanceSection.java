@@ -4,6 +4,6 @@ import java.util.List;
 
 record ResolvedDocumentInstanceSection(
     String resolvedContent,
-    List<DocumentMailMergeFieldResolveResult> fieldResolveResults
+    List<ResolvedDocumentMailMergeField> resolvedDocumentMailMergeFields
 ) {
 }

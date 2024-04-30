@@ -2,36 +2,32 @@ package uk.co.fivium.digitaldocumentlibrary.document;
 
 import java.util.List;
 
-public class ResolvedDocumentInstanceSectionTestUtil {
+class ResolvedDocumentInstanceSectionTestUtil {
 
-  public static Builder newBuilder() {
+  static Builder newBuilder() {
     return new Builder();
   }
 
-  public static class Builder {
+  static class Builder {
 
     private String resolvedContent = "here are some values: value 1, value 2";
-    private List<DocumentMailMergeFieldResolveResult> fieldResolveResults = List.of(
-        DocumentMailMergeFieldResolveResultTestUtil.newBuilder()
-            .withResolvedValue("value 1")
-            .build(),
-        DocumentMailMergeFieldResolveResultTestUtil.newBuilder()
-            .withResolvedValue("value 2")
-            .build()
+    private List<ResolvedDocumentMailMergeField> resolvedDocumentMailMergeFields = List.of(
+        ResolvedDocumentMailMergeFieldTestUtil.newBuilder().build(),
+        ResolvedDocumentMailMergeFieldTestUtil.newBuilder().build()
     );
 
-    public Builder withResolvedContent(String resolvedContent) {
+    Builder withResolvedContent(String resolvedContent) {
       this.resolvedContent = resolvedContent;
       return this;
     }
 
-    public Builder withFieldResolveResults(List<DocumentMailMergeFieldResolveResult> fieldResolveResults) {
-      this.fieldResolveResults = fieldResolveResults;
+    Builder withResolvedDocumentMailMergeField(List<ResolvedDocumentMailMergeField> resolvedDocumentMailMergeFields) {
+      this.resolvedDocumentMailMergeFields = resolvedDocumentMailMergeFields;
       return this;
     }
 
-    public ResolvedDocumentInstanceSection build() {
-      return new ResolvedDocumentInstanceSection(resolvedContent, fieldResolveResults);
+    ResolvedDocumentInstanceSection build() {
+      return new ResolvedDocumentInstanceSection(resolvedContent, resolvedDocumentMailMergeFields);
     }
 
   }

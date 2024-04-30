@@ -84,19 +84,21 @@ public class DocumentInstanceService {
         );
   }
 
-  public ByteArrayResource renderPdf(DocumentInstanceDto documentInstanceDto, Map<String, Object> templateModel) {
+  public PdfRenderResult renderPdf(DocumentInstanceDto documentInstanceDto, Map<String, Object> templateModel) {
     var documentInstanceId = documentInstanceDto.id();
 
     var model = new HashMap<>(templateModel);
     model.put("documentInstanceDto", documentInstanceDto);
 
     try {
-      var documentHtml = freeMarkerTemplateRenderingService.renderTemplate(
+      var pdfHtml = freeMarkerTemplateRenderingService.renderTemplate(
           documentInstanceDto.documentTemplateDto().documentInstancePdfTemplatePath(),
           model
       );
 
-      return renderPdfFromHtml(documentHtml);
+      var pdfContent = renderPdfFromHtml(pdfHtml);
+
+      return new PdfRenderResult(pdfContent, pdfHtml);
     } catch (Exception exception) {
       throw new RuntimeException(
           "Exception rendering PDF for document instance: %s".formatted(documentInstanceId),
