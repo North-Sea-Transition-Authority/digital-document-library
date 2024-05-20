@@ -10,7 +10,11 @@ public interface DocumentInstanceSectionRepository extends ListCrudRepository<Do
 
   List<DocumentInstanceSection> findAllByDocumentInstanceId(UUID documentInstanceId);
 
-  List<DocumentInstanceSection> findAllByParent_IdAndDisplayOrderGreaterThanEqual(UUID parentId, int displayOrder);
+  List<DocumentInstanceSection> findAllByDocumentInstanceIdAndParentIdAndDisplayOrderGreaterThanEqual(
+      UUID documentInstanceId,
+      UUID parentId,
+      int displayOrder
+  );
 
   void deleteAllByDocumentInstanceId(UUID documentInstanceId);
 }

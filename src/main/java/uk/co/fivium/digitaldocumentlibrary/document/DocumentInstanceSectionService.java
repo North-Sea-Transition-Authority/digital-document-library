@@ -76,7 +76,8 @@ public class DocumentInstanceSectionService {
 
     // If a sibling with the same display order exists, shift its display order up by 1 and any following siblings
     var siblingsWithEqualOrGreaterDisplayOrder =
-        documentInstanceSectionRepository.findAllByParent_IdAndDisplayOrderGreaterThanEqual(
+        documentInstanceSectionRepository.findAllByDocumentInstanceIdAndParentIdAndDisplayOrderGreaterThanEqual(
+                documentInstance.getId(),
                 parentDto != null ? parentDto.id() : null,
                 displayOrder
             )

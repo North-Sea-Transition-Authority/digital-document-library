@@ -10,5 +10,9 @@ public interface DocumentTemplateSectionRepository extends ListCrudRepository<Do
 
   List<DocumentTemplateSection> findAllByDocumentTemplateId(UUID documentTemplateId);
 
-  List<DocumentTemplateSection> findAllByParent_IdAndDisplayOrderGreaterThanEqual(UUID parentId, int displayOrder);
+  List<DocumentTemplateSection> findAllByDocumentTemplateIdAndParentIdAndDisplayOrderGreaterThanEqual(
+      UUID documentTemplateId,
+      UUID parentId,
+      int displayOrder
+  );
 }

@@ -88,7 +88,7 @@ class DocumentInstanceSectionServiceTest {
         .build();
 
     when(documentInstanceService.getDocumentInstanceOrThrow(documentInstanceDto.id())).thenReturn(documentInstance);
-    when(documentInstanceSectionRepository.findAllByParent_IdAndDisplayOrderGreaterThanEqual(null, displayOrder))
+    when(documentInstanceSectionRepository.findAllByDocumentInstanceIdAndParentIdAndDisplayOrderGreaterThanEqual(documentInstance.getId(), null, displayOrder))
         .thenReturn(List.of(existingSibling1, existingSibling2, existingSibling3));
     when(contentSanitisationService.getSanitisedContent(content)).thenReturn(sanitisedContent);
 
@@ -168,7 +168,7 @@ class DocumentInstanceSectionServiceTest {
 
     when(documentInstanceService.getDocumentInstanceOrThrow(documentInstanceDto.id())).thenReturn(documentInstance);
     doReturn(parent).when(documentInstanceSectionService).getDocumentInstanceSectionOrThrow(parentDtoId);
-    when(documentInstanceSectionRepository.findAllByParent_IdAndDisplayOrderGreaterThanEqual(parentDtoId, displayOrder))
+    when(documentInstanceSectionRepository.findAllByDocumentInstanceIdAndParentIdAndDisplayOrderGreaterThanEqual(documentInstance.getId(), parentDtoId, displayOrder))
         .thenReturn(List.of(existingSibling1, existingSibling2, existingSibling3));
     when(contentSanitisationService.getSanitisedContent(content)).thenReturn(sanitisedContent);
 
