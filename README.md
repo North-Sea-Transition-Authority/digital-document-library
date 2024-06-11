@@ -23,4 +23,4 @@ Your application will need to include a `org.hibernate.envers.RevisionEntity` wh
 
 ### Pre-requisites
 
-- Java 17
+- Java 21

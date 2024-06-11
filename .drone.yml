@@ -19,7 +19,7 @@ steps:
         - ./sonar_cache
 
   - name: tests
-    image: eclipse-temurin:17-jdk
+    image: eclipse-temurin:21-jdk
     environment:
       GRADLE_USER_HOME: /drone/src/gradle_cache
     commands:
@@ -27,7 +27,7 @@ steps:
       - ./gradlew test
 
   - name: checkstyle
-    image: eclipse-temurin:17-jdk
+    image: eclipse-temurin:21-jdk
     environment:
       GRADLE_USER_HOME: /drone/src/gradle_cache
     commands:
@@ -45,7 +45,7 @@ steps:
       status: [ success, failure ]
 
   - name: code-analysis
-    image: repo1.dev.fivium.local:5000/sonarcloud-scan-java17:latest
+    image: repo1.dev.fivium.local:5000/sonarcloud-scan-java21:latest
     environment:
       SONARCLOUD_TOKEN:
         from_secret: sonarcloud_token
@@ -63,7 +63,7 @@ steps:
         - drone/*
 
   - name: publish-snapshot
-    image: eclipse-temurin:17-jdk
+    image: eclipse-temurin:21-jdk
     environment:
       GRADLE_USER_HOME: /drone/src/gradle_cache
       NEXUS_USERNAME: jenkins
@@ -80,7 +80,7 @@ steps:
       event: push
 
   - name: publish-release
-    image: eclipse-temurin:17-jdk
+    image: eclipse-temurin:21-jdk
     environment:
       GRADLE_USER_HOME: /drone/src/gradle_cache
       NEXUS_USERNAME: jenkins
@@ -180,7 +180,7 @@ steps:
 
   # This is in the PR pipeline so the code-analysis below can access the test data (to see coverage)
   - name: tests
-    image: eclipse-temurin:17-jdk
+    image: eclipse-temurin:21-jdk
     environment:
       GRADLE_USER_HOME: /drone/src/gradle_cache
     commands:
@@ -189,7 +189,7 @@ steps:
 
   # This is in the PR pipeline as only PR events get the necessary information for proper github integration
   - name: code-analysis
-    image: repo1.dev.fivium.local:5000/sonarcloud-scan-java17:latest
+    image: repo1.dev.fivium.local:5000/sonarcloud-scan-java21:latest
     environment:
       SONARCLOUD_TOKEN:
         from_secret: sonarcloud_token
