@@ -34,6 +34,18 @@ public class DocumentInstanceService {
     this.freeMarkerTemplateRenderingService = freeMarkerTemplateRenderingService;
   }
 
+  /**
+   * Creates a document instance from a document template.
+   * <br>
+   * All sections from the template will be copied to the document instance.
+   *
+   * @param itemReference the item reference (e.g. the application ID)
+   * @param itemType the item type (e.g. APPLICATION)
+   * @param title a title for the document instance (e.g. Field Production Consent)
+   * @param description a description for the template (e.g. Production Consent document for this application)
+   * @param documentTemplateDto the document template DTO to create this document instance from
+   * @return the document instance DTO created
+   */
   @Transactional
   public DocumentInstanceDto createDocumentInstance(
       String itemReference,
@@ -59,10 +71,24 @@ public class DocumentInstanceService {
     return DocumentInstanceDto.from(documentInstance);
   }
 
+  /**
+   * Gets all document instance DTOs with a given item reference.
+   *
+   * @param itemReference the item reference
+   * @return a list of the document instance DTOs
+   */
   public List<DocumentInstanceDto> getDocumentInstanceDtosByItemReference(String itemReference) {
     return documentInstanceRepository.findAllByItemReference(itemReference).stream().map(DocumentInstanceDto::from).toList();
   }
 
+  /**
+   * Gets a document instance DTO by an item reference, item type and document template DTO.
+   *
+   * @param itemReference the item reference
+   * @param itemType the item type
+   * @param documentTemplateDto the document template DTO
+   * @return an optional containing the document instance DTO if found
+   */
   public Optional<DocumentInstanceDto> getDocumentInstanceDtoByItemReferenceAndItemTypeAndDocumentTemplateDto(
       String itemReference,
       String itemType,
@@ -73,6 +99,13 @@ public class DocumentInstanceService {
         .map(DocumentInstanceDto::from);
   }
 
+  /**
+   * Gets a document instance DTO by a document instance ID or throws an exception if not found.
+   *
+   * @param documentInstanceId the ID of the document instance
+   * @return the document instance DTO
+   * @throws DocumentInstanceNotFoundException if the document instance is not found
+   */
   public DocumentInstanceDto getDocumentInstanceDtoOrThrow(UUID documentInstanceId) {
     return DocumentInstanceDto.from(getDocumentInstanceOrThrow(documentInstanceId));
   }
@@ -84,6 +117,13 @@ public class DocumentInstanceService {
         );
   }
 
+  /**
+   * Renders a document instance into a PDF using the document instance's document template Freemarker template.
+   *
+   * @param documentInstanceDto the document instance DTO
+   * @param templateModel a Map of objects to be made available in the Freemarker template context
+   * @return a PdfRenderResult containing the rendered PDF content bytes and the HTML used to render the PDF.
+   */
   public PdfRenderResult renderPdf(DocumentInstanceDto documentInstanceDto, Map<String, Object> templateModel) {
     var documentInstanceId = documentInstanceDto.id();
 
@@ -119,6 +159,12 @@ public class DocumentInstanceService {
     }
   }
 
+  /**
+   * Deletes all of a document instance's sections and recreates them by copying all the sections from the document instance's
+   * document template to the document instance.
+   *
+   * @param documentInstanceDto the document instance DTO
+   */
   @Transactional
   public void reloadDocumentInstance(DocumentInstanceDto documentInstanceDto) {
     var documentInstance = getDocumentInstanceOrThrow(documentInstanceDto.id());

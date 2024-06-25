@@ -9,6 +9,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class DocumentInstanceViewService {
 
+  /**
+   * Gets a list of summary views for a given list of document instance DTOs.
+   *
+   * @param documentInstanceDtos the list of document instance DTOs
+   * @param viewUrlFunction a function that is used to generate a URL to a page to view each document instance section
+   * @return the list of summary views
+   */
   public List<DocumentInstanceSummaryView> getDocumentInstanceSummaryViews(
       Collection<DocumentInstanceDto> documentInstanceDtos,
       Function<DocumentInstanceDto, String> viewUrlFunction

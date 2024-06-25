@@ -28,6 +28,17 @@ public class DocumentTemplateSectionService {
     this.contentSanitisationService = contentSanitisationService;
   }
 
+  /**
+   * Creates a document template section with values from a form.
+   *
+   * @param documentTemplateDto the document template DTO to create the section in
+   * @param parentDto an optional parent section of the section to create - if the section should be a top level section pass null
+   * @param form a form to create the section from
+   * @param displayOrder the display order of the section. If a sibling section has the same display order, the sibling section's
+   *                     display order will be incremented by 1, and if that is the same as another sibling's display order, that
+   *                     sibling's display order will be incremented by 1, and so on recursively
+   * @return the document template section DTO created
+   */
   @Transactional
   public DocumentTemplateSectionDto createDocumentTemplateSection(
       DocumentTemplateDto documentTemplateDto,
@@ -47,6 +58,24 @@ public class DocumentTemplateSectionService {
     );
   }
 
+  /**
+   * Creates a document template section.
+   *
+   * @param documentTemplateDto the document template DTO to create the section in
+   * @param parentDto an optional parent section of the section to create - if the section should be a top level section pass null
+   * @param title a title for the section
+   * @param content the content of the section
+   * @param conditionMnemonic an optional mnemonic of a document template section condition - if you do not want the section to
+   *                          be conditional pass null. If a condition mnemonic is set, the condition will be evaluated when a
+   *                          document instance is created from the template and the section will only be included in the instance
+   *                          if the condition evaluates to true
+   * @param numbered true if the section should be numbered
+   * @param hasPageBreakBefore true if the section should have a page break before it in rendered PDFs
+   * @param displayOrder the display order of the section. If a sibling section has the same display order, the sibling section's
+   *                     display order will be incremented by 1, and if that is the same as another sibling's display order, that
+   *                     sibling's display order will be incremented by 1, and so on recursively
+   * @return the document template section DTO created
+   */
   @Transactional
   public DocumentTemplateSectionDto createDocumentTemplateSection(
       DocumentTemplateDto documentTemplateDto,
@@ -100,6 +129,12 @@ public class DocumentTemplateSectionService {
     return DocumentTemplateSectionDto.from(documentTemplateSection, List.of());
   }
 
+  /**
+   * Edits a document template section with values from a form.
+   *
+   * @param documentTemplateSectionDto the document template section DTO to edit
+   * @param form the form to update the section with
+   */
   @Transactional
   public void editDocumentTemplateSection(
       DocumentTemplateSectionDto documentTemplateSectionDto,
@@ -115,6 +150,19 @@ public class DocumentTemplateSectionService {
     );
   }
 
+  /**
+   * Edits a document template section.
+   *
+   * @param documentTemplateSectionDto the document template section DTO to edit
+   * @param title a title for the section
+   * @param content the content of the section
+   * @param conditionMnemonic an optional mnemonic of a document template section condition - if you do not want the section to
+   *                          be conditional pass null. If a condition mnemonic is set, the condition will be evaluated when a
+   *                          document instance is created from the template and the section will only be included in the instance
+   *                          if the condition evaluates to true
+   * @param numbered true if the section should be numbered
+   * @param hasPageBreakBefore true if the section should have a page break before it in rendered PDFs
+   */
   @Transactional
   public void editDocumentTemplateSection(
       DocumentTemplateSectionDto documentTemplateSectionDto,
@@ -135,6 +183,14 @@ public class DocumentTemplateSectionService {
     documentTemplateSectionRepository.save(documentTemplateSection);
   }
 
+  /**
+   * Deletes a document template section.
+   * <br>
+   * This will also recursively delete any descendant sections which have the section being deleted as a parent, and any
+   * sections which have that section as a parent, etc.
+   *
+   * @param documentTemplateSectionDto the document template section DTO to delete
+   */
   @Transactional
   public void deleteDocumentTemplateSection(DocumentTemplateSectionDto documentTemplateSectionDto) {
     var idsToDelete = new ArrayList<UUID>();
@@ -150,6 +206,13 @@ public class DocumentTemplateSectionService {
     documentTemplateSectionRepository.deleteAllById(idsToDelete);
   }
 
+  /**
+   * Gets a document template section DTO by a document template section ID or throws an exception if not found.
+   *
+   * @param documentTemplateSectionId the ID of the document template section
+   * @return the document template section DTO
+   * @throws DocumentTemplateSectionNotFoundException if the document template section is not found
+   */
   public DocumentTemplateSectionDto getDocumentTemplateSectionDtoOrThrow(UUID documentTemplateSectionId) {
     var documentTemplateSection = getDocumentTemplateSectionOrThrow(documentTemplateSectionId);
     var allDocumentTemplateSections = documentTemplateSectionRepository.findAllByDocumentTemplateId(
@@ -181,6 +244,12 @@ public class DocumentTemplateSectionService {
         );
   }
 
+  /**
+   * Gets all top level document template section DTOs with a null parent in a given document template.
+   *
+   * @param documentTemplateDto the document template DTO
+   * @return a list of the top level document template section DTOs
+   */
   public List<DocumentTemplateSectionDto> getTopLevelDocumentTemplateSectionDtos(
       DocumentTemplateDto documentTemplateDto
   ) {

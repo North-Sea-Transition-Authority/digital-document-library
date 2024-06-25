@@ -28,6 +28,17 @@ public class DocumentInstanceSectionService {
     this.contentSanitisationService = contentSanitisationService;
   }
 
+  /**
+   * Creates a document instance section with values from a form.
+   *
+   * @param documentInstanceDto the document instance DTO to create the section in
+   * @param parentDto an optional parent section of the section to create - if the section should be a top level section pass null
+   * @param form a form to create the section from
+   * @param displayOrder the display order of the section. If a sibling section has the same display order, the sibling section's
+   *                     display order will be incremented by 1, and if that is the same as another sibling's display order, that
+   *                     sibling's display order will be incremented by 1, and so on recursively
+   * @return the document instance section DTO created
+   */
   @Transactional
   public DocumentInstanceSectionDto createDocumentInstanceSection(
       DocumentInstanceDto documentInstanceDto,
@@ -46,6 +57,20 @@ public class DocumentInstanceSectionService {
     );
   }
 
+  /**
+   * Creates a document instance section.
+   *
+   * @param documentInstanceDto the document instance DTO to create the section in
+   * @param parentDto an optional parent section of the section to create - if the section should be a top level section pass null
+   * @param title a title for the section
+   * @param content the content of the section
+   * @param numbered true if the section should be numbered
+   * @param hasPageBreakBefore true if the section should have a page break before it in rendered PDFs
+   * @param displayOrder the display order of the section. If a sibling section has the same display order, the sibling section's
+   *                     display order will be incremented by 1, and if that is the same as another sibling's display order, that
+   *                     sibling's display order will be incremented by 1, and so on recursively
+   * @return the document instance section DTO created
+   */
   @Transactional
   public DocumentInstanceSectionDto createDocumentInstanceSection(
       DocumentInstanceDto documentInstanceDto,
@@ -97,6 +122,12 @@ public class DocumentInstanceSectionService {
     return DocumentInstanceSectionDto.from(documentInstanceSection, List.of());
   }
 
+  /**
+   * Edits a document instance section with values from a form.
+   *
+   * @param documentInstanceSectionDto the document instance section DTO to edit
+   * @param form the form to update the section with
+   */
   @Transactional
   public void editDocumentInstanceSection(
       DocumentInstanceSectionDto documentInstanceSectionDto,
@@ -111,6 +142,15 @@ public class DocumentInstanceSectionService {
     );
   }
 
+  /**
+   * Edits a document instance section.
+   *
+   * @param documentInstanceSectionDto the document instance section DTO to edit
+   * @param title a title for the section
+   * @param content the content of the section
+   * @param numbered true if the section should be numbered
+   * @param hasPageBreakBefore true if the section should have a page break before it in rendered PDFs
+   */
   @Transactional
   public void editDocumentInstanceSection(
       DocumentInstanceSectionDto documentInstanceSectionDto,
@@ -129,6 +169,14 @@ public class DocumentInstanceSectionService {
     documentInstanceSectionRepository.save(documentInstanceSection);
   }
 
+  /**
+   * Deletes a document instance section.
+   * <br>
+   * This will also recursively delete any descendant sections which have the section being deleted as a parent, and any
+   * sections which have that section as a parent, etc.
+   *
+   * @param documentInstanceSectionDto the document instance section DTO to delete
+   */
   @Transactional
   public void deleteDocumentInstanceSection(DocumentInstanceSectionDto documentInstanceSectionDto) {
     var idsToDelete = new ArrayList<UUID>();
@@ -144,6 +192,13 @@ public class DocumentInstanceSectionService {
     documentInstanceSectionRepository.deleteAllById(idsToDelete);
   }
 
+  /**
+   * Gets a document instance section DTO by a document instance section ID or throws an exception if not found.
+   *
+   * @param documentInstanceSectionId the ID of the document instance section
+   * @return the document instance section DTO
+   * @throws DocumentInstanceSectionNotFoundException if the document instance section is not found
+   */
   public DocumentInstanceSectionDto getDocumentInstanceSectionDtoOrThrow(UUID documentInstanceSectionId) {
     var documentInstanceSection = getDocumentInstanceSectionOrThrow(documentInstanceSectionId);
     var allDocumentInstanceSections = documentInstanceSectionRepository.findAllByDocumentInstanceId(
@@ -175,6 +230,12 @@ public class DocumentInstanceSectionService {
         );
   }
 
+  /**
+   * Gets all top level document instance section DTOs with a null parent in a given document instance.
+   *
+   * @param documentInstanceDto the document instance DTO
+   * @return a list of the top level document instance section DTOs
+   */
   public List<DocumentInstanceSectionDto> getTopLevelDocumentInstanceSectionDtos(
       DocumentInstanceDto documentInstanceDto
   ) {

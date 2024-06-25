@@ -28,6 +28,12 @@ public class DocumentMailMergeFieldService {
     this.documentMailMergeFields = documentMailMergeFields;
   }
 
+  /**
+   * Gets a list of document mail merge fields that are applicable to a given document template DTO.
+   *
+   * @param documentTemplateDto the document template DTO
+   * @return the list of document mail merge fields
+   */
   public List<DocumentMailMergeField> getApplicableDocumentMailMergeFields(DocumentTemplateDto documentTemplateDto) {
     return documentMailMergeFields.stream()
         .filter(documentMailMergeField -> documentMailMergeField.isApplicable(documentTemplateDto))

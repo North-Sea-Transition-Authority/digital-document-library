@@ -14,6 +14,12 @@ public class DocumentTemplateViewService {
     this.documentTemplateService = documentTemplateService;
   }
 
+  /**
+   * Gets a list of summary views for all document templates.
+   *
+   * @param viewUrlFunction a function that is used to generate a URL to a page to view each document template section
+   * @return the list of summary views
+   */
   public List<DocumentTemplateSummaryView> getDocumentTemplateSummaryViews(
       Function<DocumentTemplateDto, String> viewUrlFunction
   ) {

@@ -20,6 +20,14 @@ public class DocumentTemplateSectionViewService {
     this.documentTemplateSectionConditionService = documentTemplateSectionConditionService;
   }
 
+  /**
+   * Gets a list of top level document template section summary views for a given document template DTO.
+   *
+   * @param documentTemplateDto the document template DTO
+   * @param urlsFunction A function that is used to generate a DocumentTemplateSectionUrls object with URLs to perform actions
+   *                     on the section
+   * @return the list of summary views
+   */
   public List<DocumentTemplateSectionSummaryView> getTopLevelDocumentTemplateSectionSummaryViews(
       DocumentTemplateDto documentTemplateDto,
       Function<DocumentTemplateSectionDto, DocumentTemplateSectionUrls> urlsFunction

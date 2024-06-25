@@ -20,6 +20,14 @@ public class DocumentInstanceSectionViewService {
     this.documentMailMergeFieldService = documentMailMergeFieldService;
   }
 
+  /**
+   * Gets a list of top level document instance section summary views for a given document instance DTO.
+   *
+   * @param documentInstanceDto the document instance DTO
+   * @param urlsFunction A function that is used to generate a DocumentInstanceSectionUrls object with URLs to perform actions
+   *                     on the section
+   * @return the list of summary views
+   */
   public DocumentInstanceSectionsSummaryView getDocumentInstanceSectionsSummaryView(
       DocumentInstanceDto documentInstanceDto,
       Function<DocumentInstanceSectionDto, DocumentInstanceSectionUrls> urlsFunction,
