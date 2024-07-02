@@ -26,8 +26,6 @@ class DocumentMailMergeFieldServiceTest {
   @Spy
   private DocumentMailMergeFieldService documentMailMergeFieldService;
 
-  private final DocumentMailMergeFieldFormatter documentMailMergeFieldFormatter = new TestDocumentMailMergeFieldFormatter();
-
   @Test
   void getApplicableDocumentMailMergeFields() {
     var documentTemplateDto = DocumentTemplateDtoTestUtil.builder().build();
@@ -180,121 +178,6 @@ class DocumentMailMergeFieldServiceTest {
 
     assertThat(documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, text))
         .isEqualTo(DocumentMailMergeValidationResult.invalid(expectedErrorMessage));
-  }
-
-  @Test
-  void resolveMailMergeFields_allMailMergeFieldsValid() {
-    var mailMergeField1Mnemonic = "MAIL_MERGE_FIELD_1";
-    var mailMergeField2Mnemonic = "MAIL_MERGE_FIELD_2";
-
-    var documentInstanceSectionDto = DocumentInstanceSectionDtoTestUtil.builder()
-        .withContent(
-            """
-            Example text
-            
-            ((MAIL_MERGE_FIELD_1))
-            ((MAIL_MERGE_FIELD_2))
-            (((MAIL_MERGE_FIELD_2)))
-            ((((MAIL_MERGE_FIELD_2))))
-            (((((MAIL_MERGE_FIELD_2)))))
-            (Example text in brackets)
-            """
-        )
-        .build();
-
-    var documentInstanceDto = documentInstanceSectionDto.documentInstanceDto();
-    var documentTemplateDto = documentInstanceDto.documentTemplateDto();
-
-    var documentMailMergeField1 = mock(DocumentMailMergeField.class);
-    var documentMailMergeField1ResolveResult = DocumentMailMergeFieldResolveResultTestUtil.newBuilder()
-        .withResolvedValue("Resolved mail merge field 1")
-        .build();
-
-    var documentMailMergeField2 = mock(DocumentMailMergeField.class);
-    var documentMailMergeField2ResolveResult = DocumentMailMergeFieldResolveResultTestUtil.newBuilder()
-        .withResolvedValue("Resolved mail merge field 2")
-        .build();
-
-    doReturn(Optional.of(documentMailMergeField1))
-        .when(documentMailMergeFieldService)
-        .getApplicableDocumentMailMergeField(documentTemplateDto, mailMergeField1Mnemonic);
-    doReturn(Optional.of(documentMailMergeField2))
-        .when(documentMailMergeFieldService)
-        .getApplicableDocumentMailMergeField(documentTemplateDto, mailMergeField2Mnemonic);
-
-    when(documentMailMergeField1.resolve(documentInstanceDto)).thenReturn(documentMailMergeField1ResolveResult);
-    when(documentMailMergeField2.resolve(documentInstanceDto)).thenReturn(documentMailMergeField2ResolveResult);
-
-    assertThat(documentMailMergeFieldService.resolveMailMergeFields(documentInstanceSectionDto, documentMailMergeFieldFormatter))
-        .isEqualTo(ResolvedDocumentInstanceSectionTestUtil.newBuilder()
-            .withResolvedContent(
-                """
-                Example text
-                        
-                Resolved mail merge field 1 (success)
-                Resolved mail merge field 2 (success)
-                (Resolved mail merge field 2 (success))
-                ((Resolved mail merge field 2 (success)))
-                (((Resolved mail merge field 2 (success))))
-                (Example text in brackets)
-                """
-            )
-            .withResolvedDocumentMailMergeField(List.of(
-                new ResolvedDocumentMailMergeField(documentMailMergeField1, documentMailMergeField1ResolveResult),
-                new ResolvedDocumentMailMergeField(documentMailMergeField2, documentMailMergeField2ResolveResult),
-                new ResolvedDocumentMailMergeField(documentMailMergeField2, documentMailMergeField2ResolveResult),
-                new ResolvedDocumentMailMergeField(documentMailMergeField2, documentMailMergeField2ResolveResult),
-                new ResolvedDocumentMailMergeField(documentMailMergeField2, documentMailMergeField2ResolveResult)
-            ))
-            .build());
-  }
-
-  @Test
-  void resolveMailMergeFields_invalidMailMergeField() {
-    var mailMergeField1Mnemonic = "MAIL_MERGE_FIELD_1";
-
-    var documentInstanceSectionDto = DocumentInstanceSectionDtoTestUtil.builder()
-        .withContent(
-            """
-            Example text
-            
-            ((MAIL_MERGE_FIELD_1))
-            ((MAIL_MERGE_FIELD_2))
-            """
-        )
-        .build();
-    var documentInstanceDto = documentInstanceSectionDto.documentInstanceDto();
-    var documentTemplateDto = documentInstanceDto.documentTemplateDto();
-
-    var documentMailMergeField1 = mock(DocumentMailMergeField.class);
-    var documentMailMergeField1ResolveResult = DocumentMailMergeFieldResolveResultTestUtil.newBuilder()
-        .withResolvedValue("Resolved mail merge field 1")
-        .build();
-
-    doReturn(Optional.of(documentMailMergeField1))
-        .when(documentMailMergeFieldService)
-        .getApplicableDocumentMailMergeField(documentTemplateDto, mailMergeField1Mnemonic);
-    doReturn(Optional.empty())
-        .when(documentMailMergeFieldService)
-        .getApplicableDocumentMailMergeField(documentTemplateDto, "MAIL_MERGE_FIELD_2");
-
-    when(documentMailMergeField1.resolve(documentInstanceDto)).thenReturn(documentMailMergeField1ResolveResult);
-
-    assertThat(documentMailMergeFieldService.resolveMailMergeFields(documentInstanceSectionDto, documentMailMergeFieldFormatter))
-        .isEqualTo(ResolvedDocumentInstanceSectionTestUtil.newBuilder()
-            .withResolvedContent(
-                """
-                Example text
-                        
-                Resolved mail merge field 1 (success)
-                ((MAIL_MERGE_FIELD_2)) (error)
-                """
-            )
-            .withResolvedDocumentMailMergeField(List.of(
-                new ResolvedDocumentMailMergeField(documentMailMergeField1, documentMailMergeField1ResolveResult)
-            ))
-            .build()
-        );
   }
 
   @Test

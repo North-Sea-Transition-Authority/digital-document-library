@@ -1,7 +1,11 @@
 package uk.co.fivium.digitaldocumentlibrary.document;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -19,9 +23,6 @@ class DocumentInstanceSectionViewServiceTest {
 
   @Mock
   private DocumentInstanceSectionService documentInstanceSectionService;
-
-  @Mock
-  private DocumentMailMergeFieldService documentMailMergeFieldService;
 
   @InjectMocks
   @Spy
@@ -48,10 +49,10 @@ class DocumentInstanceSectionViewServiceTest {
     doReturn(topLevelDocumentInstanceSectionSummaryViews)
         .when(documentInstanceSectionViewService)
         .getSiblingDocumentInstanceSectionSummaryViews(
-            null,
-            topLevelDocumentInstanceSectionDtos,
-            urlsFunction,
-            documentMailMergeFieldFormatter
+            isNull(),
+            eq(topLevelDocumentInstanceSectionDtos),
+            eq(urlsFunction),
+            any(DocumentInstanceSectionMailMergeFieldResolver.class)
         );
 
     assertThat(
@@ -136,25 +137,21 @@ class DocumentInstanceSectionViewServiceTest {
     );
     Function<DocumentInstanceSectionDto, DocumentInstanceSectionUrls> urlsFunction = urlsByDocumentInstanceSectionDto::get;
 
-    when(documentMailMergeFieldService.resolveMailMergeFields(siblingDocumentInstanceSectionDto1, documentMailMergeFieldFormatter))
-        .thenReturn(resolvedSiblingDocumentInstanceSectionDto1);
-    when(documentMailMergeFieldService.resolveMailMergeFields(siblingDocumentInstanceSectionDto2, documentMailMergeFieldFormatter))
-        .thenReturn(resolvedSiblingDocumentInstanceSectionDto2);
-    when(documentMailMergeFieldService.resolveMailMergeFields(siblingDocumentInstanceSectionDto2Child1, documentMailMergeFieldFormatter))
-        .thenReturn(resolvedSiblingDocumentInstanceSectionDto2Child1);
-    when(documentMailMergeFieldService.resolveMailMergeFields(siblingDocumentInstanceSectionDto2Child1Child1, documentMailMergeFieldFormatter))
-        .thenReturn(resolvedSiblingDocumentInstanceSectionDto2Child1Child1);
-    when(documentMailMergeFieldService.resolveMailMergeFields(siblingDocumentInstanceSectionDto2Child2, documentMailMergeFieldFormatter))
-        .thenReturn(resolvedSiblingDocumentInstanceSectionDto2Child2);
-    when(documentMailMergeFieldService.resolveMailMergeFields(siblingDocumentInstanceSectionDto2Child3, documentMailMergeFieldFormatter))
-        .thenReturn(resolvedSiblingDocumentInstanceSectionDto2Child3);
+    var documentSectionMailMergeResolver = mock(DocumentInstanceSectionMailMergeFieldResolver.class);
+
+    when(documentSectionMailMergeResolver.resolve(siblingDocumentInstanceSectionDto1)).thenReturn(resolvedSiblingDocumentInstanceSectionDto1);
+    when(documentSectionMailMergeResolver.resolve(siblingDocumentInstanceSectionDto2)).thenReturn(resolvedSiblingDocumentInstanceSectionDto2);
+    when(documentSectionMailMergeResolver.resolve(siblingDocumentInstanceSectionDto2Child1)).thenReturn(resolvedSiblingDocumentInstanceSectionDto2Child1);
+    when(documentSectionMailMergeResolver.resolve(siblingDocumentInstanceSectionDto2Child1Child1)).thenReturn(resolvedSiblingDocumentInstanceSectionDto2Child1Child1);
+    when(documentSectionMailMergeResolver.resolve(siblingDocumentInstanceSectionDto2Child2)).thenReturn(resolvedSiblingDocumentInstanceSectionDto2Child2);
+    when(documentSectionMailMergeResolver.resolve(siblingDocumentInstanceSectionDto2Child3)).thenReturn(resolvedSiblingDocumentInstanceSectionDto2Child3);
 
     assertThat(
         documentInstanceSectionViewService.getSiblingDocumentInstanceSectionSummaryViews(
             parentSectionNumberString,
             siblingDocumentInstanceSectionDtos,
             urlsFunction,
-            documentMailMergeFieldFormatter
+            documentSectionMailMergeResolver
         )
     ).containsExactly(
         DocumentInstanceSectionSummaryView.from(

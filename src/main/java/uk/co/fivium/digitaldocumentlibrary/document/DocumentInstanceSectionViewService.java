@@ -40,7 +40,7 @@ public class DocumentInstanceSectionViewService {
         null,
         topLevelDocumentInstanceSectionDtos,
         urlsFunction,
-        documentMailMergeFieldFormatter
+        new DocumentInstanceSectionMailMergeFieldResolver(documentMailMergeFieldService, documentMailMergeFieldFormatter)
     );
 
     return DocumentInstanceSectionsSummaryView.from(topLevelDocumentInstanceSectionSummaryViews);
@@ -50,7 +50,7 @@ public class DocumentInstanceSectionViewService {
       String parentSectionNumberString,
       List<DocumentInstanceSectionDto> siblingDocumentInstanceSectionDtos,
       Function<DocumentInstanceSectionDto, DocumentInstanceSectionUrls> urlsFunction,
-      DocumentMailMergeFieldFormatter documentMailMergeFieldFormatter
+      DocumentInstanceSectionMailMergeFieldResolver documentInstanceSectionMailMergeFieldResolver
   ) {
     var documentInstanceSectionSummaryViews = new ArrayList<DocumentInstanceSectionSummaryView>();
 
@@ -74,16 +74,13 @@ public class DocumentInstanceSectionViewService {
         sectionNumberString = null;
       }
 
-      var resolvedDocumentInstanceSection = documentMailMergeFieldService.resolveMailMergeFields(
-          documentInstanceSectionDto,
-          documentMailMergeFieldFormatter
-      );
+      var resolvedDocumentInstanceSection = documentInstanceSectionMailMergeFieldResolver.resolve(documentInstanceSectionDto);
 
       var children = getSiblingDocumentInstanceSectionSummaryViews(
           sectionNumberString,
           documentInstanceSectionDto.children(),
           urlsFunction,
-          documentMailMergeFieldFormatter
+          documentInstanceSectionMailMergeFieldResolver
       );
 
       var documentInstanceSectionSummaryView = DocumentInstanceSectionSummaryView.from(

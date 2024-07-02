@@ -1,6 +1,7 @@
 package uk.co.fivium.digitaldocumentlibrary.document;
 
-import java.util.ArrayList;
+import static uk.co.fivium.digitaldocumentlibrary.document.DocumentMailMergeFieldUtil.getMnemonicFromMailMergeFieldText;
+
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -15,9 +16,8 @@ public class DocumentMailMergeFieldService {
 
   // This is the same regex as GOV.UK Notify uses:
   // https://github.com/alphagov/notifications-utils/blob/main/notifications_utils/field.py#L64
-  // This must only match the inner most brackets, e.g. (((TEST))) should match ((TEST)).
-  private static final Pattern MAIL_MERGE_FIELD_PATTERN = Pattern.compile("\\({2}([^()]+)\\){2}");
-
+  // This must only match the innermost brackets, e.g. (((TEST))) should match ((TEST)).
+  static final Pattern MAIL_MERGE_FIELD_PATTERN = Pattern.compile("\\({2}([^()]+)\\){2}");
   static final String SINGLE_INVALID_MAIL_MERGE_FIELD_ERROR_MESSAGE = "Mail merge field %s is not valid";
   static final String MULTIPLE_INVALID_MAIL_MERGE_FIELDS_ERROR_MESSAGE = "Mail merge fields %s are not valid";
 
@@ -61,40 +61,6 @@ public class DocumentMailMergeFieldService {
         : MULTIPLE_INVALID_MAIL_MERGE_FIELDS_ERROR_MESSAGE.formatted(StringUtil.formatStringList(invalidMnemonics));
 
     return DocumentMailMergeValidationResult.invalid(errorMessage);
-  }
-
-  ResolvedDocumentInstanceSection resolveMailMergeFields(
-      DocumentInstanceSectionDto documentInstanceSectionDto,
-      DocumentMailMergeFieldFormatter documentMailMergeFieldFormatter
-  ) {
-    var documentInstanceDto = documentInstanceSectionDto.documentInstanceDto();
-    var documentTemplateDto = documentInstanceDto.documentTemplateDto();
-
-    var resolvedDocumentMailMergeFields = new ArrayList<ResolvedDocumentMailMergeField>();
-
-    var resolvedContent = MAIL_MERGE_FIELD_PATTERN.matcher(documentInstanceSectionDto.content()).replaceAll(matcher -> {
-      var matchText = matcher.group();
-      var mnemonic = getMnemonicFromMailMergeFieldText(matchText);
-
-      var mailMergeFieldOptional = getApplicableDocumentMailMergeField(documentTemplateDto, mnemonic);
-      if (mailMergeFieldOptional.isEmpty()) {
-        return documentMailMergeFieldFormatter.formatError(matchText);
-      }
-
-      var mailMergeField = mailMergeFieldOptional.get();
-      var mailMergeResolveResult = mailMergeField.resolve(documentInstanceDto);
-      resolvedDocumentMailMergeFields.add(new ResolvedDocumentMailMergeField(mailMergeField, mailMergeResolveResult));
-
-      return mailMergeResolveResult.hasError()
-          ? documentMailMergeFieldFormatter.formatError(matchText)
-          : documentMailMergeFieldFormatter.formatSuccess(mailMergeResolveResult.resolvedValue());
-    });
-
-    return new ResolvedDocumentInstanceSection(resolvedContent, resolvedDocumentMailMergeFields);
-  }
-
-  private String getMnemonicFromMailMergeFieldText(String mailMergeFieldText) {
-    return mailMergeFieldText.substring(2, mailMergeFieldText.length() - 2);
   }
 
   Optional<DocumentMailMergeField> getApplicableDocumentMailMergeField(
