@@ -11,42 +11,51 @@ public class DocumentTemplateSectionViewService {
 
   private final DocumentTemplateSectionService documentTemplateSectionService;
   private final DocumentTemplateSectionConditionService documentTemplateSectionConditionService;
+  private final DocumentMailMergeFieldService documentMailMergeFieldService;
+
 
   DocumentTemplateSectionViewService(
       DocumentTemplateSectionService documentTemplateSectionService,
-      DocumentTemplateSectionConditionService documentTemplateSectionConditionService
+      DocumentTemplateSectionConditionService documentTemplateSectionConditionService,
+      DocumentMailMergeFieldService documentMailMergeFieldService
   ) {
     this.documentTemplateSectionService = documentTemplateSectionService;
     this.documentTemplateSectionConditionService = documentTemplateSectionConditionService;
+    this.documentMailMergeFieldService = documentMailMergeFieldService;
   }
 
   /**
-   * Gets a list of top level document template section summary views for a given document template DTO.
+   * Gets a document sections summary view for a given document template DTO.
    *
    * @param documentTemplateDto the document template DTO
    * @param urlsFunction A function that is used to generate a DocumentTemplateSectionUrls object with URLs to perform actions
    *                     on the section
+   * @param documentMailMergeFieldFormatter A class to define how mail merge fields are formatted once they've been resolved
    * @return the list of summary views
    */
-  public List<DocumentTemplateSectionSummaryView> getTopLevelDocumentTemplateSectionSummaryViews(
+  public DocumentTemplateSectionsSummaryView getDocumentTemplateSectionsSummaryView(
       DocumentTemplateDto documentTemplateDto,
-      Function<DocumentTemplateSectionDto, DocumentTemplateSectionUrls> urlsFunction
+      Function<DocumentTemplateSectionDto, DocumentTemplateSectionUrls> urlsFunction,
+      DocumentMailMergeFieldFormatter documentMailMergeFieldFormatter
   ) {
     var topLevelDocumentTemplateSectionDtos =
         documentTemplateSectionService.getTopLevelDocumentTemplateSectionDtos(documentTemplateDto);
 
-    return getSiblingDocumentTemplateSectionSummaryViews(
+    var topLevelDocumentTemplateSectionSummaryViews = getSiblingDocumentTemplateSectionSummaryViews(
         null,
         topLevelDocumentTemplateSectionDtos,
-        urlsFunction
+        urlsFunction,
+        new DocumentSectionMailMergeFieldResolver(documentMailMergeFieldService, documentMailMergeFieldFormatter)
     );
+
+    return DocumentTemplateSectionsSummaryView.from(topLevelDocumentTemplateSectionSummaryViews);
   }
 
   List<DocumentTemplateSectionSummaryView> getSiblingDocumentTemplateSectionSummaryViews(
       String parentSectionNumberString,
       List<DocumentTemplateSectionDto> siblingDocumentTemplateSectionDtos,
-      Function<DocumentTemplateSectionDto, DocumentTemplateSectionUrls> urlsFunction
-  ) {
+      Function<DocumentTemplateSectionDto, DocumentTemplateSectionUrls> urlsFunction,
+      DocumentSectionMailMergeFieldResolver documentSectionMailMergeFieldResolver) {
     var documentTemplateSectionSummaryViews = new ArrayList<DocumentTemplateSectionSummaryView>();
 
     var sortedSiblingDocumentTemplateSectionDtos = siblingDocumentTemplateSectionDtos.stream()
@@ -79,16 +88,19 @@ public class DocumentTemplateSectionViewService {
         ).getTitle();
       }
 
+      var resolvedDocumentTemplateSection = documentSectionMailMergeFieldResolver.resolve(documentTemplateSectionDto);
+
       var children = getSiblingDocumentTemplateSectionSummaryViews(
           sectionNumberString,
           documentTemplateSectionDto.children(),
-          urlsFunction
-      );
+          urlsFunction,
+          documentSectionMailMergeFieldResolver);
 
       var documentTemplateSectionSummaryView = DocumentTemplateSectionSummaryView.from(
           sectionNumberString,
           conditionTitle,
           documentTemplateSectionDto,
+          resolvedDocumentTemplateSection,
           urlsFunction.apply(documentTemplateSectionDto),
           children
       );

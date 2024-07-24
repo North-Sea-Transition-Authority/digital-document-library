@@ -6,16 +6,14 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Spy;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.io.ByteArrayResource;
 
 @ExtendWith(MockitoExtension.class)
 class DocumentTemplateServiceTest {
@@ -23,10 +21,19 @@ class DocumentTemplateServiceTest {
   @Mock
   private DocumentTemplateRepository documentTemplateRepository;
 
+  @Mock
+  private FreeMarkerTemplateRenderingService freeMarkerTemplateRenderingService;
+
   @InjectMocks
   @Spy
   private DocumentTemplateService documentTemplateService;
 
+  private static final MockedStatic<PdfRenderUtil> PDF_RENDER_UTILS_MOCKED_STATIC = Mockito.mockStatic(PdfRenderUtil.class);
+
+  @AfterAll
+  public static void tearDown() {
+    PDF_RENDER_UTILS_MOCKED_STATIC.close();
+  }
   @Test
   void createDocumentTemplate() {
     var mnemonic = "TEST_MNEMONIC";
@@ -128,5 +135,21 @@ class DocumentTemplateServiceTest {
     assertThatThrownBy(() -> documentTemplateService.getDocumentTemplateDtoByMnemonicOrThrow(mnemonic))
         .isInstanceOf(DocumentTemplateNotFoundException.class)
         .hasMessage("Unable to find document template with mnemonic [mnemonic]");
+  }
+
+  @Test
+  void renderPdf() throws Exception {
+    var documentTemplateDto = DocumentTemplateDtoTestUtil.builder().build();
+    Map<String, Object> templateModel = Map.of("test-model-key", "test-model-value", "documentTemplateDto", documentTemplateDto);
+
+    var html = "<html></html>";
+    var byteArrayResource = new ByteArrayResource(new byte[] {1, 2, 3});
+
+    when(freeMarkerTemplateRenderingService.renderTemplate(documentTemplateDto.documentInstancePdfTemplatePath(), new HashMap<>(templateModel)))
+            .thenReturn(html);
+
+    Mockito.when(PdfRenderUtil.renderPdfFromHtml(html)).thenReturn(byteArrayResource);
+    assertThat(documentTemplateService.renderPdf(documentTemplateDto, templateModel))
+            .isEqualTo(new PdfRenderResult(byteArrayResource, html));
   }
 }

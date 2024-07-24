@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.util.List;
+import java.util.Map;
+
 import org.junit.jupiter.api.Test;
 
 class DocumentTemplateSectionSummaryViewTest {
@@ -19,9 +21,9 @@ class DocumentTemplateSectionSummaryViewTest {
             null,
             "condition title",
             documentTemplateSectionDto,
+            ResolvedDocumentSectionTestUtil.newBuilder().build(),
             DocumentTemplateSectionUrlsTestUtil.newBuilder().build(),
-            List.of()
-        )
+            List.of())
     )
         .extracting(DocumentTemplateSectionSummaryView::titleWithSectionNumber)
         .isEqualTo(documentTemplateSectionDto.title());
@@ -38,9 +40,9 @@ class DocumentTemplateSectionSummaryViewTest {
             "1.2.3",
             "condition title",
             documentTemplateSectionDto,
+            ResolvedDocumentSectionTestUtil.newBuilder().build(),
             DocumentTemplateSectionUrlsTestUtil.newBuilder().build(),
-            List.of()
-        )
+            List.of())
     )
         .extracting(DocumentTemplateSectionSummaryView::titleWithSectionNumber)
         .isEqualTo("1.2.3 title");
@@ -72,21 +74,45 @@ class DocumentTemplateSectionSummaryViewTest {
     var documentTemplateSectionUrls = DocumentTemplateSectionUrlsTestUtil.newBuilder().build();
     var children = List.of(mock(DocumentTemplateSectionSummaryView.class));
 
+    var resolvedDocumentSection = ResolvedDocumentSectionTestUtil.newBuilder()
+        .withResolvedDocumentMailMergeField(List.of(
+            ResolvedDocumentMailMergeFieldTestUtil.newBuilder()
+                .withDocumentMailMergeField(DocumentMailMergeFieldTestUtil.builder()
+                    .withMnemonic("KEY_1")
+                    .build())
+                .withDocumentMailMergeFieldResolveResult(DocumentMailMergeFieldResolveResult.success("VALUE_1"))
+                .build(),
+            ResolvedDocumentMailMergeFieldTestUtil.newBuilder()
+                .withDocumentMailMergeField(DocumentMailMergeFieldTestUtil.builder()
+                    .withMnemonic("KEY_2")
+                    .build())
+                .withDocumentMailMergeFieldResolveResult(DocumentMailMergeFieldResolveResult.success("VALUE_2"))
+                .build()
+        ))
+        .build();
+
+    var mailMergeResolvedValuesByMnemonic = Map.of(
+        "KEY_1", "VALUE_1",
+        "KEY_2", "VALUE_2"
+    );
+
     assertThat(
         DocumentTemplateSectionSummaryView.from(
             sectionNumberString,
             conditionTitle,
             documentTemplateSectionDto,
+            resolvedDocumentSection,
             documentTemplateSectionUrls,
-            children
-        )
+            children)
     ).isEqualTo(
         new DocumentTemplateSectionSummaryView(
             sectionNumberString,
             documentTemplateSectionDto.title(),
-            documentTemplateSectionDto.content(),
+            resolvedDocumentSection.resolvedContent(),
             conditionTitle,
             documentTemplateSectionDto.hasPageBreakBefore(),
+            List.of(),
+            mailMergeResolvedValuesByMnemonic,
             documentTemplateSectionUrls,
             children
         )

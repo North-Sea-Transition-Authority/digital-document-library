@@ -52,7 +52,7 @@ class DocumentInstanceSectionViewServiceTest {
             isNull(),
             eq(topLevelDocumentInstanceSectionDtos),
             eq(urlsFunction),
-            any(DocumentInstanceSectionMailMergeFieldResolver.class)
+            any(DocumentSectionMailMergeFieldResolver.class)
         );
 
     assertThat(
@@ -120,12 +120,12 @@ class DocumentInstanceSectionViewServiceTest {
     var siblingDocumentInstanceSectionDtos =
         List.of(siblingDocumentInstanceSectionDto1, siblingDocumentInstanceSectionDto2);
 
-    var resolvedSiblingDocumentInstanceSectionDto1 = ResolvedDocumentInstanceSectionTestUtil.newBuilder().withResolvedContent("Test content 1").build();
-    var resolvedSiblingDocumentInstanceSectionDto2 = ResolvedDocumentInstanceSectionTestUtil.newBuilder().withResolvedContent("Test content 2").build();
-    var resolvedSiblingDocumentInstanceSectionDto2Child1 = ResolvedDocumentInstanceSectionTestUtil.newBuilder().withResolvedContent("Test content 3").build();
-    var resolvedSiblingDocumentInstanceSectionDto2Child1Child1 = ResolvedDocumentInstanceSectionTestUtil.newBuilder().withResolvedContent("Test content 4").build();
-    var resolvedSiblingDocumentInstanceSectionDto2Child2 = ResolvedDocumentInstanceSectionTestUtil.newBuilder().withResolvedContent("Test content 5").build();
-    var resolvedSiblingDocumentInstanceSectionDto2Child3 = ResolvedDocumentInstanceSectionTestUtil.newBuilder().withResolvedContent("Test content 6").build();
+    var resolvedSiblingDocumentInstanceSectionDto1 = ResolvedDocumentSectionTestUtil.newBuilder().withResolvedContent("Test content 1").build();
+    var resolvedSiblingDocumentInstanceSectionDto2 = ResolvedDocumentSectionTestUtil.newBuilder().withResolvedContent("Test content 2").build();
+    var resolvedSiblingDocumentInstanceSectionDto2Child1 = ResolvedDocumentSectionTestUtil.newBuilder().withResolvedContent("Test content 3").build();
+    var resolvedSiblingDocumentInstanceSectionDto2Child1Child1 = ResolvedDocumentSectionTestUtil.newBuilder().withResolvedContent("Test content 4").build();
+    var resolvedSiblingDocumentInstanceSectionDto2Child2 = ResolvedDocumentSectionTestUtil.newBuilder().withResolvedContent("Test content 5").build();
+    var resolvedSiblingDocumentInstanceSectionDto2Child3 = ResolvedDocumentSectionTestUtil.newBuilder().withResolvedContent("Test content 6").build();
 
     var urlsByDocumentInstanceSectionDto = Map.of(
         siblingDocumentInstanceSectionDto1, siblingDocumentInstanceSectionDto1Urls,
@@ -137,7 +137,7 @@ class DocumentInstanceSectionViewServiceTest {
     );
     Function<DocumentInstanceSectionDto, DocumentInstanceSectionUrls> urlsFunction = urlsByDocumentInstanceSectionDto::get;
 
-    var documentSectionMailMergeResolver = mock(DocumentInstanceSectionMailMergeFieldResolver.class);
+    var documentSectionMailMergeResolver = mock(DocumentSectionMailMergeFieldResolver.class);
 
     when(documentSectionMailMergeResolver.resolve(siblingDocumentInstanceSectionDto1)).thenReturn(resolvedSiblingDocumentInstanceSectionDto1);
     when(documentSectionMailMergeResolver.resolve(siblingDocumentInstanceSectionDto2)).thenReturn(resolvedSiblingDocumentInstanceSectionDto2);

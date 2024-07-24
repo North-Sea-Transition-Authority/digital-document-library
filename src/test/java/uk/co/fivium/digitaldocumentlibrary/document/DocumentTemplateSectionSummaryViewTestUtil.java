@@ -1,6 +1,7 @@
 package uk.co.fivium.digitaldocumentlibrary.document;
 
 import java.util.List;
+import java.util.Map;
 
 class DocumentTemplateSectionSummaryViewTestUtil {
 
@@ -15,6 +16,8 @@ class DocumentTemplateSectionSummaryViewTestUtil {
     private String content = "Test content";
     private String conditionTitle;
     private boolean hasPageBreakBefore;
+    private List<String> errorMessages = List.of();
+    private Map<String, String> mailMergeResolvedValuesByMnemonic = Map.of();
     private DocumentTemplateSectionUrls documentTemplateSectionUrls = DocumentTemplateSectionUrlsTestUtil.newBuilder().build();
     private List<DocumentTemplateSectionSummaryView> children = List.of();
 
@@ -46,6 +49,16 @@ class DocumentTemplateSectionSummaryViewTestUtil {
       return this;
     }
 
+    Builder withErrorMessages(List<String> errorMessages) {
+      this.errorMessages = errorMessages;
+      return this;
+    }
+
+    Builder withMailMergeResolvedValuesByMnemonic(Map<String, String> mailMergeResolvedValuesByMnemonic) {
+      this.mailMergeResolvedValuesByMnemonic = mailMergeResolvedValuesByMnemonic;
+      return this;
+    }
+
     Builder withDocumentTemplateSectionUrls(DocumentTemplateSectionUrls documentTemplateSectionUrls) {
       this.documentTemplateSectionUrls = documentTemplateSectionUrls;
       return this;
@@ -63,6 +76,8 @@ class DocumentTemplateSectionSummaryViewTestUtil {
           content,
           conditionTitle,
           hasPageBreakBefore,
+          errorMessages,
+          mailMergeResolvedValuesByMnemonic,
           documentTemplateSectionUrls,
           children
       );

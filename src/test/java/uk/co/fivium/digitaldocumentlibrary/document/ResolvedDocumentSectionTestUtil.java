@@ -2,7 +2,7 @@ package uk.co.fivium.digitaldocumentlibrary.document;
 
 import java.util.List;
 
-class ResolvedDocumentInstanceSectionTestUtil {
+class ResolvedDocumentSectionTestUtil {
 
   static Builder newBuilder() {
     return new Builder();
@@ -26,8 +26,8 @@ class ResolvedDocumentInstanceSectionTestUtil {
       return this;
     }
 
-    ResolvedDocumentInstanceSection build() {
-      return new ResolvedDocumentInstanceSection(resolvedContent, resolvedDocumentMailMergeFields);
+    ResolvedDocumentSection build() {
+      return new ResolvedDocumentSection(resolvedContent, resolvedDocumentMailMergeFields);
     }
 
   }

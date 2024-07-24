@@ -1,15 +1,11 @@
 package uk.co.fivium.digitaldocumentlibrary.document;
 
-import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,10 +35,10 @@ public class DocumentInstanceService {
    * <br>
    * All sections from the template will be copied to the document instance.
    *
-   * @param itemReference the item reference (e.g. the application ID)
-   * @param itemType the item type (e.g. APPLICATION)
-   * @param title a title for the document instance (e.g. Field Production Consent)
-   * @param description a description for the template (e.g. Production Consent document for this application)
+   * @param itemReference       the item reference (e.g. the application ID)
+   * @param itemType            the item type (e.g. APPLICATION)
+   * @param title               a title for the document instance (e.g. Field Production Consent)
+   * @param description         a description for the template (e.g. Production Consent document for this application)
    * @param documentTemplateDto the document template DTO to create this document instance from
    * @return the document instance DTO created
    */
@@ -84,8 +80,8 @@ public class DocumentInstanceService {
   /**
    * Gets a document instance DTO by an item reference, item type and document template DTO.
    *
-   * @param itemReference the item reference
-   * @param itemType the item type
+   * @param itemReference       the item reference
+   * @param itemType            the item type
    * @param documentTemplateDto the document template DTO
    * @return an optional containing the document instance DTO if found
    */
@@ -121,7 +117,7 @@ public class DocumentInstanceService {
    * Renders a document instance into a PDF using the document instance's document template Freemarker template.
    *
    * @param documentInstanceDto the document instance DTO
-   * @param templateModel a Map of objects to be made available in the Freemarker template context
+   * @param templateModel       a Map of objects to be made available in the Freemarker template context
    * @return a PdfRenderResult containing the rendered PDF content bytes and the HTML used to render the PDF.
    */
   public PdfRenderResult renderPdf(DocumentInstanceDto documentInstanceDto, Map<String, Object> templateModel) {
@@ -136,7 +132,7 @@ public class DocumentInstanceService {
           model
       );
 
-      var pdfContent = renderPdfFromHtml(pdfHtml);
+      var pdfContent = PdfRenderUtil.renderPdfFromHtml(pdfHtml);
 
       return new PdfRenderResult(pdfContent, pdfHtml);
     } catch (Exception exception) {
@@ -144,18 +140,6 @@ public class DocumentInstanceService {
           "Exception rendering PDF for document instance: %s".formatted(documentInstanceId),
           exception
       );
-    }
-  }
-
-  ByteArrayResource renderPdfFromHtml(String html) throws IOException {
-    var pdfRendererBuilder = new PdfRendererBuilder();
-    pdfRendererBuilder.withHtmlContent(html, "classpath://");
-
-    try (var outputStream = new ByteArrayOutputStream()) {
-      pdfRendererBuilder.toStream(outputStream);
-      pdfRendererBuilder.run();
-
-      return new ByteArrayResource(outputStream.toByteArray());
     }
   }
 

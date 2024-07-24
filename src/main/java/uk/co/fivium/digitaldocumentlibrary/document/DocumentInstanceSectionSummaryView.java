@@ -35,11 +35,11 @@ public record DocumentInstanceSectionSummaryView(
   static DocumentInstanceSectionSummaryView from(
       String sectionNumberString,
       DocumentInstanceSectionDto documentInstanceSectionDto,
-      ResolvedDocumentInstanceSection resolvedDocumentInstanceSection,
+      ResolvedDocumentSection resolvedDocumentSection,
       DocumentInstanceSectionUrls documentInstanceSectionUrls,
       List<DocumentInstanceSectionSummaryView> children
   ) {
-    var errorMessages = resolvedDocumentInstanceSection.resolvedDocumentMailMergeFields()
+    var errorMessages = resolvedDocumentSection.resolvedDocumentMailMergeFields()
         .stream()
         .map(ResolvedDocumentMailMergeField::documentMailMergeFieldResolveResult)
         .filter(DocumentMailMergeFieldResolveResult::hasError)
@@ -47,7 +47,7 @@ public record DocumentInstanceSectionSummaryView(
         .toList();
 
     var mailMergeResolvedValuesByMnemonic = new HashMap<String, String>();
-    for (var resolvedField : resolvedDocumentInstanceSection.resolvedDocumentMailMergeFields()) {
+    for (var resolvedField : resolvedDocumentSection.resolvedDocumentMailMergeFields()) {
       var mnemonic = resolvedField.documentMailMergeField().getMnemonic();
       var resolvedValue = resolvedField.documentMailMergeFieldResolveResult().resolvedValue();
 
@@ -57,7 +57,7 @@ public record DocumentInstanceSectionSummaryView(
     return new DocumentInstanceSectionSummaryView(
         sectionNumberString,
         documentInstanceSectionDto.title(),
-        resolvedDocumentInstanceSection.resolvedContent(),
+        resolvedDocumentSection.resolvedContent(),
         documentInstanceSectionDto.hasPageBreakBefore(),
         errorMessages,
         mailMergeResolvedValuesByMnemonic,

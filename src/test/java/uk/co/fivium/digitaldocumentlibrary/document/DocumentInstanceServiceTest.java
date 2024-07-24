@@ -1,26 +1,19 @@
 package uk.co.fivium.digitaldocumentlibrary.document;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.io.ByteArrayResource;
+
+import java.util.*;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Spy;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.core.io.ByteArrayResource;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class DocumentInstanceServiceTest {
@@ -40,6 +33,13 @@ class DocumentInstanceServiceTest {
   @InjectMocks
   @Spy
   private DocumentInstanceService documentInstanceService;
+
+  private static final MockedStatic<PdfRenderUtil> PDF_RENDER_UTILS_MOCKED_STATIC = Mockito.mockStatic(PdfRenderUtil.class);
+
+  @AfterAll
+  public static void tearDown() {
+    PDF_RENDER_UTILS_MOCKED_STATIC.close();
+  }
 
   @Test
   void createDocumentInstance() {
@@ -187,15 +187,10 @@ class DocumentInstanceServiceTest {
         )
     ).thenReturn(html);
 
-    doReturn(byteArrayResource).when(documentInstanceService).renderPdfFromHtml(html);
+    when(PdfRenderUtil.renderPdfFromHtml(html)).thenReturn(byteArrayResource);
 
     assertThat(documentInstanceService.renderPdf(documentInstanceDto, templateModel))
         .isEqualTo(new PdfRenderResult(byteArrayResource, html));
-  }
-
-  @Test
-  void renderPdfFromHtml() throws IOException {
-    assertThat(documentInstanceService.renderPdfFromHtml("<html></html>").getByteArray()).isNotEmpty();
   }
 
   @Test

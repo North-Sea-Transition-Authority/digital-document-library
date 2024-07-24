@@ -1,20 +1,26 @@
 package uk.co.fivium.digitaldocumentlibrary.document;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 @Service
 public class DocumentTemplateService {
 
   private final DocumentTemplateRepository documentTemplateRepository;
+  private final FreeMarkerTemplateRenderingService freeMarkerTemplateRenderingService;
 
   @Autowired
-  DocumentTemplateService(DocumentTemplateRepository documentTemplateRepository) {
+  DocumentTemplateService(DocumentTemplateRepository documentTemplateRepository,
+                          FreeMarkerTemplateRenderingService freeMarkerTemplateRenderingService) {
     this.documentTemplateRepository = documentTemplateRepository;
+    this.freeMarkerTemplateRenderingService = freeMarkerTemplateRenderingService;
   }
 
   /**
@@ -102,4 +108,28 @@ public class DocumentTemplateService {
         );
   }
 
+  /**
+   * Renders a document template into a PDF using the document template's Freemarker template.
+   *
+   * @param documentTemplateDto the document template DTO
+   * @param templateModel a Map of objects to be made available in the Freemarker template context
+   * @return a PdfRenderResult containing the rendered PDF content bytes and the HTML used to render the PDF.
+   */
+  public PdfRenderResult renderPdf(DocumentTemplateDto documentTemplateDto, Map<String, Object> templateModel) {
+    var documentTemplateId = documentTemplateDto.id();
+    var model = new HashMap<>(templateModel);
+    model.put("documentTemplateDto", documentTemplateDto);
+
+    try {
+      var pdfHtml = freeMarkerTemplateRenderingService.renderTemplate(
+              documentTemplateDto.documentInstancePdfTemplatePath(),
+              model
+      );
+      var pdfContent = PdfRenderUtil.renderPdfFromHtml(pdfHtml);
+      return new PdfRenderResult(pdfContent, pdfHtml);
+
+    } catch (Exception exception) {
+      throw new RuntimeException("Exception rendering PDF for document template: %s".formatted(documentTemplateId), exception);
+    }
+  }
 }

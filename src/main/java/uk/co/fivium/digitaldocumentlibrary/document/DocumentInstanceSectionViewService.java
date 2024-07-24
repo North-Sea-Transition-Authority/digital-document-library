@@ -21,11 +21,12 @@ public class DocumentInstanceSectionViewService {
   }
 
   /**
-   * Gets a list of top level document instance section summary views for a given document instance DTO.
+   * Gets a document sections summary view for a given document instance DTO.
    *
    * @param documentInstanceDto the document instance DTO
    * @param urlsFunction A function that is used to generate a DocumentInstanceSectionUrls object with URLs to perform actions
    *                     on the section
+   * @param documentMailMergeFieldFormatter A class to define how mail merge fields are formatted once they've been resolved
    * @return the list of summary views
    */
   public DocumentInstanceSectionsSummaryView getDocumentInstanceSectionsSummaryView(
@@ -40,7 +41,7 @@ public class DocumentInstanceSectionViewService {
         null,
         topLevelDocumentInstanceSectionDtos,
         urlsFunction,
-        new DocumentInstanceSectionMailMergeFieldResolver(documentMailMergeFieldService, documentMailMergeFieldFormatter)
+        new DocumentSectionMailMergeFieldResolver(documentMailMergeFieldService, documentMailMergeFieldFormatter)
     );
 
     return DocumentInstanceSectionsSummaryView.from(topLevelDocumentInstanceSectionSummaryViews);
@@ -50,7 +51,7 @@ public class DocumentInstanceSectionViewService {
       String parentSectionNumberString,
       List<DocumentInstanceSectionDto> siblingDocumentInstanceSectionDtos,
       Function<DocumentInstanceSectionDto, DocumentInstanceSectionUrls> urlsFunction,
-      DocumentInstanceSectionMailMergeFieldResolver documentInstanceSectionMailMergeFieldResolver
+      DocumentSectionMailMergeFieldResolver documentSectionMailMergeFieldResolver
   ) {
     var documentInstanceSectionSummaryViews = new ArrayList<DocumentInstanceSectionSummaryView>();
 
@@ -74,13 +75,13 @@ public class DocumentInstanceSectionViewService {
         sectionNumberString = null;
       }
 
-      var resolvedDocumentInstanceSection = documentInstanceSectionMailMergeFieldResolver.resolve(documentInstanceSectionDto);
+      var resolvedDocumentInstanceSection = documentSectionMailMergeFieldResolver.resolve(documentInstanceSectionDto);
 
       var children = getSiblingDocumentInstanceSectionSummaryViews(
           sectionNumberString,
           documentInstanceSectionDto.children(),
           urlsFunction,
-          documentInstanceSectionMailMergeFieldResolver
+          documentSectionMailMergeFieldResolver
       );
 
       var documentInstanceSectionSummaryView = DocumentInstanceSectionSummaryView.from(

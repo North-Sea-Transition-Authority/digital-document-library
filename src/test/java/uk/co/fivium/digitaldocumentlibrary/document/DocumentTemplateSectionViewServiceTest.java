@@ -1,6 +1,7 @@
 package uk.co.fivium.digitaldocumentlibrary.document;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -8,6 +9,7 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,32 +26,45 @@ class DocumentTemplateSectionViewServiceTest {
   @Mock
   private DocumentTemplateSectionConditionService documentTemplateSectionConditionService;
 
+  @Mock
+  private DocumentMailMergeFieldService documentMailMergeFieldService;
+
   @InjectMocks
   @Spy
   private DocumentTemplateSectionViewService documentTemplateSectionViewService;
 
+  private final DocumentMailMergeFieldFormatter documentMailMergeFieldFormatter = new TestDocumentMailMergeFieldFormatter();
+
   @Test
-  void getTopLevelDocumentTemplateSectionSummaryViews() {
+  void getDocumentTemplateSectionsSummaryView() {
     var documentTemplateDto = DocumentTemplateDtoTestUtil.builder().build();
     Function<DocumentTemplateSectionDto, DocumentTemplateSectionUrls> urlsFunction = documentTemplateSectionDto -> null;
 
-    var topLevelDocumentTemplateSectionDtos = List.of(DocumentTemplateSectionDtoTestUtil.builder().build());
-    var topLevelDocumentTemplateSectionSummaryViews = List.of(mock(DocumentTemplateSectionSummaryView.class));
+    var topLevelDocumentSectionDtos = List.of(DocumentTemplateSectionDtoTestUtil.builder().build());
+
+    var topLevelDocumentSectionSummaryViews = List.of(
+        DocumentTemplateSectionSummaryViewTestUtil.newBuilder().build(),
+        DocumentTemplateSectionSummaryViewTestUtil.newBuilder().build()
+    );
 
     when(documentTemplateSectionService.getTopLevelDocumentTemplateSectionDtos(documentTemplateDto))
-        .thenReturn(topLevelDocumentTemplateSectionDtos);
+        .thenReturn(topLevelDocumentSectionDtos);
 
-    doReturn(topLevelDocumentTemplateSectionSummaryViews)
+    doReturn(topLevelDocumentSectionSummaryViews)
         .when(documentTemplateSectionViewService)
         .getSiblingDocumentTemplateSectionSummaryViews(
-            null,
-            topLevelDocumentTemplateSectionDtos,
-            urlsFunction
-        );
+            isNull(),
+            eq(topLevelDocumentSectionDtos),
+            eq(urlsFunction),
+            any(DocumentSectionMailMergeFieldResolver.class));
 
     assertThat(
-        documentTemplateSectionViewService.getTopLevelDocumentTemplateSectionSummaryViews(documentTemplateDto, urlsFunction)
-    ).isEqualTo(topLevelDocumentTemplateSectionSummaryViews);
+        documentTemplateSectionViewService.getDocumentTemplateSectionsSummaryView(
+            documentTemplateDto,
+            urlsFunction,
+            documentMailMergeFieldFormatter
+        )
+    ).isEqualTo(DocumentTemplateSectionsSummaryView.from(topLevelDocumentSectionSummaryViews));
   }
 
   @Test
@@ -143,57 +158,73 @@ class DocumentTemplateSectionViewServiceTest {
         )
     ).thenReturn(condition2);
 
+    var documentSectionMailMergeResolver = mock(DocumentSectionMailMergeFieldResolver.class);
+
+    var resolvedSiblingDocumentSectionDto1 = ResolvedDocumentSectionTestUtil.newBuilder().withResolvedContent("Test content 1").build();
+    var resolvedSiblingDocumentSectionDto2 = ResolvedDocumentSectionTestUtil.newBuilder().withResolvedContent("Test content 2").build();
+    var resolvedSiblingDocumentSectionDto2Child1 = ResolvedDocumentSectionTestUtil.newBuilder().withResolvedContent("Test content 3").build();
+    var resolvedSiblingDocumentSectionDto2Child1Child1 = ResolvedDocumentSectionTestUtil.newBuilder().withResolvedContent("Test content 4").build();
+    var resolvedSiblingDocumentSectionDto2Child2 = ResolvedDocumentSectionTestUtil.newBuilder().withResolvedContent("Test content 5").build();
+    var resolvedSiblingDocumentSectionDto2Child3 = ResolvedDocumentSectionTestUtil.newBuilder().withResolvedContent("Test content 6").build();
+
+    when(documentSectionMailMergeResolver.resolve(siblingDocumentTemplateSectionDto1)).thenReturn(resolvedSiblingDocumentSectionDto1);
+    when(documentSectionMailMergeResolver.resolve(siblingDocumentTemplateSectionDto2)).thenReturn(resolvedSiblingDocumentSectionDto2);
+    when(documentSectionMailMergeResolver.resolve(siblingDocumentTemplateSectionDto2Child1)).thenReturn(resolvedSiblingDocumentSectionDto2Child1);
+    when(documentSectionMailMergeResolver.resolve(siblingDocumentTemplateSectionDto2Child1Child1)).thenReturn(resolvedSiblingDocumentSectionDto2Child1Child1);
+    when(documentSectionMailMergeResolver.resolve(siblingDocumentTemplateSectionDto2Child2)).thenReturn(resolvedSiblingDocumentSectionDto2Child2);
+    when(documentSectionMailMergeResolver.resolve(siblingDocumentTemplateSectionDto2Child3)).thenReturn(resolvedSiblingDocumentSectionDto2Child3);
+
     assertThat(
         documentTemplateSectionViewService.getSiblingDocumentTemplateSectionSummaryViews(
             parentSectionNumberString,
             siblingDocumentTemplateSectionDtos,
-            urlsFunction
-        )
+            urlsFunction,
+            documentSectionMailMergeResolver)
     ).containsExactly(
         DocumentTemplateSectionSummaryView.from(
             null,
             null,
             siblingDocumentTemplateSectionDto1,
+            resolvedSiblingDocumentSectionDto1,
             siblingDocumentTemplateSectionDto1Urls,
-            List.of()
-        ),
+            List.of()),
         DocumentTemplateSectionSummaryView.from(
             "1.1",
             condition1.getTitle(),
             siblingDocumentTemplateSectionDto2,
+            resolvedSiblingDocumentSectionDto2,
             siblingDocumentTemplateSectionDto2Urls,
             List.of(
                 DocumentTemplateSectionSummaryView.from(
                     "1.1.1",
                     condition2.getTitle(),
                     siblingDocumentTemplateSectionDto2Child1,
+                    resolvedSiblingDocumentSectionDto2Child1,
                     siblingDocumentTemplateSectionDto2Child1Urls,
                     List.of(
                         DocumentTemplateSectionSummaryView.from(
                             "1.1.1.1",
                             null,
                             siblingDocumentTemplateSectionDto2Child1Child1,
+                            resolvedSiblingDocumentSectionDto2Child1Child1,
                             siblingDocumentTemplateSectionDto2Child1Child1Urls,
-                            List.of()
-                        )
-                    )
-                ),
+                            List.of())
+                    )),
                 DocumentTemplateSectionSummaryView.from(
                     null,
                     null,
                     siblingDocumentTemplateSectionDto2Child2,
+                    resolvedSiblingDocumentSectionDto2Child2,
                     siblingDocumentTemplateSectionDto2Child2Urls,
-                    List.of()
-                ),
+                    List.of()),
                 DocumentTemplateSectionSummaryView.from(
                     "1.1.2",
                     null,
                     siblingDocumentTemplateSectionDto2Child3,
+                    resolvedSiblingDocumentSectionDto2Child3,
                     siblingDocumentTemplateSectionDto2Child3Urls,
-                    List.of()
-                )
-            )
-        )
+                    List.of())
+            ))
     );
   }
 }

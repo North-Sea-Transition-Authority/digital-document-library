@@ -20,7 +20,7 @@ class DocumentInstanceSectionSummaryViewTest {
         DocumentInstanceSectionSummaryView.from(
             null,
             documentInstanceSectionDto,
-            ResolvedDocumentInstanceSectionTestUtil.newBuilder().build(),
+            ResolvedDocumentSectionTestUtil.newBuilder().build(),
             DocumentInstanceSectionUrlsTestUtil.newBuilder().build(),
             List.of()
         )
@@ -39,7 +39,7 @@ class DocumentInstanceSectionSummaryViewTest {
         DocumentInstanceSectionSummaryView.from(
             "1.2.3",
             documentInstanceSectionDto,
-            ResolvedDocumentInstanceSectionTestUtil.newBuilder().build(),
+            ResolvedDocumentSectionTestUtil.newBuilder().build(),
             DocumentInstanceSectionUrlsTestUtil.newBuilder().build(),
             List.of()
         )
@@ -70,7 +70,7 @@ class DocumentInstanceSectionSummaryViewTest {
   void from_sectionNumbered() {
     var sectionNumberString = "1.2.3";
     var documentInstanceSectionDto = DocumentInstanceSectionDtoTestUtil.builder().build();
-    var content = ResolvedDocumentInstanceSectionTestUtil.newBuilder()
+    var content = ResolvedDocumentSectionTestUtil.newBuilder()
         .withResolvedDocumentMailMergeField(List.of(
             ResolvedDocumentMailMergeFieldTestUtil.newBuilder()
                 .withDocumentMailMergeField(DocumentMailMergeFieldTestUtil.builder()
