@@ -1,5 +1,6 @@
 package uk.co.fivium.digitaldocumentlibrary.document;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -79,7 +80,9 @@ public class DocumentTemplateSectionConditionService {
         .collect(
             Collectors.toMap(
                 DocumentTemplateSectionCondition::getMnemonic,
-                DocumentTemplateSectionCondition::getTitle
+                DocumentTemplateSectionCondition::getTitle,
+                (a, b) -> b,
+                LinkedHashMap<String, String>::new
             )
         );
   }
