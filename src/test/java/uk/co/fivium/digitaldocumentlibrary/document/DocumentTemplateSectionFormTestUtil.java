@@ -43,7 +43,13 @@ class DocumentTemplateSectionFormTestUtil {
     }
 
     DocumentTemplateSectionForm build() {
-      return new DocumentTemplateSectionForm(title, content, conditionMnemonic, numbered, hasPageBreakBefore);
+      var form = new DocumentTemplateSectionForm();
+      form.setTitle(title);
+      form.setContent(content);
+      form.setConditionMnemonic(conditionMnemonic);
+      form.setNumbered(numbered);
+      form.setHasPageBreakBefore(hasPageBreakBefore);
+      return form;
     }
   }
 }

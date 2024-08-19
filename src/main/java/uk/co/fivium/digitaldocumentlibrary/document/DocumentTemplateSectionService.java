@@ -49,11 +49,11 @@ public class DocumentTemplateSectionService {
     return createDocumentTemplateSection(
         documentTemplateDto,
         parentDto,
-        form.title(),
-        form.content(),
-        form.conditionMnemonic(),
-        form.numbered(),
-        form.hasPageBreakBefore(),
+        form.getTitle(),
+        form.getContent(),
+        form.getConditionMnemonic(),
+        form.getNumbered(),
+        form.getHasPageBreakBefore(),
         displayOrder
     );
   }
@@ -142,11 +142,11 @@ public class DocumentTemplateSectionService {
   ) {
     editDocumentTemplateSection(
         documentTemplateSectionDto,
-        form.title(),
-        form.content(),
-        form.conditionMnemonic(),
-        form.numbered(),
-        form.hasPageBreakBefore()
+        form.getTitle(),
+        form.getContent(),
+        form.getConditionMnemonic(),
+        form.getNumbered(),
+        form.getHasPageBreakBefore()
     );
   }
 

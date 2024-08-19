@@ -23,7 +23,7 @@ public class DocumentTemplateSectionFormValidator {
   public void validate(DocumentTemplateSectionForm form, DocumentTemplateDto documentTemplateDto, Errors errors) {
     ValidationUtils.rejectIfEmpty(errors, "title", "title.required", "Enter a title");
 
-    var conditionMnemonic = form.conditionMnemonic();
+    var conditionMnemonic = form.getConditionMnemonic();
     if (conditionMnemonic != null) {
       var condition = documentTemplateSectionConditionService.getApplicableDocumentTemplateSectionCondition(
           documentTemplateDto,
@@ -34,7 +34,7 @@ public class DocumentTemplateSectionFormValidator {
       }
     }
 
-    var content = form.content();
+    var content = form.getContent();
     if (content != null) {
       var documentMailMergeValidationResult =
           documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, content);
@@ -44,11 +44,11 @@ public class DocumentTemplateSectionFormValidator {
       }
     }
 
-    if (form.numbered() == null) {
+    if (form.getNumbered() == null) {
       errors.rejectValue("numbered", "numbered.required", "Select if this section should be numbered");
     }
 
-    if (form.hasPageBreakBefore() == null) {
+    if (form.getHasPageBreakBefore() == null) {
       errors.rejectValue(
           "hasPageBreakBefore",
           "hasPageBreakBefore.required",

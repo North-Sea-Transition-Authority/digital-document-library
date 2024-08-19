@@ -8,21 +8,33 @@ class DocumentTemplateSectionFormTest {
 
   @Test
   void empty() {
-    assertThat(DocumentTemplateSectionForm.empty()).isEqualTo(new DocumentTemplateSectionForm(null, null, null, null, null));
+    assertThat(DocumentTemplateSectionForm.empty())
+        .extracting(
+            DocumentTemplateSectionForm::getTitle,
+            DocumentTemplateSectionForm::getContent,
+            DocumentTemplateSectionForm::getConditionMnemonic,
+            DocumentTemplateSectionForm::getNumbered,
+            DocumentTemplateSectionForm::getHasPageBreakBefore)
+        .containsExactly(null, null, null, null, null);
   }
 
   @Test
   void from() {
     var documentTemplateSectionDto = DocumentTemplateSectionDtoTestUtil.builder().build();
 
-    assertThat(DocumentTemplateSectionForm.from(documentTemplateSectionDto)).isEqualTo(
-        new DocumentTemplateSectionForm(
+    assertThat(DocumentTemplateSectionForm.from(documentTemplateSectionDto))
+        .extracting(
+            DocumentTemplateSectionForm::getTitle,
+            DocumentTemplateSectionForm::getContent,
+            DocumentTemplateSectionForm::getConditionMnemonic,
+            DocumentTemplateSectionForm::getNumbered,
+            DocumentTemplateSectionForm::getHasPageBreakBefore)
+        .containsExactly(
             documentTemplateSectionDto.title(),
             documentTemplateSectionDto.content(),
             documentTemplateSectionDto.conditionMnemonic(),
             documentTemplateSectionDto.numbered(),
             documentTemplateSectionDto.hasPageBreakBefore()
-        )
-    );
+        );
   }
 }

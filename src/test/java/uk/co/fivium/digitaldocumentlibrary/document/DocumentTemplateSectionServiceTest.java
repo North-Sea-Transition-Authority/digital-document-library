@@ -54,11 +54,11 @@ class DocumentTemplateSectionServiceTest {
         .createDocumentTemplateSection(
             documentTemplateDto,
             parentDto,
-            form.title(),
-            form.content(),
-            form.conditionMnemonic(),
-            form.numbered(),
-            form.hasPageBreakBefore(),
+            form.getTitle(),
+            form.getContent(),
+            form.getConditionMnemonic(),
+            form.getNumbered(),
+            form.getHasPageBreakBefore(),
             displayOrder
         );
 
@@ -243,11 +243,11 @@ class DocumentTemplateSectionServiceTest {
 
     verify(documentTemplateSectionService).editDocumentTemplateSection(
         documentTemplateSectionDto,
-        form.title(),
-        form.content(),
-        form.conditionMnemonic(),
-        form.numbered(),
-        form.hasPageBreakBefore()
+        form.getTitle(),
+        form.getContent(),
+        form.getConditionMnemonic(),
+        form.getNumbered(),
+        form.getHasPageBreakBefore()
     );
   }
 
