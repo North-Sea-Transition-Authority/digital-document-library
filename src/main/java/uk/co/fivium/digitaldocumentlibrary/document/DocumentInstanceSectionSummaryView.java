@@ -4,9 +4,11 @@ import jakarta.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 public record DocumentInstanceSectionSummaryView(
+    UUID id,
     @Nullable String sectionNumber,
     String title,
     String content,
@@ -55,6 +57,7 @@ public record DocumentInstanceSectionSummaryView(
     }
 
     return new DocumentInstanceSectionSummaryView(
+        documentInstanceSectionDto.id(),
         sectionNumberString,
         documentInstanceSectionDto.title(),
         resolvedDocumentSection.resolvedContent(),

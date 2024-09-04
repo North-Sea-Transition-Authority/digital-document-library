@@ -106,6 +106,7 @@ class DocumentTemplateSectionSummaryViewTest {
             children)
     ).isEqualTo(
         new DocumentTemplateSectionSummaryView(
+            documentTemplateSectionDto.id(),
             sectionNumberString,
             documentTemplateSectionDto.title(),
             resolvedDocumentSection.resolvedContent(),

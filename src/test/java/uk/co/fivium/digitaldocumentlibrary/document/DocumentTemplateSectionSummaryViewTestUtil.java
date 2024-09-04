@@ -2,6 +2,7 @@ package uk.co.fivium.digitaldocumentlibrary.document;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 class DocumentTemplateSectionSummaryViewTestUtil {
 
@@ -11,6 +12,7 @@ class DocumentTemplateSectionSummaryViewTestUtil {
 
   static class Builder {
 
+    private UUID id = UUID.randomUUID();
     private String sectionNumber = "1";
     private String title = "Test title";
     private String content = "Test content";
@@ -22,6 +24,11 @@ class DocumentTemplateSectionSummaryViewTestUtil {
     private List<DocumentTemplateSectionSummaryView> children = List.of();
 
     private Builder() {
+    }
+
+    Builder withId(UUID id) {
+      this.id = id;
+      return this;
     }
 
     Builder withSectionNumber(String sectionNumber) {
@@ -71,6 +78,7 @@ class DocumentTemplateSectionSummaryViewTestUtil {
 
     DocumentTemplateSectionSummaryView build() {
       return new DocumentTemplateSectionSummaryView(
+          id,
           sectionNumber,
           title,
           content,

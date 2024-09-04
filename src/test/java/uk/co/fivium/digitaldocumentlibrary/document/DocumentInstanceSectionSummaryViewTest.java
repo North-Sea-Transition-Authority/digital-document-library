@@ -104,6 +104,7 @@ class DocumentInstanceSectionSummaryViewTest {
         )
     ).isEqualTo(
         new DocumentInstanceSectionSummaryView(
+            documentInstanceSectionDto.id(),
             sectionNumberString,
             documentInstanceSectionDto.title(),
             content.resolvedContent(),
