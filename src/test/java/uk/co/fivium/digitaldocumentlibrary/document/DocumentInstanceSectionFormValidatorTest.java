@@ -1,18 +1,20 @@
 package uk.co.fivium.digitaldocumentlibrary.document;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.groups.Tuple.tuple;
-import static org.mockito.Mockito.when;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class DocumentInstanceSectionFormValidatorTest {
@@ -134,5 +136,30 @@ class DocumentInstanceSectionFormValidatorTest {
         .containsExactly(
             tuple("hasPageBreakBefore", "hasPageBreakBefore.required", "Select if this section should start on a new page")
         );
+  }
+
+  @ParameterizedTest
+  @NullAndEmptySource
+  @ValueSource(strings = "<p></p>")
+  void validate_contentIsEmpty(String emptyContent) {
+    var form = DocumentInstanceSectionFormTestUtil.builder()
+        .withContent(emptyContent)
+        .build();
+    var documentInstanceDto = DocumentInstanceDtoTestUtil.builder().build();
+    var errors = new BeanPropertyBindingResult(form, "form");
+
+    documentInstanceSectionFormValidator.validate(form, documentInstanceDto, errors);
+
+    assertThat(errors.getFieldErrors())
+        .extracting(
+            FieldError::getField,
+            FieldError::getCode,
+            FieldError::getDefaultMessage
+        )
+        .containsExactly(
+            tuple("content", "content.required", "Enter the section content")
+        );
+
+    verify(documentMailMergeFieldService, never()).validateMailMergeFields(any(), any());
   }
 }

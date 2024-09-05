@@ -1,5 +1,7 @@
 package uk.co.fivium.digitaldocumentlibrary.document;
 
+import io.micrometer.common.util.StringUtils;
+import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -35,7 +37,10 @@ public class DocumentTemplateSectionFormValidator {
     }
 
     var content = form.getContent();
-    if (content != null) {
+
+    if (StringUtils.isBlank(content) || StringUtils.isBlank(Jsoup.parse(content).text())) {
+      errors.rejectValue("content", "content.required", "Enter the section content");
+    } else {
       var documentMailMergeValidationResult =
           documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, content);
 
