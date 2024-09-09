@@ -57,6 +57,24 @@ public class DocumentTemplateService {
   }
 
   /**
+   * Edits a document template.
+   * @param documentTemplateDto the document template DTO to edit
+   * @param title a title for the document template
+   * @param description a description for the document template
+   */
+  @Transactional
+  public void editDocumentTemplate(DocumentTemplateDto documentTemplateDto,
+                                   String title,
+                                   String description) {
+    var documentTemplate = getDocumentTemplateOrThrow(documentTemplateDto.id());
+
+    documentTemplate.setTitle(title);
+    documentTemplate.setDescription(description);
+
+    documentTemplateRepository.save(documentTemplate);
+  }
+
+  /**
    * Gets a document template DTO by a document template ID or throws an exception if not found.
    *
    * @param documentTemplateId the ID of the document template

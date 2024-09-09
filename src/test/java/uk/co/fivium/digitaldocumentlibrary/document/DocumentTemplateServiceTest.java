@@ -70,6 +70,33 @@ class DocumentTemplateServiceTest {
   }
 
   @Test
+  void editDocumentTemplate() {
+    var documentTemplateDto = DocumentTemplateDtoTestUtil.builder().build();
+    var title = "Test edited title";
+    var description = "Test edited description";
+
+    var documentTemplate = DocumentTemplateTestUtil.builder().build();
+
+    doReturn(documentTemplate)
+        .when(documentTemplateService)
+        .getDocumentTemplateOrThrow(documentTemplateDto.id());
+
+    documentTemplateService.editDocumentTemplate(documentTemplateDto, title, description);
+
+    assertThat(documentTemplate)
+        .extracting(
+            DocumentTemplate::getTitle,
+            DocumentTemplate::getDescription
+        )
+        .containsExactly(
+            title,
+            description
+        );
+
+    verify(documentTemplateRepository).save(documentTemplate);
+  }
+
+  @Test
   void getDocumentTemplateDtoOrThrow() {
     var documentTemplateId = UUID.randomUUID();
 

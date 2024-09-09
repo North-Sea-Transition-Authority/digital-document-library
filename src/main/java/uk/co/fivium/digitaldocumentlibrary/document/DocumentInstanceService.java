@@ -68,6 +68,24 @@ public class DocumentInstanceService {
   }
 
   /**
+   * Edits a document instance.
+   * @param documentInstanceDto the document instance DTO to edit
+   * @param title a title for the document instance
+   * @param description a description for the document instance
+   */
+  @Transactional
+  public void editDocumentInstance(DocumentInstanceDto documentInstanceDto,
+                                   String title,
+                                   String description) {
+    var documentInstance = getDocumentInstanceOrThrow(documentInstanceDto.id());
+
+    documentInstance.setTitle(title);
+    documentInstance.setDescription(description);
+
+    documentInstanceRepository.save(documentInstance);
+  }
+
+  /**
    * Gets all document instance DTOs with a given item reference.
    *
    * @param itemReference the item reference

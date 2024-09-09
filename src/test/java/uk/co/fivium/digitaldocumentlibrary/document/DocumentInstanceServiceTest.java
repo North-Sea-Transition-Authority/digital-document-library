@@ -90,6 +90,33 @@ class DocumentInstanceServiceTest {
   }
 
   @Test
+  void editDocumentInstance() {
+    var documentInstanceDto = DocumentInstanceDtoTestUtil.builder().build();
+    var title = "Test edited title";
+    var description = "Test edited description";
+
+    var documentInstance = DocumentInstanceTestUtil.builder().build();
+
+    doReturn(documentInstance)
+        .when(documentInstanceService)
+        .getDocumentInstanceOrThrow(documentInstanceDto.id());
+
+    documentInstanceService.editDocumentInstance(documentInstanceDto, title, description);
+
+    assertThat(documentInstance)
+        .extracting(
+            DocumentInstance::getTitle,
+            DocumentInstance::getDescription
+        )
+        .containsExactly(
+            title,
+            description
+        );
+
+    verify(documentInstanceRepository).save(documentInstance);
+  }
+
+  @Test
   void getDocumentInstanceDtosByItemReference() {
     var itemReference = "itemReference";
     var documentInstance = DocumentInstanceTestUtil.builder().build();
