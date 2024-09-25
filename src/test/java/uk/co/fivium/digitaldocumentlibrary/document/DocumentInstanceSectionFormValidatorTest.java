@@ -163,10 +163,11 @@ class DocumentInstanceSectionFormValidatorTest {
     verify(documentMailMergeFieldService, never()).validateMailMergeFields(any(), any());
   }
 
-  @Test
-  void validate_contentHasManualMailMergeValue() {
+  @ParameterizedTest
+  @ValueSource(strings = {"??MANUAL MAIL MERGE??", "<p>??MANUAL MAIL MERGE??</p>"})
+  void validate_contentHasManualMailMergeValue(String content) {
     var form = DocumentInstanceSectionFormTestUtil.builder()
-        .withContent("??MANUAL MAIL MERGE??")
+        .withContent(content)
         .build();
     var documentInstanceDto = DocumentInstanceDtoTestUtil.builder().build();
     var errors = new BeanPropertyBindingResult(form, "form");

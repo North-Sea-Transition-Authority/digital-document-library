@@ -27,7 +27,7 @@ public class DocumentInstanceSectionFormValidator {
 
     if (StringUtils.isBlank(content) || StringUtils.isBlank(Jsoup.parse(content).text())) {
       errors.rejectValue(CONTENT_FIELD, "%s.required".formatted(CONTENT_FIELD), "Enter the section content");
-    } else if (MANUAL_FIELD_PATTERN.matcher(content).matches()) {
+    } else if (MANUAL_FIELD_PATTERN.matcher(content).results().findFirst().isPresent()) {
       errors.rejectValue(CONTENT_FIELD, "%s.invalid".formatted(CONTENT_FIELD), "Remove '??' from the clause text");
     } else {
       var documentMailMergeValidationResult = documentMailMergeFieldService.validateMailMergeFields(
