@@ -162,4 +162,27 @@ class DocumentInstanceSectionFormValidatorTest {
 
     verify(documentMailMergeFieldService, never()).validateMailMergeFields(any(), any());
   }
+
+  @Test
+  void validate_contentHasManualMailMergeValue() {
+    var form = DocumentInstanceSectionFormTestUtil.builder()
+        .withContent("??MANUAL MAIL MERGE??")
+        .build();
+    var documentInstanceDto = DocumentInstanceDtoTestUtil.builder().build();
+    var errors = new BeanPropertyBindingResult(form, "form");
+
+    documentInstanceSectionFormValidator.validate(form, documentInstanceDto, errors);
+
+    assertThat(errors.getFieldErrors())
+        .extracting(
+            FieldError::getField,
+            FieldError::getCode,
+            FieldError::getDefaultMessage
+        )
+        .containsExactly(
+            tuple("content", "content.invalid", "Remove '??' from the clause text")
+        );
+
+    verify(documentMailMergeFieldService, never()).validateMailMergeFields(any(), any());
+  }
 }

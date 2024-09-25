@@ -1,6 +1,7 @@
 package uk.co.fivium.digitaldocumentlibrary.document;
 
 import io.micrometer.common.util.StringUtils;
+import java.util.regex.Pattern;
 import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -11,6 +12,8 @@ import org.springframework.validation.ValidationUtils;
 public class DocumentInstanceSectionFormValidator {
 
   private final DocumentMailMergeFieldService documentMailMergeFieldService;
+  static final Pattern MANUAL_FIELD_PATTERN = Pattern.compile("\\?{2}([^?]+)\\?{2}");
+  static final String CONTENT_FIELD = "content";
 
   @Autowired
   DocumentInstanceSectionFormValidator(DocumentMailMergeFieldService documentMailMergeFieldService) {
@@ -23,7 +26,9 @@ public class DocumentInstanceSectionFormValidator {
     var content = form.content();
 
     if (StringUtils.isBlank(content) || StringUtils.isBlank(Jsoup.parse(content).text())) {
-      errors.rejectValue("content", "content.required", "Enter the section content");
+      errors.rejectValue(CONTENT_FIELD, "%s.required".formatted(CONTENT_FIELD), "Enter the section content");
+    } else if (MANUAL_FIELD_PATTERN.matcher(content).matches()) {
+      errors.rejectValue(CONTENT_FIELD, "%s.invalid".formatted(CONTENT_FIELD), "Remove '??' from the clause text");
     } else {
       var documentMailMergeValidationResult = documentMailMergeFieldService.validateMailMergeFields(
           documentInstanceDto.documentTemplateDto(),
@@ -31,7 +36,11 @@ public class DocumentInstanceSectionFormValidator {
       );
 
       if (!documentMailMergeValidationResult.isValid()) {
-        errors.rejectValue("content", "content.invalid", documentMailMergeValidationResult.errorMessage());
+        errors.rejectValue(
+            CONTENT_FIELD,
+            "%s.invalid".formatted(CONTENT_FIELD),
+            documentMailMergeValidationResult.errorMessage()
+        );
       }
     }
 
