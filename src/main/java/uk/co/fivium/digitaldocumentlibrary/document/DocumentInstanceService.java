@@ -16,18 +16,20 @@ public class DocumentInstanceService {
   private final DocumentInstanceSectionTemplateCopyingService documentInstanceSectionTemplateCopyingService;
   private final DocumentTemplateService documentTemplateService;
   private final FreeMarkerTemplateRenderingService freeMarkerTemplateRenderingService;
+  private final DocumentInstanceSectionRepository documentInstanceSectionRepository;
 
   @Autowired
   DocumentInstanceService(
       DocumentInstanceRepository documentInstanceRepository,
       DocumentInstanceSectionTemplateCopyingService documentInstanceSectionTemplateCopyingService,
       DocumentTemplateService documentTemplateService,
-      FreeMarkerTemplateRenderingService freeMarkerTemplateRenderingService
-  ) {
+      FreeMarkerTemplateRenderingService freeMarkerTemplateRenderingService,
+      DocumentInstanceSectionRepository documentInstanceSectionRepository) {
     this.documentInstanceRepository = documentInstanceRepository;
     this.documentInstanceSectionTemplateCopyingService = documentInstanceSectionTemplateCopyingService;
     this.documentTemplateService = documentTemplateService;
     this.freeMarkerTemplateRenderingService = freeMarkerTemplateRenderingService;
+    this.documentInstanceSectionRepository = documentInstanceSectionRepository;
   }
 
   /**
@@ -83,6 +85,16 @@ public class DocumentInstanceService {
     documentInstance.setDescription(description);
 
     documentInstanceRepository.save(documentInstance);
+  }
+
+  /**
+   * Deletes a document instance, along with all of its sections.
+   * @param documentInstanceDto the document instance DTO to delete
+   */
+  @Transactional
+  public void deleteDocumentInstance(DocumentInstanceDto documentInstanceDto) {
+    documentInstanceSectionRepository.deleteAllByDocumentInstanceId(documentInstanceDto.id());
+    documentInstanceRepository.deleteById(documentInstanceDto.id());
   }
 
   /**

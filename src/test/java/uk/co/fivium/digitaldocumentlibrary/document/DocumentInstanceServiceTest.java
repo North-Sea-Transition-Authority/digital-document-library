@@ -30,6 +30,9 @@ class DocumentInstanceServiceTest {
   @Mock
   private FreeMarkerTemplateRenderingService freeMarkerTemplateRenderingService;
 
+  @Mock
+  private DocumentInstanceSectionRepository documentInstanceSectionRepository;
+
   @InjectMocks
   @Spy
   private DocumentInstanceService documentInstanceService;
@@ -114,6 +117,14 @@ class DocumentInstanceServiceTest {
         );
 
     verify(documentInstanceRepository).save(documentInstance);
+  }
+
+  @Test
+  void deleteDocumentInstance() {
+    var documentInstance = DocumentInstanceDtoTestUtil.builder().build();
+    documentInstanceService.deleteDocumentInstance(documentInstance);
+    verify(documentInstanceSectionRepository).deleteAllByDocumentInstanceId(documentInstance.id());
+    verify(documentInstanceRepository).deleteById(documentInstance.id());
   }
 
   @Test
