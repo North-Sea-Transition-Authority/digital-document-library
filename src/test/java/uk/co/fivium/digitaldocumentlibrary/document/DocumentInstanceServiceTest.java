@@ -148,6 +148,26 @@ class DocumentInstanceServiceTest {
   }
 
   @Test
+  void getDocumentInstanceDtosByItemReferences() {
+    var itemReference = "itemReference";
+    var documentInstance = DocumentInstanceTestUtil.builder().build();
+    var documentInstanceDto = DocumentInstanceDto.from(documentInstance);
+
+    when(documentInstanceRepository.findAllByItemReferenceIn(List.of(itemReference))).thenReturn(List.of(documentInstance));
+
+    assertThat(documentInstanceService.getDocumentInstanceDtosByItemReferences(List.of(itemReference)))
+        .containsExactly(documentInstanceDto);
+  }
+
+  @Test
+  void getDocumentInstanceDtosByItemReferences_doesNotExist() {
+    var itemReference = "itemReference";
+    when(documentInstanceRepository.findAllByItemReferenceIn(List.of(itemReference))).thenReturn(Collections.emptyList());
+
+    assertThat(documentInstanceService.getDocumentInstanceDtosByItemReferences(List.of(itemReference))).isEmpty();
+  }
+
+  @Test
   void getDocumentInstanceDtoByItemReferenceAndItemTypeAndDocumentTemplateDto() {
     var itemReference = "itemReference";
     var itemType = "itemType";

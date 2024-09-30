@@ -108,6 +108,16 @@ public class DocumentInstanceService {
   }
 
   /**
+   * Gets all document instance DTOs with a given item reference.
+   *
+   * @param itemReferences the item references
+   * @return a list of the document instance DTOs
+   */
+  public List<DocumentInstanceDto> getDocumentInstanceDtosByItemReferences(List<String> itemReferences) {
+    return documentInstanceRepository.findAllByItemReferenceIn(itemReferences).stream().map(DocumentInstanceDto::from).toList();
+  }
+
+  /**
    * Gets a document instance DTO by an item reference, item type and document template DTO.
    *
    * @param itemReference       the item reference

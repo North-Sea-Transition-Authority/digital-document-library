@@ -11,6 +11,8 @@ public interface DocumentInstanceRepository extends ListCrudRepository<DocumentI
 
   List<DocumentInstance> findAllByItemReference(String itemReference);
 
+  List<DocumentInstance> findAllByItemReferenceIn(List<String> itemReference);
+
   Optional<DocumentInstance> findByItemReferenceAndItemTypeAndDocumentTemplate_Id(
       String itemReference,
       String itemType,
