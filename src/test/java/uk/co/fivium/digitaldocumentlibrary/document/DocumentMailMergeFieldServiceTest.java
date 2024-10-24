@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static uk.co.fivium.digitaldocumentlibrary.document.DocumentMailMergeFieldService.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -68,7 +69,7 @@ class DocumentMailMergeFieldServiceTest {
         .when(documentMailMergeFieldService)
         .getApplicableDocumentMailMergeField(documentTemplateDto, "MAIL_MERGE_FIELD_2");
 
-    assertThat(documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, text))
+    assertThat(documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, text, false))
         .isEqualTo(DocumentMailMergeValidationResult.valid());
   }
 
@@ -92,7 +93,7 @@ class DocumentMailMergeFieldServiceTest {
     var expectedErrorMessage =
         DocumentMailMergeFieldService.SINGLE_INVALID_MAIL_MERGE_FIELD_ERROR_MESSAGE.formatted("MAIL_MERGE_FIELD_2");
 
-    assertThat(documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, text))
+    assertThat(documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, text, false))
         .isEqualTo(DocumentMailMergeValidationResult.invalid(expectedErrorMessage));
   }
 
@@ -117,7 +118,7 @@ class DocumentMailMergeFieldServiceTest {
     var expectedErrorMessage =
         DocumentMailMergeFieldService.SINGLE_INVALID_MAIL_MERGE_FIELD_ERROR_MESSAGE.formatted("MAIL_MERGE_FIELD_2");
 
-    assertThat(documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, text))
+    assertThat(documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, text, false))
         .isEqualTo(DocumentMailMergeValidationResult.invalid(expectedErrorMessage));
   }
 
@@ -146,7 +147,7 @@ class DocumentMailMergeFieldServiceTest {
         StringUtil.formatStringList(List.of("MAIL_MERGE_FIELD_2", "MAIL_MERGE_FIELD_3"))
     );
 
-    assertThat(documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, text))
+    assertThat(documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, text, false))
         .isEqualTo(DocumentMailMergeValidationResult.invalid(expectedErrorMessage));
   }
 
@@ -176,8 +177,99 @@ class DocumentMailMergeFieldServiceTest {
         StringUtil.formatStringList(List.of("MAIL_MERGE_FIELD_2", "MAIL_MERGE_FIELD_3", "MAIL_MERGE_FIELD_4"))
     );
 
-    assertThat(documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, text))
+    assertThat(documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, text, false))
         .isEqualTo(DocumentMailMergeValidationResult.invalid(expectedErrorMessage));
+  }
+
+  @Test
+  void validateMailMergeFields_whenHasManualMailMergeFieldsAndOneInvalidMailMergeField() {
+    var documentTemplateDto = DocumentTemplateDtoTestUtil.builder().build();
+    var text = """
+        Example text
+        
+        ((MAIL_MERGE_FIELD_1))
+        ??MAIL_MERGE_FIELD_2??
+        ((MAIL_MERGE_FIELD_3))
+        """;
+
+    doReturn(Optional.of(DocumentMailMergeFieldTestUtil.builder().build()))
+        .when(documentMailMergeFieldService)
+        .getApplicableDocumentMailMergeField(documentTemplateDto, "MAIL_MERGE_FIELD_1");
+    doReturn(Optional.empty())
+        .when(documentMailMergeFieldService)
+        .getApplicableDocumentMailMergeField(documentTemplateDto, "MAIL_MERGE_FIELD_3");
+
+    assertThat(documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, text, true))
+        .isEqualTo(DocumentMailMergeValidationResult.invalid(
+            "There are the following errors in this section: Mail merge field %s is not valid, Remove '??' from the clause text"
+                .formatted("MAIL_MERGE_FIELD_3")));
+  }
+
+  @Test
+  void validateMailMergeFields_whenHasManualMailMergeFieldsAndMultipleInvalidMailMergeField() {
+    var documentTemplateDto = DocumentTemplateDtoTestUtil.builder().build();
+    var text = """
+        Example text
+        
+        ((MAIL_MERGE_FIELD_1))
+        ??MAIL_MERGE_FIELD_2??
+        ((MAIL_MERGE_FIELD_3))
+        ((MAIL_MERGE_FIELD_4))
+        """;
+
+    doReturn(Optional.of(DocumentMailMergeFieldTestUtil.builder().build()))
+        .when(documentMailMergeFieldService)
+        .getApplicableDocumentMailMergeField(documentTemplateDto, "MAIL_MERGE_FIELD_1");
+    doReturn(Optional.empty())
+        .when(documentMailMergeFieldService)
+        .getApplicableDocumentMailMergeField(documentTemplateDto, "MAIL_MERGE_FIELD_3");
+    doReturn(Optional.empty())
+        .when(documentMailMergeFieldService)
+        .getApplicableDocumentMailMergeField(documentTemplateDto, "MAIL_MERGE_FIELD_4");
+
+    assertThat(documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, text, true))
+        .isEqualTo(DocumentMailMergeValidationResult.invalid(
+            "There are the following errors in this section: %s, %s"
+                .formatted(
+                    MULTIPLE_INVALID_MAIL_MERGE_FIELDS_ERROR_MESSAGE
+                        .formatted(StringUtil.formatStringList(List.of("MAIL_MERGE_FIELD_3", "MAIL_MERGE_FIELD_4"))),
+                    MANUAL_MAIL_MERGE_FIELD_ERROR_MESSAGE)));
+  }
+
+  @Test
+  void validateMailMergeFields_whenHasManualMailMergeFields() {
+    var documentTemplateDto = DocumentTemplateDtoTestUtil.builder().build();
+    var text = """
+        Example text
+        
+        ((MAIL_MERGE_FIELD_1))
+        ??MAIL_MERGE_FIELD_2??
+        """;
+
+    doReturn(Optional.of(DocumentMailMergeFieldTestUtil.builder().build()))
+        .when(documentMailMergeFieldService)
+        .getApplicableDocumentMailMergeField(documentTemplateDto, "MAIL_MERGE_FIELD_1");
+
+    assertThat(documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, text, true))
+        .isEqualTo(DocumentMailMergeValidationResult.invalid(MANUAL_MAIL_MERGE_FIELD_ERROR_MESSAGE));
+  }
+
+  @Test
+  void validateMailMergeFields_whenDoNotIncludeManualMailMergeFields() {
+    var documentTemplateDto = DocumentTemplateDtoTestUtil.builder().build();
+    var text = """
+        Example text
+        
+        ((MAIL_MERGE_FIELD_1))
+        ??MAIL_MERGE_FIELD_2??
+        """;
+
+    doReturn(Optional.of(DocumentMailMergeFieldTestUtil.builder().build()))
+        .when(documentMailMergeFieldService)
+        .getApplicableDocumentMailMergeField(documentTemplateDto, "MAIL_MERGE_FIELD_1");
+
+    assertThat(documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, text, false))
+        .isEqualTo(DocumentMailMergeValidationResult.valid());
   }
 
   @Test

@@ -37,7 +37,8 @@ class DocumentInstanceSectionFormValidatorTest {
     when(
         documentMailMergeFieldService.validateMailMergeFields(
             documentInstanceDto.documentTemplateDto(),
-            form.content()
+            form.content(),
+            true
         )
     ).thenReturn(DocumentMailMergeValidationResult.valid());
 
@@ -65,7 +66,8 @@ class DocumentInstanceSectionFormValidatorTest {
     when(
         documentMailMergeFieldService.validateMailMergeFields(
             documentInstanceDto.documentTemplateDto(),
-            form.content()
+            form.content(),
+            true
         )
     ).thenReturn(DocumentMailMergeValidationResult.invalid(mailMergeErrorMessage));
 
@@ -93,7 +95,8 @@ class DocumentInstanceSectionFormValidatorTest {
     when(
         documentMailMergeFieldService.validateMailMergeFields(
             documentInstanceDto.documentTemplateDto(),
-            form.content()
+            form.content(),
+            true
         )
     ).thenReturn(DocumentMailMergeValidationResult.valid());
 
@@ -121,7 +124,8 @@ class DocumentInstanceSectionFormValidatorTest {
     when(
         documentMailMergeFieldService.validateMailMergeFields(
             documentInstanceDto.documentTemplateDto(),
-            form.content()
+            form.content(),
+            true
         )
     ).thenReturn(DocumentMailMergeValidationResult.valid());
 
@@ -160,30 +164,6 @@ class DocumentInstanceSectionFormValidatorTest {
             tuple("content", "content.required", "Enter the section content")
         );
 
-    verify(documentMailMergeFieldService, never()).validateMailMergeFields(any(), any());
-  }
-
-  @ParameterizedTest
-  @ValueSource(strings = {"??MANUAL MAIL MERGE??", "<p>??MANUAL MAIL MERGE??</p>"})
-  void validate_contentHasManualMailMergeValue(String content) {
-    var form = DocumentInstanceSectionFormTestUtil.builder()
-        .withContent(content)
-        .build();
-    var documentInstanceDto = DocumentInstanceDtoTestUtil.builder().build();
-    var errors = new BeanPropertyBindingResult(form, "form");
-
-    documentInstanceSectionFormValidator.validate(form, documentInstanceDto, errors);
-
-    assertThat(errors.getFieldErrors())
-        .extracting(
-            FieldError::getField,
-            FieldError::getCode,
-            FieldError::getDefaultMessage
-        )
-        .containsExactly(
-            tuple("content", "content.invalid", "Remove '??' from the clause text")
-        );
-
-    verify(documentMailMergeFieldService, never()).validateMailMergeFields(any(), any());
+    verify(documentMailMergeFieldService, never()).validateMailMergeFields(any(), any(), anyBoolean());
   }
 }

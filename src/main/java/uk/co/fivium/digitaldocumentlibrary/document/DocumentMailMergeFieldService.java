@@ -17,8 +17,11 @@ public class DocumentMailMergeFieldService {
   // This is the same regex as GOV.UK Notify uses:
   // https://github.com/alphagov/notifications-utils/blob/main/notifications_utils/field.py#L64
   // This must only match the innermost brackets, e.g. (((TEST))) should match ((TEST)).
-  static final Pattern MAIL_MERGE_FIELD_PATTERN = Pattern.compile("\\({2}([^()]+)\\){2}");
+  public static final Pattern MAIL_MERGE_FIELD_PATTERN = Pattern.compile("\\({2}([^()]+)\\){2}");
+  public static final Pattern MANUAL_FIELD_PATTERN = Pattern.compile("\\?{2}([^?]+)\\?{2}");
+
   static final String SINGLE_INVALID_MAIL_MERGE_FIELD_ERROR_MESSAGE = "Mail merge field %s is not valid";
+  static final String MANUAL_MAIL_MERGE_FIELD_ERROR_MESSAGE = "Remove '??' from the clause text";
   static final String MULTIPLE_INVALID_MAIL_MERGE_FIELDS_ERROR_MESSAGE = "Mail merge fields %s are not valid";
 
   private final List<DocumentMailMergeField> documentMailMergeFields;
@@ -42,7 +45,8 @@ public class DocumentMailMergeFieldService {
 
   DocumentMailMergeValidationResult validateMailMergeFields(
       DocumentTemplateDto documentTemplateDto,
-      String text
+      String text,
+      boolean includeManualMailMergeValidation
   ) {
     var textMailMergeFieldMnemonics = MAIL_MERGE_FIELD_PATTERN.matcher(text).results()
         .map(matchResult -> getMnemonicFromMailMergeFieldText(matchResult.group()))
@@ -52,15 +56,18 @@ public class DocumentMailMergeFieldService {
         .filter(mnemonic -> getApplicableDocumentMailMergeField(documentTemplateDto, mnemonic).isEmpty())
         .toList();
 
-    if (invalidMnemonics.isEmpty()) {
+    var hasManualMailMergeFields = false;
+
+    if (includeManualMailMergeValidation) {
+      hasManualMailMergeFields = MANUAL_FIELD_PATTERN.matcher(text).find();
+    }
+
+    if (invalidMnemonics.isEmpty() && !hasManualMailMergeFields) {
       return DocumentMailMergeValidationResult.valid();
     }
 
-    var errorMessage = invalidMnemonics.size() == 1
-        ? SINGLE_INVALID_MAIL_MERGE_FIELD_ERROR_MESSAGE.formatted(invalidMnemonics.get(0))
-        : MULTIPLE_INVALID_MAIL_MERGE_FIELDS_ERROR_MESSAGE.formatted(StringUtil.formatStringList(invalidMnemonics));
-
-    return DocumentMailMergeValidationResult.invalid(errorMessage);
+    return DocumentMailMergeValidationResult.invalid(
+        getErrorMessageForInvalidMailMergeFields(invalidMnemonics, hasManualMailMergeFields));
   }
 
   Optional<DocumentMailMergeField> getApplicableDocumentMailMergeField(
@@ -71,5 +78,22 @@ public class DocumentMailMergeFieldService {
         .filter(documentMailMergeField -> documentMailMergeField.getMnemonic().equals(mnemonic))
         .filter(documentMailMergeField -> documentMailMergeField.isApplicable(documentTemplateDto))
         .findFirst();
+  }
+
+  private String getErrorMessageForInvalidMailMergeFields(List<String> invalidMnemonics, boolean hasManualMailMergeFields) {
+    if (invalidMnemonics.isEmpty()) {
+      return MANUAL_MAIL_MERGE_FIELD_ERROR_MESSAGE;
+    }
+
+    String invalidMailMergeFieldError = invalidMnemonics.size() == 1
+        ? SINGLE_INVALID_MAIL_MERGE_FIELD_ERROR_MESSAGE.formatted(invalidMnemonics.getFirst())
+        : MULTIPLE_INVALID_MAIL_MERGE_FIELDS_ERROR_MESSAGE.formatted(StringUtil.formatStringList(invalidMnemonics));
+
+    if (!hasManualMailMergeFields) {
+      return invalidMailMergeFieldError;
+    }
+
+    return "There are the following errors in this section: %s, %s"
+        .formatted(invalidMailMergeFieldError, MANUAL_MAIL_MERGE_FIELD_ERROR_MESSAGE);
   }
 }

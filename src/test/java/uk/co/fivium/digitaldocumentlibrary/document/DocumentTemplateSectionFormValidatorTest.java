@@ -38,7 +38,7 @@ class DocumentTemplateSectionFormValidatorTest {
     var documentTemplateDto = DocumentTemplateDtoTestUtil.builder().build();
     var errors = new BeanPropertyBindingResult(form, "form");
 
-    when(documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, form.getContent()))
+    when(documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, form.getContent(), false))
         .thenReturn(DocumentMailMergeValidationResult.valid());
 
     documentTemplateSectionFormValidator.validate(form, documentTemplateDto, errors);
@@ -62,7 +62,7 @@ class DocumentTemplateSectionFormValidatorTest {
     var documentTemplateDto = DocumentTemplateDtoTestUtil.builder().build();
     var errors = new BeanPropertyBindingResult(form, "form");
 
-    when(documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, form.getContent()))
+    when(documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, form.getContent(), false))
         .thenReturn(DocumentMailMergeValidationResult.valid());
 
     documentTemplateSectionFormValidator.validate(form, documentTemplateDto, errors);
@@ -86,7 +86,7 @@ class DocumentTemplateSectionFormValidatorTest {
             conditionMnemonic
         )
     ).thenReturn(Optional.empty());
-    when(documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, form.getContent()))
+    when(documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, form.getContent(), false))
         .thenReturn(DocumentMailMergeValidationResult.valid());
 
     documentTemplateSectionFormValidator.validate(form, documentTemplateDto, errors);
@@ -120,7 +120,7 @@ class DocumentTemplateSectionFormValidatorTest {
             conditionMnemonic
         )
     ).thenReturn(Optional.of(documentTemplateSectionCondition));
-    when(documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, form.getContent()))
+    when(documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, form.getContent(), false))
         .thenReturn(DocumentMailMergeValidationResult.valid());
 
     documentTemplateSectionFormValidator.validate(form, documentTemplateDto, errors);
@@ -136,7 +136,7 @@ class DocumentTemplateSectionFormValidatorTest {
 
     var mailMergeErrorMessage = "Test error message";
 
-    when(documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, form.getContent()))
+    when(documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, form.getContent(), false))
         .thenReturn(DocumentMailMergeValidationResult.invalid(mailMergeErrorMessage));
 
     documentTemplateSectionFormValidator.validate(form, documentTemplateDto, errors);
@@ -174,7 +174,7 @@ class DocumentTemplateSectionFormValidatorTest {
             tuple("content", "content.required", "Enter the section content")
         );
 
-    verify(documentMailMergeFieldService, never()).validateMailMergeFields(any(), any());
+    verify(documentMailMergeFieldService, never()).validateMailMergeFields(any(), any(), anyBoolean());
   }
 
   @Test
@@ -185,7 +185,7 @@ class DocumentTemplateSectionFormValidatorTest {
     var documentTemplateDto = DocumentTemplateDtoTestUtil.builder().build();
     var errors = new BeanPropertyBindingResult(form, "form");
 
-    when(documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, form.getContent()))
+    when(documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, form.getContent(), false))
         .thenReturn(DocumentMailMergeValidationResult.valid());
 
     documentTemplateSectionFormValidator.validate(form, documentTemplateDto, errors);
@@ -209,7 +209,7 @@ class DocumentTemplateSectionFormValidatorTest {
     var documentTemplateDto = DocumentTemplateDtoTestUtil.builder().build();
     var errors = new BeanPropertyBindingResult(form, "form");
 
-    when(documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, form.getContent()))
+    when(documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, form.getContent(), false))
         .thenReturn(DocumentMailMergeValidationResult.valid());
 
     documentTemplateSectionFormValidator.validate(form, documentTemplateDto, errors);

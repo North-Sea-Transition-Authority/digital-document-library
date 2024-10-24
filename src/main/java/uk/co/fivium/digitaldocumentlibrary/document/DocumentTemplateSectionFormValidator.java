@@ -42,7 +42,7 @@ public class DocumentTemplateSectionFormValidator {
       errors.rejectValue("content", "content.required", "Enter the section content");
     } else {
       var documentMailMergeValidationResult =
-          documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, content);
+          documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, content, false);
 
       if (!documentMailMergeValidationResult.isValid()) {
         errors.rejectValue("content", "content.invalid", documentMailMergeValidationResult.errorMessage());

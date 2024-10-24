@@ -1,22 +1,19 @@
 package uk.co.fivium.digitaldocumentlibrary.document;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class DocumentInstanceSectionViewServiceTest {
@@ -56,11 +53,11 @@ class DocumentInstanceSectionViewServiceTest {
         );
 
     assertThat(
-         documentInstanceSectionViewService.getDocumentInstanceSectionsSummaryView(
-             documentInstanceDto,
-             urlsFunction,
-             documentMailMergeFieldFormatter
-         )
+        documentInstanceSectionViewService.getDocumentInstanceSectionsSummaryView(
+            documentInstanceDto,
+            urlsFunction,
+            documentMailMergeFieldFormatter
+        )
     ).isEqualTo(DocumentInstanceSectionsSummaryView.from(topLevelDocumentInstanceSectionSummaryViews));
   }
 
@@ -168,19 +165,19 @@ class DocumentInstanceSectionViewServiceTest {
             siblingDocumentInstanceSectionDto2Urls,
             List.of(
                 DocumentInstanceSectionSummaryView.from(
-                  "1.1.1",
-                  siblingDocumentInstanceSectionDto2Child1,
-                  resolvedSiblingDocumentInstanceSectionDto2Child1,
-                  siblingDocumentInstanceSectionDto2Child1Urls,
-                  List.of(
-                      DocumentInstanceSectionSummaryView.from(
-                          "1.1.1.1",
-                          siblingDocumentInstanceSectionDto2Child1Child1,
-                          resolvedSiblingDocumentInstanceSectionDto2Child1Child1,
-                          siblingDocumentInstanceSectionDto2Child1Child1Urls,
-                          List.of()
-                      )
-                  )
+                    "1.1.1",
+                    siblingDocumentInstanceSectionDto2Child1,
+                    resolvedSiblingDocumentInstanceSectionDto2Child1,
+                    siblingDocumentInstanceSectionDto2Child1Urls,
+                    List.of(
+                        DocumentInstanceSectionSummaryView.from(
+                            "1.1.1.1",
+                            siblingDocumentInstanceSectionDto2Child1Child1,
+                            resolvedSiblingDocumentInstanceSectionDto2Child1Child1,
+                            siblingDocumentInstanceSectionDto2Child1Child1Urls,
+                            List.of()
+                        )
+                    )
                 ),
                 DocumentInstanceSectionSummaryView.from(
                     null,
@@ -199,5 +196,32 @@ class DocumentInstanceSectionViewServiceTest {
             )
         )
     );
+  }
+
+  @Test
+  void getDocumentInstanceSectionSummaryView() {
+    var documentSectionDto = DocumentInstanceSectionDtoTestUtil.builder().build();
+    var errorMessage = "There are errors";
+    var resolvedDocumentWithErrors = ResolvedDocumentMailMergeFieldTestUtil.newBuilder()
+        .withDocumentMailMergeFieldResolveResult(DocumentMailMergeFieldResolveResult.error(errorMessage))
+        .build();
+
+    var resolvedSectionDto = ResolvedDocumentSectionTestUtil
+        .newBuilder()
+        .withResolvedContent(documentSectionDto.content())
+        .withResolvedDocumentMailMergeField(List.of(resolvedDocumentWithErrors))
+        .build();
+
+    var documentSectionMailMergeFieldResolver = mock(DocumentSectionMailMergeFieldResolver.class);
+    doReturn(documentSectionMailMergeFieldResolver).when(documentInstanceSectionViewService)
+        .newResolver(documentMailMergeFieldFormatter);
+    when(documentSectionMailMergeFieldResolver.resolve(documentSectionDto)).thenReturn(resolvedSectionDto);
+
+    assertThat(
+        documentInstanceSectionViewService.getDocumentInstanceSectionErrorMessages(
+            documentSectionDto,
+            documentMailMergeFieldFormatter
+        )
+    ).containsExactly(errorMessage);
   }
 }

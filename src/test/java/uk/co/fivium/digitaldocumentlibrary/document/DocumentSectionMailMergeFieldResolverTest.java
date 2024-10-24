@@ -1,18 +1,16 @@
 package uk.co.fivium.digitaldocumentlibrary.document;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class DocumentSectionMailMergeFieldResolverTest {
@@ -48,6 +46,7 @@ class DocumentSectionMailMergeFieldResolverTest {
             ((((MAIL_MERGE_FIELD_2))))
             (((((MAIL_MERGE_FIELD_2)))))
             (Example text in brackets)
+            ?Example of text with question marks?
             """
         )
         .build();
@@ -86,6 +85,7 @@ class DocumentSectionMailMergeFieldResolverTest {
                 ((Resolved mail merge field 2 (success)))
                 (((Resolved mail merge field 2 (success))))
                 (Example text in brackets)
+                ?Example of text with question marks?
                 """
             )
             .withResolvedDocumentMailMergeField(List.of(
@@ -170,7 +170,7 @@ class DocumentSectionMailMergeFieldResolverTest {
   }
 
   @Test
-  void resolve_invalidMailMergeField() {
+  void resolve_invalidMailMergeFields() {
     var mailMergeField1Mnemonic = "MAIL_MERGE_FIELD_1";
 
     var documentInstanceSectionDto = DocumentInstanceSectionDtoTestUtil.builder()
@@ -180,6 +180,7 @@ class DocumentSectionMailMergeFieldResolverTest {
             
             ((MAIL_MERGE_FIELD_1))
             ((MAIL_MERGE_FIELD_2))
+            ??MANUAL_MAIL_MERGE_FIELD??
             """
         )
         .build();
@@ -207,6 +208,7 @@ class DocumentSectionMailMergeFieldResolverTest {
                         
                 Resolved mail merge field 1 (success)
                 ((MAIL_MERGE_FIELD_2)) (error)
+                ??MANUAL_MAIL_MERGE_FIELD?? (error)
                 """
             )
             .withResolvedDocumentMailMergeField(List.of(

@@ -1,6 +1,7 @@
 package uk.co.fivium.digitaldocumentlibrary.document;
 
 import static uk.co.fivium.digitaldocumentlibrary.document.DocumentMailMergeFieldService.MAIL_MERGE_FIELD_PATTERN;
+import static uk.co.fivium.digitaldocumentlibrary.document.DocumentMailMergeFieldService.MANUAL_FIELD_PATTERN;
 import static uk.co.fivium.digitaldocumentlibrary.document.DocumentMailMergeFieldUtil.getMnemonicFromMailMergeFieldText;
 
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ class DocumentSectionMailMergeFieldResolver {
     this.documentMailMergeFieldService = documentMailMergeFieldService;
     this.documentMailMergeFieldFormatter = documentMailMergeFieldFormatter;
   }
+
 
   ResolvedDocumentSection resolve(DocumentInstanceSectionDto documentInstanceSectionDto) {
     var documentInstanceDto = documentInstanceSectionDto.documentInstanceDto();
@@ -65,6 +67,9 @@ class DocumentSectionMailMergeFieldResolver {
           ? documentMailMergeFieldFormatter.formatError(matchText)
           : documentMailMergeFieldFormatter.formatSuccess(mailMergeResolveResult.resolvedValue());
     });
+
+    resolvedContent = MANUAL_FIELD_PATTERN.matcher(resolvedContent)
+        .replaceAll(matcher -> documentMailMergeFieldFormatter.formatError(matcher.group()));
 
     return new ResolvedDocumentSection(resolvedContent, resolvedDocumentMailMergeFields);
   }
