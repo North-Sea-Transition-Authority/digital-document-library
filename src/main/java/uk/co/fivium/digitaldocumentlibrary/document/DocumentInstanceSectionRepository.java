@@ -16,5 +16,7 @@ public interface DocumentInstanceSectionRepository extends ListCrudRepository<Do
       int displayOrder
   );
 
+  List<DocumentInstanceSection> findAllByDocumentInstanceIdIn(List<UUID> documentInstanceIds);
+
   void deleteAllByDocumentInstanceId(UUID documentInstanceId);
 }

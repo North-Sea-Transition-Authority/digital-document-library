@@ -224,4 +224,54 @@ class DocumentInstanceSectionViewServiceTest {
         )
     ).containsExactly(errorMessage);
   }
+
+  @Test
+  void getDocumentInstanceSectionsSummaryViewsForDocumentInstances() {
+    var documentInstanceDto1 = DocumentInstanceDtoTestUtil.builder().build();
+    var documentInstanceDto2 = DocumentInstanceDtoTestUtil.builder().build();
+
+    Function<DocumentInstanceSectionDto, DocumentInstanceSectionUrls> urlsFunction = documentInstanceSectionDto -> null;
+
+    var topLevelDocumentInstanceSectionDto1 = DocumentInstanceSectionDtoTestUtil.builder().build();
+    var topLevelDocumentInstanceSectionDto2 = DocumentInstanceSectionDtoTestUtil.builder().build();
+
+    var topLevelDocumentInstanceSectionSummaryView1 = List.of(DocumentInstanceSectionSummaryViewTestUtil.newBuilder().build());
+    var topLevelDocumentInstanceSectionSummaryView2 = List.of(DocumentInstanceSectionSummaryViewTestUtil.newBuilder().build());
+
+    when(documentInstanceSectionService.getTopLevelDocumentInstanceSectionDtosForDocumentInstanceDtos(
+        List.of(documentInstanceDto1, documentInstanceDto2)))
+        .thenReturn(Map.of(
+            documentInstanceDto1, List.of(topLevelDocumentInstanceSectionDto1),
+            documentInstanceDto2, List.of(topLevelDocumentInstanceSectionDto2)
+        ));
+
+    doReturn(topLevelDocumentInstanceSectionSummaryView1)
+        .when(documentInstanceSectionViewService)
+        .getSiblingDocumentInstanceSectionSummaryViews(
+            isNull(),
+            eq(List.of(topLevelDocumentInstanceSectionDto1)),
+            eq(urlsFunction),
+            any(DocumentSectionMailMergeFieldResolver.class)
+        );
+
+    doReturn(topLevelDocumentInstanceSectionSummaryView2)
+        .when(documentInstanceSectionViewService)
+        .getSiblingDocumentInstanceSectionSummaryViews(
+            isNull(),
+            eq(List.of(topLevelDocumentInstanceSectionDto2)),
+            eq(urlsFunction),
+            any(DocumentSectionMailMergeFieldResolver.class)
+        );
+
+    assertThat(
+        documentInstanceSectionViewService.getDocumentInstanceSectionsSummaryViewsForDocumentInstances(
+            List.of(documentInstanceDto1, documentInstanceDto2),
+            urlsFunction,
+            documentMailMergeFieldFormatter
+        )
+    ).usingRecursiveComparison().isEqualTo(Map.of(
+        documentInstanceDto2, DocumentInstanceSectionsSummaryView.from(topLevelDocumentInstanceSectionSummaryView2),
+        documentInstanceDto1, DocumentInstanceSectionsSummaryView.from(topLevelDocumentInstanceSectionSummaryView1)
+    ));
+  }
 }

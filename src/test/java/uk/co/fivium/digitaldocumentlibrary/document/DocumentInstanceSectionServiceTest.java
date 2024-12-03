@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -432,5 +433,53 @@ class DocumentInstanceSectionServiceTest {
             documentInstanceSectionDto1,
             documentInstanceSectionDto2
         );
+  }
+
+  @Test
+  void getTopLevelDocumentInstanceSectionDtosForDocumentInstanceDtos() {
+    var documentInstanceDto1 = DocumentInstanceDtoTestUtil.builder()
+        .withTitle("title 1").build();
+    var documentInstanceSection1 = DocumentInstanceSectionTestUtil.builder().build();
+    var documentInstanceSection2 = DocumentInstanceSectionTestUtil.builder()
+        .withParent(documentInstanceSection1)
+        .build();
+
+    var documentInstanceDto2 = DocumentInstanceDtoTestUtil.builder()
+        .withTitle("title 2").build();
+    var documentInstanceSection3 = DocumentInstanceSectionTestUtil.builder().build();
+
+    var topLevelDocumentInstanceSectionDto1 = DocumentInstanceSectionDtoTestUtil.builder()
+        .withDocumentInstanceDto(documentInstanceDto1)
+        .build();
+    var topLevelDocumentInstanceSectionDto3 = DocumentInstanceSectionDtoTestUtil.builder()
+        .withDocumentInstanceDto(documentInstanceDto2)
+        .build();
+
+    var allDocumentInstanceSections = List.of(
+        documentInstanceSection1,
+        documentInstanceSection2,
+        documentInstanceSection3
+    );
+
+    var documentInstanceIds = List.of(documentInstanceDto1.id(), documentInstanceDto2.id());
+
+    when(documentInstanceSectionRepository.findAllByDocumentInstanceIdIn(documentInstanceIds))
+        .thenReturn(allDocumentInstanceSections);
+
+    doReturn(topLevelDocumentInstanceSectionDto1)
+        .when(documentInstanceSectionService)
+        .getDocumentInstanceSectionDto(documentInstanceSection1, allDocumentInstanceSections);
+    doReturn(topLevelDocumentInstanceSectionDto3)
+        .when(documentInstanceSectionService)
+        .getDocumentInstanceSectionDto(documentInstanceSection3, allDocumentInstanceSections);
+
+    assertThat(documentInstanceSectionService
+        .getTopLevelDocumentInstanceSectionDtosForDocumentInstanceDtos(
+            List.of(documentInstanceDto1, documentInstanceDto2)))
+        .isEqualTo(
+            Map.of(
+                documentInstanceDto1, List.of(topLevelDocumentInstanceSectionDto1),
+                documentInstanceDto2, List.of(topLevelDocumentInstanceSectionDto3)
+            ));
   }
 }

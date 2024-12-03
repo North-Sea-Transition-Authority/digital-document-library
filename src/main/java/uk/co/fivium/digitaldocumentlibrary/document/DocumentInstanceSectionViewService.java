@@ -4,7 +4,9 @@ package uk.co.fivium.digitaldocumentlibrary.document;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -68,6 +70,38 @@ public class DocumentInstanceSectionViewService {
         .filter(DocumentMailMergeFieldResolveResult::hasError)
         .map(DocumentMailMergeFieldResolveResult::errorMessage)
         .toList();
+  }
+
+  /**
+   * Gets a document instance sections summary view for each given document instance DTO.
+   *
+   * @param documentInstanceDtos the document instance DTOs
+   * @param urlsFunction A function that is used to generate a DocumentInstanceSectionUrls object
+   *                     with URLs to perform actions on the section
+   * @param documentMailMergeFieldFormatter A class to define how mail merge fields are formatted once they've been resolved
+   * @return the summary views mapped to their document instance DTO
+   */
+  public Map<DocumentInstanceDto, DocumentInstanceSectionsSummaryView>
+      getDocumentInstanceSectionsSummaryViewsForDocumentInstances(
+          List<DocumentInstanceDto> documentInstanceDtos,
+          Function<DocumentInstanceSectionDto, DocumentInstanceSectionUrls> urlsFunction,
+          DocumentMailMergeFieldFormatter documentMailMergeFieldFormatter) {
+
+    var topLevelDocumentInstanceSectionDtosByDocumentInstance =
+        documentInstanceSectionService.getTopLevelDocumentInstanceSectionDtosForDocumentInstanceDtos(
+            documentInstanceDtos);
+
+    return topLevelDocumentInstanceSectionDtosByDocumentInstance.entrySet()
+        .stream()
+        .collect(Collectors.toMap(
+            Map.Entry::getKey,
+            documentInstanceDtoListEntry -> DocumentInstanceSectionsSummaryView.from(
+                getSiblingDocumentInstanceSectionSummaryViews(
+                    null,
+                    documentInstanceDtoListEntry.getValue(),
+                    urlsFunction,
+                    newResolver(documentMailMergeFieldFormatter)
+                ))));
   }
 
   List<DocumentInstanceSectionSummaryView> getSiblingDocumentInstanceSectionSummaryViews(

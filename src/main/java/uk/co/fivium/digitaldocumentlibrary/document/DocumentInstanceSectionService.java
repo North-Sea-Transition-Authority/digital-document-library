@@ -3,6 +3,8 @@ package uk.co.fivium.digitaldocumentlibrary.document;
 import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -246,5 +248,25 @@ public class DocumentInstanceSectionService {
         .filter(documentInstanceSection -> documentInstanceSection.getParent() == null)
         .map(documentInstanceSection -> getDocumentInstanceSectionDto(documentInstanceSection, allDocumentInstanceSections))
         .toList();
+  }
+
+  /**
+   * Gets all top level document instance section DTOs with a null parent, mapped to their document instance DTO.
+   *
+   * @param documentInstanceDtos the document instance DTOs
+   * @return a map of each document instance DTO to its top level document instance section DTOs
+   */
+  Map<DocumentInstanceDto, List<DocumentInstanceSectionDto>> getTopLevelDocumentInstanceSectionDtosForDocumentInstanceDtos(
+      List<DocumentInstanceDto> documentInstanceDtos
+  ) {
+    var documentInstanceDtoIds = documentInstanceDtos.stream()
+        .map(DocumentInstanceDto::id)
+        .toList();
+    var allDocumentInstanceSections = documentInstanceSectionRepository.findAllByDocumentInstanceIdIn(documentInstanceDtoIds);
+
+    return allDocumentInstanceSections.stream()
+        .filter(documentInstanceSection -> Objects.isNull(documentInstanceSection.getParent()))
+        .map(documentInstanceSection -> getDocumentInstanceSectionDto(documentInstanceSection, allDocumentInstanceSections))
+        .collect(Collectors.groupingBy(DocumentInstanceSectionDto::documentInstanceDto));
   }
 }
