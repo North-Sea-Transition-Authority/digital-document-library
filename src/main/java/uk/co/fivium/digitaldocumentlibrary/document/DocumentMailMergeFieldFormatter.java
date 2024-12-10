@@ -6,6 +6,8 @@ public interface DocumentMailMergeFieldFormatter {
 
   String formatError(String value);
 
+  String formatFootnotes(String value);
+
   static NoOpDocumentMailMergeFieldFormatter noOp() {
     return NoOpDocumentMailMergeFieldFormatter.INSTANCE;
   }

@@ -47,6 +47,8 @@ class DocumentSectionMailMergeFieldResolverTest {
             (((((MAIL_MERGE_FIELD_2)))))
             (Example text in brackets)
             ?Example of text with question marks?
+            [[Example of footnotes]]
+            [Example of text in brackets]
             """
         )
         .build();
@@ -86,6 +88,8 @@ class DocumentSectionMailMergeFieldResolverTest {
                 (((Resolved mail merge field 2 (success))))
                 (Example text in brackets)
                 ?Example of text with question marks?
+                <span class="footnote">Example of footnotes</span>
+                [Example of text in brackets]
                 """
             )
             .withResolvedDocumentMailMergeField(List.of(

@@ -13,4 +13,9 @@ public class NoOpDocumentMailMergeFieldFormatter implements DocumentMailMergeFie
   public String formatError(String value) {
     return value;
   }
+
+  @Override
+  public String formatFootnotes(String value) {
+    return value;
+  }
 }

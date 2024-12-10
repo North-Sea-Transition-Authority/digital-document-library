@@ -11,4 +11,9 @@ public class TestDocumentMailMergeFieldFormatter implements DocumentMailMergeFie
   public String formatError(String value) {
     return "%s (error)".formatted(value);
   }
+
+  @Override
+  public String formatFootnotes(String value) {
+    return value;
+  }
 }

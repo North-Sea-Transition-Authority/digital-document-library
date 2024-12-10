@@ -1,5 +1,6 @@
 package uk.co.fivium.digitaldocumentlibrary.document;
 
+import static uk.co.fivium.digitaldocumentlibrary.document.DocumentMailMergeFieldService.FOOTNOTE_PATTERN;
 import static uk.co.fivium.digitaldocumentlibrary.document.DocumentMailMergeFieldService.MAIL_MERGE_FIELD_PATTERN;
 import static uk.co.fivium.digitaldocumentlibrary.document.DocumentMailMergeFieldService.MANUAL_FIELD_PATTERN;
 import static uk.co.fivium.digitaldocumentlibrary.document.DocumentMailMergeFieldUtil.getMnemonicFromMailMergeFieldText;
@@ -70,6 +71,10 @@ class DocumentSectionMailMergeFieldResolver {
 
     resolvedContent = MANUAL_FIELD_PATTERN.matcher(resolvedContent)
         .replaceAll(matcher -> documentMailMergeFieldFormatter.formatError(matcher.group()));
+
+    resolvedContent = FOOTNOTE_PATTERN.matcher(resolvedContent)
+        .replaceAll(matchResult -> documentMailMergeFieldFormatter.formatFootnotes("<span class=\"footnote\">%s</span>".formatted(
+            matchResult.group(1))));
 
     return new ResolvedDocumentSection(resolvedContent, resolvedDocumentMailMergeFields);
   }

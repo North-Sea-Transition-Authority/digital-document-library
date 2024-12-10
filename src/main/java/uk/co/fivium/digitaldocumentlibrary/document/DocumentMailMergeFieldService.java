@@ -19,6 +19,7 @@ public class DocumentMailMergeFieldService {
   // This must only match the innermost brackets, e.g. (((TEST))) should match ((TEST)).
   public static final Pattern MAIL_MERGE_FIELD_PATTERN = Pattern.compile("\\({2}([^()]+)\\){2}");
   public static final Pattern MANUAL_FIELD_PATTERN = Pattern.compile("\\?{2}([^?]+)\\?{2}");
+  public static final Pattern FOOTNOTE_PATTERN = Pattern.compile("\\[{2}(.*?)\\]{2}");
 
   static final String SINGLE_INVALID_MAIL_MERGE_FIELD_ERROR_MESSAGE = "Mail merge field %s is not valid";
   static final String MANUAL_MAIL_MERGE_FIELD_ERROR_MESSAGE = "Remove '??' from the clause text";
