@@ -92,6 +92,21 @@ steps:
       - ./gradlew publishMavenPublicationToReleasesRepository
     when:
       event: tag
+      
+  - name: scan-and-sync-public-repo
+    image: quay.io/fivium/drone-trufflehog-plugin:v1.0
+    settings:
+      scan_since_commit_hash: 66c8577dc7662843445a622a588aafd2acef60cd
+      sync_to_mirror: true
+      mirror_remote_url: git@github.com:North-Sea-Transition-Authority/digital-document-library.git
+      mirror_branch_to_sync: develop
+      mirror_remote_ssh_key:
+        from_secret: sync_ssh_key
+    when:
+      event:
+        - push
+      branch:
+        - develop
 
   - name: rebuild-cache
     image: drillster/drone-volume-cache
@@ -245,3 +260,10 @@ data: dl1sDCA9WWKOlut5bQA/Z3uYUKb7jEvDboKLIEOGAHNJIx8E1hZE5a6S796X84t/dczWymNtbE
 kind: secret
 name: slack_webhook_publish_release
 data: gc28fJkEzfCa1Z+S0JimCTLKUoUbMoIOJy9AEqNp17X5qetAN5hRQSijYJlUnUTggX1peJcLN8uAhORDwtvEsnSvT3YxU7X5bh7IQrm8Y9k0IQj9UTocZco+MuBU6XfAr2vebs+emIb04Mc=
+
+---
+
+kind: secret
+name: sync_ssh_key
+data: l3ZAJ2nPp/MiLcpbbNbsdp3QKBSbZ3ZoyuJPVqNGYDXyJBSOtgyCSXX9nhkTVPsmpLg7X41EjRwKGxq5CbHObwOVHEfxVz0jFaGv0LeBAedYujd1l3NobVjInuS+8CfRYqBTuR2wmpOmWxekWVRzk0s1Sr7YL2l2zum6KYqvVYbDWdv+qhyk6BuxTkmEZImpc4tnZnZGwuDAXnhUf6TYkyfXrjrt7EMDQoRDJai991YjFHfc/zahNpgpD9nvZzohRG/cSV/qY55wJLpGt8yhYZILcflHWzIkf6Qz06zLDVzVYzNBhdEZTuUncXZsq5tFV510298Zf7v0gs5FK8bucDk/+L6mrYunvCKsOViT15N7Y/2pEEGgzOBmKLUaIx6cjmsQYnUnrZKnnNI2e1qG9XzkUaMO+fCLEVzPU2J3gdoVNySJ67HW7Dh3pqOnH55PBmwuj3Qyagh1hiF39iWeP8H3mDWhsfywPb7POmj+GaMTs+6J2Awjo5+3Jz5T6AEVZ6Cnfi5Sab/SWMNmGOu6NwXqe/rA2mvUg2gxdj4yvmTaFuVjdvHnTiBV9kNVIcw4NI2HzRoghKrxFsSEBVVc3PdjqWiCDYMYSkw52yE=
+
