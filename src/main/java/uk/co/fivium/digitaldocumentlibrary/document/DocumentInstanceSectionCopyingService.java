@@ -6,18 +6,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-class DocumentInstanceSectionTemplateCopyingService {
+class DocumentInstanceSectionCopyingService {
 
   private final DocumentInstanceSectionRepository documentInstanceSectionRepository;
   private final DocumentTemplateSectionService documentTemplateSectionService;
   private final DocumentTemplateSectionConditionService documentTemplateSectionConditionService;
 
   @Autowired
-  DocumentInstanceSectionTemplateCopyingService(
+  DocumentInstanceSectionCopyingService(
       DocumentInstanceSectionRepository documentInstanceSectionRepository,
       DocumentTemplateSectionService documentTemplateSectionService,
-      DocumentTemplateSectionConditionService documentTemplateSectionConditionService
-  ) {
+      DocumentTemplateSectionConditionService documentTemplateSectionConditionService) {
     this.documentInstanceSectionRepository = documentInstanceSectionRepository;
     this.documentTemplateSectionService = documentTemplateSectionService;
     this.documentTemplateSectionConditionService = documentTemplateSectionConditionService;
@@ -38,6 +37,23 @@ class DocumentInstanceSectionTemplateCopyingService {
         )
         .toList();
 
+    documentInstanceSectionRepository.saveAll(copiedDocumentInstanceSections);
+  }
+
+  void copyDocumentInstanceSectionsToDocumentInstance(DocumentInstance newDocumentInstance,
+                                                      DocumentInstanceDto oldDocumentInstanceDto) {
+    var allDocumentInstanceSections = documentInstanceSectionRepository.findAllByDocumentInstanceId(oldDocumentInstanceDto.id());
+    var copiedDocumentInstanceSections = allDocumentInstanceSections.stream()
+        .filter(section -> section.getParent() == null)
+        .flatMap(child ->
+            tryCopyDocumentInstanceSectionAndChildren(
+                child,
+                newDocumentInstance,
+                null,
+                allDocumentInstanceSections
+            ).stream()
+        )
+        .toList();
     documentInstanceSectionRepository.saveAll(copiedDocumentInstanceSections);
   }
 
@@ -75,6 +91,30 @@ class DocumentInstanceSectionTemplateCopyingService {
     return Stream.concat(Stream.of(documentInstanceSection), copiedChildren).toList();
   }
 
+  List<DocumentInstanceSection> tryCopyDocumentInstanceSectionAndChildren(
+      DocumentInstanceSection documentInstanceSection,
+      DocumentInstance documentInstance,
+      DocumentInstanceSection parent,
+      List<DocumentInstanceSection> allDocumentInstanceSections
+  ) {
+
+    var newDocumentInstanceSection = newDocumentInstanceSectionFromInstance(documentInstanceSection, documentInstance, parent);
+
+    var copiedChildren = allDocumentInstanceSections.stream()
+        .filter(section -> section.getParent() != null
+            && section.getParent().getId().equals(documentInstanceSection.getId()))
+        .flatMap(child ->
+            tryCopyDocumentInstanceSectionAndChildren(
+                child,
+                documentInstance,
+                newDocumentInstanceSection,
+                allDocumentInstanceSections
+            ).stream()
+        );
+
+    return Stream.concat(Stream.of(newDocumentInstanceSection), copiedChildren).toList();
+  }
+
   DocumentInstanceSection newDocumentInstanceSection(
       DocumentTemplateSection documentTemplateSection,
       DocumentInstance documentInstance,
@@ -92,6 +132,28 @@ class DocumentInstanceSectionTemplateCopyingService {
     documentInstanceSection.setDisplayOrder(documentTemplateSection.getDisplayOrder());
 
     return documentInstanceSection;
+  }
+
+  DocumentInstanceSection newDocumentInstanceSectionFromInstance(
+      DocumentInstanceSection documentInstanceSection,
+      DocumentInstance documentInstance,
+      DocumentInstanceSection parent
+  ) {
+    var newDocumentInstanceSection = new DocumentInstanceSection();
+
+    newDocumentInstanceSection.setDocumentInstance(documentInstance);
+    newDocumentInstanceSection.setCreatedFromDocumentTemplateSection(
+        documentInstanceSection.getCreatedFromDocumentTemplateSection()
+    );
+    newDocumentInstanceSection.setParent(parent);
+    newDocumentInstanceSection.setTitle(documentInstanceSection.getTitle());
+    newDocumentInstanceSection.setContent(documentInstanceSection.getContent());
+    newDocumentInstanceSection.setNumbered(documentInstanceSection.isNumbered());
+    newDocumentInstanceSection.setHasPageBreakBefore(documentInstanceSection.hasPageBreakBefore());
+    newDocumentInstanceSection.setDisplayOrder(documentInstanceSection.getDisplayOrder());
+
+    newDocumentInstanceSection.setContent(documentInstanceSection.getContent());
+    return newDocumentInstanceSection;
   }
 
   void reloadDocumentInstanceSectionsFromDocumentTemplate(DocumentInstance documentInstance) {

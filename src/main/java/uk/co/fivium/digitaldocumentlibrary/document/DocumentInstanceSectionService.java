@@ -269,4 +269,8 @@ public class DocumentInstanceSectionService {
         .map(documentInstanceSection -> getDocumentInstanceSectionDto(documentInstanceSection, allDocumentInstanceSections))
         .collect(Collectors.groupingBy(DocumentInstanceSectionDto::documentInstanceDto));
   }
+
+  List<DocumentInstanceSection> getDocumentInstanceSections(DocumentInstance documentInstance) {
+    return documentInstanceSectionRepository.findAllByDocumentInstanceId(documentInstance.getId());
+  }
 }

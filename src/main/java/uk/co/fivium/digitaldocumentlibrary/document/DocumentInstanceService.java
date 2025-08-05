@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class DocumentInstanceService {
 
   private final DocumentInstanceRepository documentInstanceRepository;
-  private final DocumentInstanceSectionTemplateCopyingService documentInstanceSectionTemplateCopyingService;
+  private final DocumentInstanceSectionCopyingService documentInstanceSectionCopyingService;
   private final DocumentTemplateService documentTemplateService;
   private final FreeMarkerTemplateRenderingService freeMarkerTemplateRenderingService;
   private final DocumentInstanceSectionRepository documentInstanceSectionRepository;
@@ -21,12 +21,12 @@ public class DocumentInstanceService {
   @Autowired
   DocumentInstanceService(
       DocumentInstanceRepository documentInstanceRepository,
-      DocumentInstanceSectionTemplateCopyingService documentInstanceSectionTemplateCopyingService,
+      DocumentInstanceSectionCopyingService documentInstanceSectionCopyingService,
       DocumentTemplateService documentTemplateService,
       FreeMarkerTemplateRenderingService freeMarkerTemplateRenderingService,
       DocumentInstanceSectionRepository documentInstanceSectionRepository) {
     this.documentInstanceRepository = documentInstanceRepository;
-    this.documentInstanceSectionTemplateCopyingService = documentInstanceSectionTemplateCopyingService;
+    this.documentInstanceSectionCopyingService = documentInstanceSectionCopyingService;
     this.documentTemplateService = documentTemplateService;
     this.freeMarkerTemplateRenderingService = freeMarkerTemplateRenderingService;
     this.documentInstanceSectionRepository = documentInstanceSectionRepository;
@@ -52,6 +52,44 @@ public class DocumentInstanceService {
       String description,
       DocumentTemplateDto documentTemplateDto
   ) {
+    var documentInstance = saveNewDocumentInstance(itemReference, itemType, title,
+        description, documentTemplateDto);
+
+    documentInstanceSectionCopyingService.copyDocumentTemplateSectionsToDocumentInstance(documentInstance);
+
+    return DocumentInstanceDto.from(documentInstance);
+  }
+
+  /**
+   * Creates a document instance from another document instance.
+   * <br>
+   * All sections from the original document instance will be copied to the new document instance.
+   *
+   * @param itemReference       the item reference (e.g. the application ID)
+   * @param itemType            the item type (e.g. APPLICATION)
+   * @param documentInstanceDto the document instance DTO to create this document instance from
+   * @return the document instance DTO created
+   */
+  @Transactional
+  public DocumentInstanceDto createNewCopyOfDocumentInstance(String itemReference,
+                                                             String itemType,
+                                                             DocumentInstanceDto documentInstanceDto) {
+    var documentInstance = saveNewDocumentInstance(itemReference, itemType, documentInstanceDto.title(),
+        documentInstanceDto.description(), documentInstanceDto.documentTemplateDto());
+
+    documentInstanceSectionCopyingService
+        .copyDocumentInstanceSectionsToDocumentInstance(documentInstance, documentInstanceDto);
+
+    return DocumentInstanceDto.from(documentInstance);
+  }
+
+  private DocumentInstance saveNewDocumentInstance(
+      String itemReference,
+      String itemType,
+      String title,
+      String description,
+      DocumentTemplateDto documentTemplateDto
+  ) {
     var documentTemplate = documentTemplateService.getDocumentTemplateOrThrow(documentTemplateDto.id());
 
     var documentInstance = new DocumentInstance();
@@ -64,9 +102,7 @@ public class DocumentInstanceService {
 
     documentInstanceRepository.save(documentInstance);
 
-    documentInstanceSectionTemplateCopyingService.copyDocumentTemplateSectionsToDocumentInstance(documentInstance);
-
-    return DocumentInstanceDto.from(documentInstance);
+    return documentInstance;
   }
 
   /**
@@ -193,6 +229,6 @@ public class DocumentInstanceService {
   public void reloadDocumentInstance(DocumentInstanceDto documentInstanceDto) {
     var documentInstance = getDocumentInstanceOrThrow(documentInstanceDto.id());
 
-    documentInstanceSectionTemplateCopyingService.reloadDocumentInstanceSectionsFromDocumentTemplate(documentInstance);
+    documentInstanceSectionCopyingService.reloadDocumentInstanceSectionsFromDocumentTemplate(documentInstance);
   }
 }

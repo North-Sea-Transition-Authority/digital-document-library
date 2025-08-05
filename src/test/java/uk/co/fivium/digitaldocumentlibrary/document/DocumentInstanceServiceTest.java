@@ -11,7 +11,9 @@ import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 
@@ -22,7 +24,7 @@ class DocumentInstanceServiceTest {
   private DocumentInstanceRepository documentInstanceRepository;
 
   @Mock
-  private DocumentInstanceSectionTemplateCopyingService documentInstanceSectionTemplateCopyingService;
+  private DocumentInstanceSectionCopyingService documentInstanceSectionCopyingService;
 
   @Mock
   private DocumentTemplateService documentTemplateService;
@@ -86,7 +88,7 @@ class DocumentInstanceServiceTest {
             documentTemplate
         );
 
-    verify(documentInstanceSectionTemplateCopyingService)
+    verify(documentInstanceSectionCopyingService)
         .copyDocumentTemplateSectionsToDocumentInstance(documentInstance);
 
     assertThat(documentInstanceDto).isEqualTo(DocumentInstanceDto.from(documentInstance));
@@ -261,7 +263,72 @@ class DocumentInstanceServiceTest {
 
     documentInstanceService.reloadDocumentInstance(documentInstanceDto);
 
-    verify(documentInstanceSectionTemplateCopyingService)
+    verify(documentInstanceSectionCopyingService)
         .reloadDocumentInstanceSectionsFromDocumentTemplate(documentInstance);
+  }
+
+  @Test
+  void createNewCopyOfDocumentInstance() {
+    var itemReference = "TEST_ITEM_REFERENCE";
+    var itemType = "TEST_ITEM_TYPE";
+    var title = "Test title";
+    var description = "Test description";
+    var documentInstanceDto = DocumentInstanceDtoTestUtil.builder().build();
+    var documentTemplate = DocumentTemplateTestUtil.builder().build();
+
+    when(documentTemplateService.getDocumentTemplateOrThrow(documentInstanceDto.documentTemplateDto().id()))
+        .thenReturn(documentTemplate);
+
+    var newDocumentInstanceDto = documentInstanceService.createNewCopyOfDocumentInstance(
+        itemReference,
+        itemType,
+        documentInstanceDto
+    );
+
+    var documentInstanceCaptor = ArgumentCaptor.forClass(DocumentInstance.class);
+
+    verify(documentInstanceRepository).save(documentInstanceCaptor.capture());
+
+    var documentInstance = documentInstanceCaptor.getValue();
+
+    assertThat(documentInstance)
+        .extracting(
+            DocumentInstance::getItemReference,
+            DocumentInstance::getItemType,
+            DocumentInstance::getTitle,
+            DocumentInstance::getDescription,
+            DocumentInstance::getDocumentTemplate
+        )
+        .containsExactly(
+            itemReference,
+            itemType,
+            title,
+            description,
+            documentTemplate
+        );
+
+    verify(documentInstanceSectionCopyingService)
+        .copyDocumentInstanceSectionsToDocumentInstance(documentInstance, documentInstanceDto);
+
+    assertThat(newDocumentInstanceDto).isEqualTo(DocumentInstanceDto.from(documentInstance));
+  }
+
+  @Test
+  void createNewCopyOfDocumentInstance_whenDocumentTemplateNotFound() {
+    var itemReference = "TEST_ITEM_REFERENCE";
+    var itemType = "TEST_ITEM_TYPE";
+    var documentInstanceDto = DocumentInstanceDtoTestUtil.builder().build();
+
+    when(documentTemplateService.getDocumentTemplateOrThrow(documentInstanceDto.documentTemplateDto().id()))
+        .thenThrow(DocumentTemplateNotFoundException.class);
+
+    assertThatThrownBy(
+        () -> documentInstanceService.createNewCopyOfDocumentInstance(itemReference, itemType,
+            documentInstanceDto))
+        .isInstanceOf(DocumentTemplateNotFoundException.class);
+
+    verify(documentInstanceRepository, never()).save(any(DocumentInstance.class));
+    verify(documentInstanceSectionCopyingService, never())
+        .copyDocumentInstanceSectionsToDocumentInstance(any(DocumentInstance.class), any());
   }
 }

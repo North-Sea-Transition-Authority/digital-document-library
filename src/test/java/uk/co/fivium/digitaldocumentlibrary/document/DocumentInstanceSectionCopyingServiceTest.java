@@ -17,7 +17,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class DocumentInstanceSectionTemplateCopyingServiceTest {
+class DocumentInstanceSectionCopyingServiceTest {
 
   @Mock
   private DocumentInstanceSectionRepository documentInstanceSectionRepository;
@@ -30,7 +30,7 @@ class DocumentInstanceSectionTemplateCopyingServiceTest {
 
   @InjectMocks
   @Spy
-  private DocumentInstanceSectionTemplateCopyingService documentInstanceSectionTemplateCopyingService;
+  private DocumentInstanceSectionCopyingService documentInstanceSectionCopyingService;
 
   @Test
   void copyDocumentTemplateSectionsToDocumentInstance() {
@@ -55,7 +55,7 @@ class DocumentInstanceSectionTemplateCopyingServiceTest {
         .thenReturn(documentTemplateSections);
 
     doReturn(List.of(documentInstanceSection1))
-        .when(documentInstanceSectionTemplateCopyingService)
+        .when(documentInstanceSectionCopyingService)
         .tryCopyDocumentTemplateSectionAndChildren(
             documentTemplateSection1,
             documentInstance,
@@ -63,7 +63,7 @@ class DocumentInstanceSectionTemplateCopyingServiceTest {
             documentTemplateSections
         );
     doReturn(List.of(documentInstanceSection2))
-        .when(documentInstanceSectionTemplateCopyingService)
+        .when(documentInstanceSectionCopyingService)
         .tryCopyDocumentTemplateSectionAndChildren(
             documentTemplateSection2,
             documentInstance,
@@ -71,9 +71,47 @@ class DocumentInstanceSectionTemplateCopyingServiceTest {
             documentTemplateSections
         );
 
-    documentInstanceSectionTemplateCopyingService.copyDocumentTemplateSectionsToDocumentInstance(documentInstance);
+    documentInstanceSectionCopyingService.copyDocumentTemplateSectionsToDocumentInstance(documentInstance);
 
     verify(documentInstanceSectionRepository).saveAll(List.of(documentInstanceSection1, documentInstanceSection2));
+  }
+
+  @Test
+  void copyDocumentInstanceSectionsToDocumentInstance() {
+    var newDocumentInstance = DocumentInstanceTestUtil.builder().build();
+
+    var oldDocumentInstanceDto = DocumentInstanceDto.from(DocumentInstanceTestUtil.builder().build());
+    var documentInstanceSection1 = DocumentInstanceSectionTestUtil.builder().build();
+    var documentInstanceSection2 = DocumentInstanceSectionTestUtil.builder().build();
+    var documentInstanceSection2Child1 = DocumentInstanceSectionTestUtil.builder()
+        .withParent(documentInstanceSection2)
+        .build();
+    var documentInstanceSections = List.of(documentInstanceSection1, documentInstanceSection2, documentInstanceSection2Child1);
+
+    when(documentInstanceSectionRepository.findAllByDocumentInstanceId(oldDocumentInstanceDto.id()))
+        .thenReturn(documentInstanceSections);
+
+    doReturn(List.of(documentInstanceSection1))
+        .when(documentInstanceSectionCopyingService)
+        .tryCopyDocumentInstanceSectionAndChildren(
+            documentInstanceSection1,
+            newDocumentInstance,
+            null,
+            documentInstanceSections
+        );
+    doReturn(List.of(documentInstanceSection2, documentInstanceSection2Child1))
+        .when(documentInstanceSectionCopyingService)
+        .tryCopyDocumentInstanceSectionAndChildren(
+            documentInstanceSection2,
+            newDocumentInstance,
+            null,
+            documentInstanceSections
+        );
+
+    documentInstanceSectionCopyingService.copyDocumentInstanceSectionsToDocumentInstance(newDocumentInstance, oldDocumentInstanceDto);
+
+    verify(documentInstanceSectionRepository)
+        .saveAll(List.of(documentInstanceSection1, documentInstanceSection2, documentInstanceSection2Child1));
   }
 
   @Test
@@ -113,7 +151,7 @@ class DocumentInstanceSectionTemplateCopyingServiceTest {
     ).thenReturn(condition);
     when(condition.evaluate(DocumentInstanceDto.from(documentInstance))).thenReturn(false);
 
-    assertThat(documentInstanceSectionTemplateCopyingService.tryCopyDocumentTemplateSectionAndChildren(
+    assertThat(documentInstanceSectionCopyingService.tryCopyDocumentTemplateSectionAndChildren(
         documentTemplateSection,
         documentInstance,
         parent,
@@ -164,19 +202,19 @@ class DocumentInstanceSectionTemplateCopyingServiceTest {
     var documentInstanceSectionChild2 = DocumentInstanceSectionTestUtil.builder().build();
 
     doReturn(documentInstanceSection)
-        .when(documentInstanceSectionTemplateCopyingService)
+        .when(documentInstanceSectionCopyingService)
         .newDocumentInstanceSection(documentTemplateSection, documentInstance, parent);
     doReturn(documentInstanceSectionChild1)
-        .when(documentInstanceSectionTemplateCopyingService)
+        .when(documentInstanceSectionCopyingService)
         .newDocumentInstanceSection(documentTemplateSectionChild1, documentInstance, documentInstanceSection);
     doReturn(documentInstanceSectionChild1Child1)
-        .when(documentInstanceSectionTemplateCopyingService)
+        .when(documentInstanceSectionCopyingService)
         .newDocumentInstanceSection(documentTemplateSectionChild1Child1, documentInstance, documentInstanceSectionChild1);
     doReturn(documentInstanceSectionChild2)
-        .when(documentInstanceSectionTemplateCopyingService)
+        .when(documentInstanceSectionCopyingService)
         .newDocumentInstanceSection(documentTemplateSectionChild2, documentInstance, documentInstanceSection);
 
-    assertThat(documentInstanceSectionTemplateCopyingService.tryCopyDocumentTemplateSectionAndChildren(
+    assertThat(documentInstanceSectionCopyingService.tryCopyDocumentTemplateSectionAndChildren(
         documentTemplateSection,
         documentInstance,
         parent,
@@ -220,19 +258,19 @@ class DocumentInstanceSectionTemplateCopyingServiceTest {
     var documentInstanceSectionChild2 = DocumentInstanceSectionTestUtil.builder().build();
 
     doReturn(documentInstanceSection)
-        .when(documentInstanceSectionTemplateCopyingService)
+        .when(documentInstanceSectionCopyingService)
         .newDocumentInstanceSection(documentTemplateSection, documentInstance, parent);
     doReturn(documentInstanceSectionChild1)
-        .when(documentInstanceSectionTemplateCopyingService)
+        .when(documentInstanceSectionCopyingService)
         .newDocumentInstanceSection(documentTemplateSectionChild1, documentInstance, documentInstanceSection);
     doReturn(documentInstanceSectionChild1Child1)
-        .when(documentInstanceSectionTemplateCopyingService)
+        .when(documentInstanceSectionCopyingService)
         .newDocumentInstanceSection(documentTemplateSectionChild1Child1, documentInstance, documentInstanceSectionChild1);
     doReturn(documentInstanceSectionChild2)
-        .when(documentInstanceSectionTemplateCopyingService)
+        .when(documentInstanceSectionCopyingService)
         .newDocumentInstanceSection(documentTemplateSectionChild2, documentInstance, documentInstanceSection);
 
-    assertThat(documentInstanceSectionTemplateCopyingService.tryCopyDocumentTemplateSectionAndChildren(
+    assertThat(documentInstanceSectionCopyingService.tryCopyDocumentTemplateSectionAndChildren(
         documentTemplateSection,
         documentInstance,
         parent,
@@ -306,16 +344,16 @@ class DocumentInstanceSectionTemplateCopyingServiceTest {
     var documentInstanceSectionChild2 = DocumentInstanceSectionTestUtil.builder().build();
 
     doReturn(documentInstanceSection)
-        .when(documentInstanceSectionTemplateCopyingService)
+        .when(documentInstanceSectionCopyingService)
         .newDocumentInstanceSection(documentTemplateSection, documentInstance, parent);
     doReturn(documentInstanceSectionChild1)
-        .when(documentInstanceSectionTemplateCopyingService)
+        .when(documentInstanceSectionCopyingService)
         .newDocumentInstanceSection(documentTemplateSectionChild1, documentInstance, documentInstanceSection);
     doReturn(documentInstanceSectionChild2)
-        .when(documentInstanceSectionTemplateCopyingService)
+        .when(documentInstanceSectionCopyingService)
         .newDocumentInstanceSection(documentTemplateSectionChild2, documentInstance, documentInstanceSection);
 
-    assertThat(documentInstanceSectionTemplateCopyingService.tryCopyDocumentTemplateSectionAndChildren(
+    assertThat(documentInstanceSectionCopyingService.tryCopyDocumentTemplateSectionAndChildren(
         documentTemplateSection,
         documentInstance,
         parent,
@@ -328,12 +366,63 @@ class DocumentInstanceSectionTemplateCopyingServiceTest {
   }
 
   @Test
+  void tryCopyDocumentInstanceSectionAndChildren() {
+    var documentInstance = DocumentInstanceTestUtil.builder().build();
+    var documentInstanceSection = DocumentInstanceSectionTestUtil.builder()
+        .build();
+
+    var documentInstanceSectionChild1 = DocumentInstanceSectionTestUtil.builder()
+        .withParent(documentInstanceSection)
+        .build();
+    var documentInstanceSectionChild1Child1 = DocumentInstanceSectionTestUtil.builder()
+        .withParent(documentInstanceSectionChild1)
+        .build();
+    var documentInstanceSectionChild2 = DocumentInstanceSectionTestUtil.builder()
+        .withParent(documentInstanceSection)
+        .build();
+
+    var allDocumentInstanceSections = List.of(
+        documentInstanceSection, documentInstanceSectionChild1, documentInstanceSectionChild1Child1, documentInstanceSectionChild2
+    );
+
+    var newDocumentInstanceSection = DocumentInstanceSectionTestUtil.builder().build();
+    var newDocumentInstanceSectionChild1 = DocumentInstanceSectionTestUtil.builder().build();
+    var newDocumentInstanceSectionChild1Child1 = DocumentInstanceSectionTestUtil.builder().build();
+    var newDocumentInstanceSectionChild2 = DocumentInstanceSectionTestUtil.builder().build();
+
+    doReturn(newDocumentInstanceSection)
+        .when(documentInstanceSectionCopyingService)
+        .newDocumentInstanceSectionFromInstance(documentInstanceSection, documentInstance, null);
+    doReturn(newDocumentInstanceSectionChild1)
+        .when(documentInstanceSectionCopyingService)
+        .newDocumentInstanceSectionFromInstance(documentInstanceSectionChild1, documentInstance, newDocumentInstanceSection);
+    doReturn(newDocumentInstanceSectionChild1Child1)
+        .when(documentInstanceSectionCopyingService)
+        .newDocumentInstanceSectionFromInstance(documentInstanceSectionChild1Child1, documentInstance, newDocumentInstanceSectionChild1);
+    doReturn(newDocumentInstanceSectionChild2)
+        .when(documentInstanceSectionCopyingService)
+        .newDocumentInstanceSectionFromInstance(documentInstanceSectionChild2, documentInstance, newDocumentInstanceSection);
+
+    assertThat(documentInstanceSectionCopyingService.tryCopyDocumentInstanceSectionAndChildren(
+        documentInstanceSection,
+        documentInstance,
+        null,
+        allDocumentInstanceSections
+    )).containsExactly(
+        newDocumentInstanceSection,
+        newDocumentInstanceSectionChild1,
+        newDocumentInstanceSectionChild1Child1,
+        newDocumentInstanceSectionChild2
+    );
+  }
+
+  @Test
   void newDocumentInstanceSection() {
     var documentTemplateSection = DocumentTemplateSectionTestUtil.builder().build();
     var documentInstance = DocumentInstanceTestUtil.builder().build();
     var parent = DocumentInstanceSectionTestUtil.builder().build();
 
-    assertThat(documentInstanceSectionTemplateCopyingService.newDocumentInstanceSection(
+    assertThat(documentInstanceSectionCopyingService.newDocumentInstanceSection(
         documentTemplateSection,
         documentInstance,
         parent
@@ -359,18 +448,49 @@ class DocumentInstanceSectionTemplateCopyingServiceTest {
   }
 
   @Test
+  void newDocumentInstanceSectionFromInstance() {
+    var documentInstanceSection = DocumentInstanceSectionTestUtil.builder().build();
+    var documentInstance = DocumentInstanceTestUtil.builder().build();
+    var parent = DocumentInstanceSectionTestUtil.builder().build();
+
+    assertThat(documentInstanceSectionCopyingService.newDocumentInstanceSectionFromInstance(
+        documentInstanceSection,
+        documentInstance,
+        parent
+    )).extracting(
+        DocumentInstanceSection::getDocumentInstance,
+        DocumentInstanceSection::getCreatedFromDocumentTemplateSection,
+        DocumentInstanceSection::getParent,
+        DocumentInstanceSection::getTitle,
+        DocumentInstanceSection::getContent,
+        DocumentInstanceSection::isNumbered,
+        DocumentInstanceSection::hasPageBreakBefore,
+        DocumentInstanceSection::getDisplayOrder
+    ).containsExactly(
+        documentInstance,
+        documentInstanceSection.getCreatedFromDocumentTemplateSection(),
+        parent,
+        documentInstanceSection.getTitle(),
+        documentInstanceSection.getContent(),
+        documentInstanceSection.isNumbered(),
+        documentInstanceSection.hasPageBreakBefore(),
+        documentInstanceSection.getDisplayOrder()
+    );
+  }
+
+  @Test
   void reloadDocumentInstanceSectionsFromDocumentTemplate() {
     var documentInstance = DocumentInstanceTestUtil.builder().build();
 
     doNothing()
-        .when(documentInstanceSectionTemplateCopyingService)
+        .when(documentInstanceSectionCopyingService)
         .copyDocumentTemplateSectionsToDocumentInstance(any());
 
-    documentInstanceSectionTemplateCopyingService.reloadDocumentInstanceSectionsFromDocumentTemplate(documentInstance);
+    documentInstanceSectionCopyingService.reloadDocumentInstanceSectionsFromDocumentTemplate(documentInstance);
 
     verify(documentInstanceSectionRepository).deleteAllByDocumentInstanceId(documentInstance.getId());
 
-    verify(documentInstanceSectionTemplateCopyingService)
+    verify(documentInstanceSectionCopyingService)
         .copyDocumentTemplateSectionsToDocumentInstance(documentInstance);
   }
 }

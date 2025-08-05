@@ -482,4 +482,19 @@ class DocumentInstanceSectionServiceTest {
                 documentInstanceDto2, List.of(topLevelDocumentInstanceSectionDto3)
             ));
   }
+
+  @Test
+  void getDocumentInstanceSections() {
+    var documentInstance = DocumentInstanceTestUtil.builder().build();
+    var documentInstanceSections = List.of(
+        DocumentInstanceSectionTestUtil.builder().build(),
+        DocumentInstanceSectionTestUtil.builder().build()
+    );
+
+    when(documentInstanceSectionRepository.findAllByDocumentInstanceId(documentInstance.getId()))
+        .thenReturn(documentInstanceSections);
+
+    assertThat(documentInstanceSectionService.getDocumentInstanceSections(documentInstance))
+        .isEqualTo(documentInstanceSections);
+  }
 }
