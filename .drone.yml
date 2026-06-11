@@ -241,7 +241,7 @@ volumes:
 
 kind: secret
 name: sonarcloud_token
-data: +32cwrH6Jv1sytFinkZBp3jBABwLgbptOUPSe7+xavy/Px0w7olQCefzeSq6uwlbM6e4ed3nS1UP7gizhKmDgC8Opn4=
+data: JngXYoYX4tuWuMBpBDT/rqDjTP1mAOGxfTK/EGYLYDvVVPSRFnk84r+HsVWrkg/wJtTRdpE5CsWkFsb6PTyfex8MQY4eU3Zs870wtf/alT9LN2uY9lQ6V7q6iEk=
 
 ---
 
