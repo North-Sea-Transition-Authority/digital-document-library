@@ -239,6 +239,8 @@ void createFieldProductionConsentDocumentTemplate() {
 When you create/edit a document template/instance section, the content will be run through the jsoup sanitiser. This is so users 
 are not able to include elements such as `<script>` tags in rich text section content.
 
+By default, style tags in paragraphs and strikethrough text are excluded from the sanitiser.
+
 You can customise the sanitiser by providing your own `Safelist`. For example:
 
 ```java
@@ -248,7 +250,7 @@ public class DocumentBeanConfiguration {
   @Bean
   Safelist fieldConsentsDocumentSafelist() {
     return Safelist.basic()
-        .addAttributes("p", "style")
+        .addAttributes("div", "style")
         .addTags("s");
   }
 }

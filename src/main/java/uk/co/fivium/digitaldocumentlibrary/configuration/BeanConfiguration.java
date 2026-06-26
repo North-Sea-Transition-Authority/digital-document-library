@@ -11,7 +11,10 @@ class BeanConfiguration {
   @Bean
   @ConditionalOnMissingBean
   Safelist documentLibraryContentSanitisationSafelist() {
-    return Safelist.basic();
+    return Safelist.basic()
+        .addAttributes("p", "style", "class")
+        .addAttributes("div", "style", "class")
+        .addTags("s");
   }
 
 }
