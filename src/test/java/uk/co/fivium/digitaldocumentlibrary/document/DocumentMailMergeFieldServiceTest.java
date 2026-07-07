@@ -11,6 +11,8 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -252,6 +254,61 @@ class DocumentMailMergeFieldServiceTest {
 
     assertThat(documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, text, true))
         .isEqualTo(DocumentMailMergeValidationResult.invalid(MANUAL_MAIL_MERGE_FIELD_ERROR_MESSAGE));
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+      "<p>??Optional text on a single line??</p>",
+      "<p>??Optional text with <b>fully covered formatting</b> inside it??</p>",
+      "<p><b>??Optional text entirely within formatting??</b></p>",
+      "<p>??Optional text either side of a <br/> line break??</p>",
+      "<p>??Optional text with an unpaired marker</p>",
+      "<p>??Optional text?? followed by ??more optional text??</p>"
+  })
+  void validateMailMergeFields_whenNoMalformedManualMailMergeFields(String text) {
+    var documentTemplateDto = DocumentTemplateDtoTestUtil.builder().build();
+
+    assertThat(documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, text, false))
+        .isEqualTo(DocumentMailMergeValidationResult.valid());
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+      // optional text split over two paragraphs
+      "<p>??Optional text starting on one line</p><p>and ending on another??</p>",
+      // formatting starting outside the optional text and ending inside it
+      "<p><b>Attn: ??Company</b> responsible person title??</p>",
+      // formatting starting inside the optional text and ending outside it
+      "<p>??To wh<b>om?? it may concern</b></p>",
+      // optional text split over two list items
+      "<ul><li>??Optional text starting in one list item</li><li>and ending in another??</li></ul>",
+      // complete block elements within the optional text: these parse without errors, so only the
+      // inline-elements-only check catches them
+      "??Optional text containing a <p>whole paragraph</p> inside??",
+      "??Optional text containing a <div>whole div</div> inside??"
+  })
+  void validateMailMergeFields_whenManualMailMergeFieldsAreMalformed(String text) {
+    var documentTemplateDto = DocumentTemplateDtoTestUtil.builder().build();
+
+    assertThat(documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, text, false))
+        .isEqualTo(DocumentMailMergeValidationResult.invalid(MALFORMED_MANUAL_MAIL_MERGE_FIELD_ERROR_MESSAGE));
+  }
+
+  @Test
+  void validateMailMergeFields_whenMalformedManualMailMergeFieldsAndInvalidMailMergeField() {
+    var documentTemplateDto = DocumentTemplateDtoTestUtil.builder().build();
+    var text = "<p>((MAIL_MERGE_FIELD_1)) ??Optional text starting on one line</p><p>and ending on another??</p>";
+
+    doReturn(Optional.empty())
+        .when(documentMailMergeFieldService)
+        .getApplicableDocumentMailMergeField(documentTemplateDto, "MAIL_MERGE_FIELD_1");
+
+    assertThat(documentMailMergeFieldService.validateMailMergeFields(documentTemplateDto, text, false))
+        .isEqualTo(DocumentMailMergeValidationResult.invalid(
+            "There are the following errors in this section: %s, %s"
+                .formatted(
+                    SINGLE_INVALID_MAIL_MERGE_FIELD_ERROR_MESSAGE.formatted("MAIL_MERGE_FIELD_1"),
+                    MALFORMED_MANUAL_MAIL_MERGE_FIELD_ERROR_MESSAGE)));
   }
 
   @Test
